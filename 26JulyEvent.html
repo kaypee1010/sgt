@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Attendance — SGT University</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3d8);min-height:100vh;padding:16px}
+.card{max-width:460px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.12);overflow:hidden}
+.header{background:linear-gradient(135deg,#8B3A3A,#6B2D2D);color:#fff;padding:22px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.logo{width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.3);overflow:hidden;margin-bottom:6px}
+.logo img{width:100%;height:100%;object-fit:cover}
+.header h1{font-size:17px;font-weight:700;letter-spacing:.5px}
+.header .datetime{font-family:'Courier New',monospace;font-size:15px;background:rgba(255,255,255,.12);padding:6px 16px;border-radius:20px;margin-top:4px}
+.header .datetime .time{font-weight:700;font-size:17px}
+.header a{color:#ffd89b;font-size:11px;text-decoration:none;margin-top:4px}
+
+.body{padding:22px 24px}
+.live-count-band{background:#f0ebe0;border-radius:8px;padding:10px 16px;text-align:center;margin-bottom:18px;display:flex;justify-content:center;align-items:center;gap:10px}
+.live-count-band .n{font-family:'Courier New',monospace;font-size:22px;font-weight:700;color:#8B3A3A}
+.live-count-band .lbl{font-size:11px;color:#777}
+.live-dot{width:7px;height:7px;background:#2e7d6b;border-radius:50%;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.gps-banner{background:#fff8e1;border:2px solid #f9a825;border-radius:8px;padding:14px 16px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start}
+.gps-banner .icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.gps-banner h3{font-size:14px;color:#e65100;margin-bottom:3px}
+.gps-banner p{font-size:12px;color:#555;line-height:1.5}
+.btn-gps{margin-top:8px;background:#f9a825;color:#fff;border:none;padding:7px 14px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-gps:disabled{background:#ccc;cursor:not-allowed}
+.gps-result{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:16px;display:none}
+.gps-ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.gps-warn{background:#fff3cd;color:#856404;border:1px solid #ffeeba}
+
+.field{margin-bottom:16px}
+label{display:block;font-weight:600;font-size:13px;color:#444;margin-bottom:5px}
+input[type=text]{width:100%;padding:11px 13px;border:1px solid #d0c8b8;border-radius:5px;font-size:15px;background:#fafafa;font-family:inherit;transition:border-color .2s}
+input:focus{outline:none;border-color:#8B3A3A;box-shadow:0 0 0 3px rgba(139,58,58,.1);background:#fff}
+.name-box{background:#f0ebe0;border:1px solid #c8b89a;border-radius:5px;padding:11px 13px;font-size:15px;font-weight:600;color:#5a3a1a;min-height:44px;display:flex;align-items:center}
+.name-ok{color:#1a5c2a !important}
+.name-err{color:#7c1c24 !important}
+.name-meta{font-size:11px;color:#8B3A3A;margin-top:4px;font-family:'Courier New',monospace}
+
+.fallback-box{display:none;background:#fbeaea;border:1px solid #e0aaaa;border-radius:6px;padding:12px 14px;margin-top:8px}
+.fallback-box p{font-size:12px;color:#7c1c24;margin-bottom:8px;line-height:1.5}
+
+.btn-submit{width:100%;padding:14px;background:#8B3A3A;color:#fff;border:none;border-radius:5px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;margin-top:4px}
+.btn-submit:hover{background:#6B2D2D}
+.btn-submit:disabled{background:#aaa;cursor:not-allowed}
+.msg{padding:14px;border-radius:6px;margin-bottom:16px;font-size:14px;display:none;text-align:center;line-height:1.5}
+.msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.msg.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.footer{text-align:center;font-size:11px;color:#aaa;margin-top:18px;padding-top:14px;border-top:1px solid #eee}
+.footer a{color:#8B3A3A;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="logo"><img src="KP_Singh.png" alt="KP Singh" onerror="this.style.display='none'"></div>
+    <h1>Event Attendance</h1>
+    <div class="datetime"><span id="hdrDate">--</span> &middot; <span class="time" id="hdrTime">--:--:--</span></div>
+    <a href="https://kpsingh.in" target="_blank" rel="noopener">kpsingh.in</a>
+  </div>
+  <div class="body">
+    <div id="msg" class="msg" role="alert"></div>
+
+    <div class="live-count-band">
+      <span class="live-dot"></span>
+      <span class="n" id="liveCount">--</span>
+      <span class="lbl">students checked in so far</span>
+    </div>
+
+    <div class="gps-banner" id="gpsBanner">
+      <div class="icon">&#128205;</div>
+      <div>
+        <h3>Location Access Required</h3>
+        <p>Attendance is GPS-verified. Enable location before submitting.</p>
+        <button class="btn-gps" id="gpsBtn" onclick="requestGPS()">Enable Location Now</button>
+      </div>
+    </div>
+    <div id="gpsResult" class="gps-result"></div>
+
+    <div class="field">
+      <label for="reg">Registration Number *</label>
+      <input type="text" id="reg" placeholder="e.g. 231302045" maxlength="20" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Name (auto-filled)</label>
+      <div class="name-box" id="nameBox">&mdash;</div>
+      <div class="name-meta" id="nameMeta"></div>
+      <div class="fallback-box" id="fallbackBox">
+        <p>Your roll number is on file but the name field wasn't populated in our records yet. Please type your full name exactly as per university records &mdash; this entry will be flagged for manual verification.</p>
+        <input type="text" id="fallbackName" placeholder="Type your full name">
+      </div>
+    </div>
+    <button class="btn-submit" id="submitBtn" onclick="submitAttendance()">Mark My Attendance</button>
+
+    <div class="footer">
+      SGT University &middot; BTech Sem 5 &amp; Sem 7<br>
+      One entry per student &middot; <a href="https://kpsingh.in" target="_blank">kpsingh.in</a>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ══════════ CONFIG ══════════
+var GAS_URL = 'PASTE_YOUR_EVENT_ATTENDANCE_WEB_APP_URL_HERE'; // must contain /macros/s/ and end in /exec
+var SGT_LAT = 28.482876235405023, SGT_LNG = 76.90686746329484, RADIUS_M = 400;
+var FETCH_TIMEOUT_MS = 20000;
+
+function checkSheetUrl() {
+  if (GAS_URL.indexOf('PASTE_') === 0) return 'Setup incomplete: GAS_URL has not been set yet.';
+  if (GAS_URL.indexOf('/macros/library/') !== -1) return 'GAS_URL is a LIBRARY url, not a WEB APP url.';
+  if (GAS_URL.indexOf('/macros/s/') === -1 || GAS_URL.indexOf('/exec') === -1) return 'GAS_URL does not look like a valid Web App URL.';
+  return null;
+}
+
+// ══════════ ROSTER (522 students, Sem 5 + Sem 7) ══════════
+var ROSTER = {
+  '241302003':{name:'NIDHI GOYAL',sem:'5',section:'5A'},
+  '241302012':{name:'ARUN PRASAD',sem:'5',section:'5A'},
+  '241302023':{name:'HIMANSHU JANGRA',sem:'5',section:'5A'},
+  '241302024':{name:'ABHINAV PANT',sem:'5',section:'5A'},
+  '241302026':{name:'TANUJ GARG',sem:'5',section:'5A'},
+  '241302028':{name:'MOHIT',sem:'5',section:'5A'},
+  '241302031':{name:'LAKSHIT',sem:'5',section:'5A'},
+  '241302034':{name:'SAMYAK JAIN',sem:'5',section:'5A'},
+  '241302035':{name:'RITIK',sem:'5',section:'5A'},
+  '241302037':{name:'MUKUL',sem:'5',section:'5A'},
+  '241302045':{name:'HARSH KANT VARDHAN',sem:'5',section:'5A'},
+  '241302062':{name:'KARTIK MALIK',sem:'5',section:'5A'},
+  '241302067':{name:'DEEPANSHU YADAV',sem:'5',section:'5A'},
+  '241302072':{name:'TAMANNA HOODA',sem:'5',section:'5A'},
+  '241302073':{name:'PANKAJ',sem:'5',section:'5A'},
+  '241302074':{name:'HIMANSHU JANGHU',sem:'5',section:'5A'},
+  '241302076':{name:'NEHA',sem:'5',section:'5A'},
+  '241302085':{name:'RAUMAN ALAM',sem:'5',section:'5A'},
+  '241302088':{name:'MANISH',sem:'5',section:'5A'},
+  '241302091':{name:'DEVASHISH',sem:'5',section:'5A'},
+  '241302093':{name:'DHRUV SHARMA',sem:'5',section:'5A'},
+  '241302098':{name:'YASHIKA YADAV',sem:'5',section:'5A'},
+  '241302103':{name:'RAHUL SAINI',sem:'5',section:'5A'},
+  '2413022110':{name:'UDAY',sem:'5',section:'5A'},
+  '241302116':{name:'SAURABH KUMAR',sem:'5',section:'5A'},
+  '241302130':{name:'TIYA SHARMA',sem:'5',section:'5A'},
+  '241302135':{name:'SURAJ NAYAK',sem:'5',section:'5A'},
+  '241302137':{name:'HEMANT CHAUHAN',sem:'5',section:'5A'},
+  '241302145':{name:'SYED EMAAD UD DIN ANDRABI',sem:'5',section:'5A'},
+  '241302147':{name:'AYUSH MISHRA',sem:'5',section:'5A'},
+  '241302154':{name:'DIKSHA DAHIYA',sem:'5',section:'5A'},
+  '241302157':{name:'HARSH YADAV',sem:'5',section:'5A'},
+  '241302159':{name:'BRISHABH DEV SINGH',sem:'5',section:'5A'},
+  '241302165':{name:'MADHU LATA',sem:'5',section:'5A'},
+  '241302167':{name:'RISHIKA SINGH',sem:'5',section:'5A'},
+  '241302169':{name:'NAVNEET SINGH',sem:'5',section:'5A'},
+  '241302170':{name:'BHAVISHYA SANGWAN',sem:'5',section:'5A'},
+  '241302175':{name:'DEVANSHI',sem:'5',section:'5A'},
+  '241302179':{name:'SACHIN',sem:'5',section:'5A'},
+  '241302187':{name:'RONAK',sem:'5',section:'5A'},
+  '241302192':{name:'KARTIK VATS',sem:'5',section:'5A'},
+  '241302197':{name:'KASHISH',sem:'5',section:'5A'},
+  '241302201':{name:'ANISH BRODIYA',sem:'5',section:'5A'},
+  '241302203':{name:'YASH DESHWAL',sem:'5',section:'5A'},
+  '241302210':{name:'DHEERAJ YADAV',sem:'5',section:'5A'},
+  '241302211':{name:'KHUSHAL',sem:'5',section:'5A'},
+  '241302212':{name:'RISHITA .',sem:'5',section:'5A'},
+  '241302213':{name:'BHANU PRATAP SHARMA',sem:'5',section:'5A'},
+  '241302218':{name:'ASHISH KUMAR SHARMA',sem:'5',section:'5A'},
+  '241302222':{name:'DHRUV SHARMA',sem:'5',section:'5A'},
+  '241302223':{name:'PRANAV PRASUN',sem:'5',section:'5A'},
+  '241302227':{name:'DIVYANSH SARAOGI',sem:'5',section:'5A'},
+  '241302234':{name:'DEEPAK MITTAL',sem:'5',section:'5A'},
+  '241302235':{name:'VEER SISODIA',sem:'5',section:'5A'},
+  '241302237':{name:'VIVEK SINGH BISHT',sem:'5',section:'5A'},
+  '251302251-LEET':{name:'HAPPY YADAV',sem:'5',section:'5A'},
+  '241302241':{name:'Pulkit',sem:'5',section:'5B(CSCC)'},
+  '241302244':{name:'Sudhansu',sem:'5',section:'5B(CSCC)'},
+  '241302250':{name:'Aakriti Pandey',sem:'5',section:'5B(CSCC)'},
+  '241302253':{name:'Jatin',sem:'5',section:'5B(CSCC)'},
+  '241302254':{name:'Pari Rani',sem:'5',section:'5B(CSCC)'},
+  '241302255':{name:'Tanisha',sem:'5',section:'5B(CSCC)'},
+  '241302258':{name:'Sourbh Singh',sem:'5',section:'5B(CSCC)'},
+  '241302259':{name:'Priya',sem:'5',section:'5B(CSCC)'},
+  '241302260':{name:'Abhinav Raj',sem:'5',section:'5B(CSCC)'},
+  '241302262':{name:'Varun Kumar',sem:'5',section:'5B(CSCC)'},
+  '241302268':{name:'Harsh',sem:'5',section:'5B(CSCC)'},
+  '241302269':{name:'Akshat Bhardwaj',sem:'5',section:'5B(CSCC)'},
+  '241302271':{name:'Shivam Saini',sem:'5',section:'5B(CSCC)'},
+  '241302273':{name:'Vishal',sem:'5',section:'5B(CSCC)'},
+  '241302276':{name:'Devshree Pathak',sem:'5',section:'5B(CSCC)'},
+  '241302280':{name:'Sonal',sem:'5',section:'5B(CSCC)'},
+  '241302282':{name:'Vinay Kumar',sem:'5',section:'5B(CSCC)'},
+  '241302286':{name:'Daali Thakur',sem:'5',section:'5B(CSCC)'},
+  '241302296':{name:'Prashant Yadav',sem:'5',section:'5B(CSCC)'},
+  '241302297':{name:'Shatakshi Gupta',sem:'5',section:'5B(CSCC)'},
+  '241302299':{name:'Shubham',sem:'5',section:'5B(CSCC)'},
+  '241302302':{name:'Rishika Khare',sem:'5',section:'5B(CSCC)'},
+  '241302305':{name:'Yash Gulliya',sem:'5',section:'5B(CSCC)'},
+  '241302306':{name:'Muskan Kumari',sem:'5',section:'5B(CSCC)'},
+  '241302307':{name:'Gaurav',sem:'5',section:'5B(CSCC)'},
+  '251302298-LEET':{name:'Monali',sem:'5',section:'5B(CSCC)'},
+  '251302193-LEET':{name:'Tanisha Bharti',sem:'5',section:'5B(CSCC)'},
+  '241302006':{name:'Vaibhav',sem:'5',section:'5B(CSCC)'},
+  '241302007':{name:'Harini Sri',sem:'5',section:'5B(CSCC)'},
+  '241302011':{name:'Tanishq Yadav',sem:'5',section:'5B(CSCC)'},
+  '241302015':{name:'Madhoor',sem:'5',section:'5B(CSCC)'},
+  '241302016':{name:'Rohit Sangwan',sem:'5',section:'5B(CSCC)'},
+  '241302018':{name:'Yash Vats',sem:'5',section:'5B(CSCC)'},
+  '241302027':{name:'Deepanshu Sharma',sem:'5',section:'5B(CSCC)'},
+  '241302044':{name:'Lakshay',sem:'5',section:'5B(CSCC)'},
+  '241302054':{name:'Ipkshita Singh',sem:'5',section:'5B(CSCC)'},
+  '241302060':{name:'Yuvraj Singh',sem:'5',section:'5B(CSCC)'},
+  '241302063':{name:'Lovish Mahajan',sem:'5',section:'5B(CSCC)'},
+  '241302064':{name:'Dipanshu Yadav',sem:'5',section:'5B(CSCC)'},
+  '241302066':{name:'Kunal',sem:'5',section:'5B(CSCC)'},
+  '241302084':{name:'Falak Noor',sem:'5',section:'5B(CSCC)'},
+  '241302089':{name:'Anal Bhardwaj',sem:'5',section:'5B(CSCC)'},
+  '241302095':{name:'Umesh Yadav',sem:'5',section:'5B(CSCC)'},
+  '241302111':{name:'Manthan Gupta',sem:'5',section:'5B(CSCC)'},
+  '241302119':{name:'Arjit Kumar',sem:'5',section:'5B(CSCC)'},
+  '241302123':{name:'Om Kumar Singh',sem:'5',section:'5B(CSCC)'},
+  '241302124':{name:'Samarth Saini',sem:'5',section:'5B(CSCC)'},
+  '241302127':{name:'Aaryan Shakalya',sem:'5',section:'5B(CSCC)'},
+  '241302134':{name:'Kirti Mittal',sem:'5',section:'5B(CSCC)'},
+  '241302136':{name:'Anmol Yadav',sem:'5',section:'5B(CSCC)'},
+  '241302139':{name:'Saurabh Kumar',sem:'5',section:'5B(CSCC)'},
+  '241302149':{name:'Shubham Goyat',sem:'5',section:'5B(CSCC)'},
+  '241302168':{name:'Charu Malik',sem:'5',section:'5B(CSCC)'},
+  '241302176':{name:'Harsh Rana',sem:'5',section:'5B(CSCC)'},
+  '241302180':{name:'Riya Sharma',sem:'5',section:'5B(CSCC)'},
+  '241302208':{name:'Gaurav Vashisth',sem:'5',section:'5B(CSCC)'},
+  '241302220':{name:'Sakshi Kumari',sem:'5',section:'5B(CSCC)'},
+  '241302228':{name:'Rana Swan Singh',sem:'5',section:'5B(CSCC)'},
+  '241302229':{name:'Geetanjli',sem:'5',section:'5B(CSCC)'},
+  '241302236':{name:'Garv Kharb',sem:'5',section:'5B(CSCC)'},
+  '241302256':{name:'Akshit Bradiya',sem:'5',section:'5B(CSCC)'},
+  '241302303':{name:'Mohd Rehan',sem:'5',section:'5B(CSCC)'},
+  '251302265-LEET':{name:'Yash Bhardwaj',sem:'5',section:'5B(CSCC)'},
+  '241302002':{name:'RAKSHITA HOODA',sem:'5',section:'5C'},
+  '241302004':{name:'PRARIT SHARMA',sem:'5',section:'5C'},
+  '241302005':{name:'KRRISH SHARMA',sem:'5',section:'5C'},
+  '241302008':{name:'TARUN',sem:'5',section:'5C'},
+  '241302010':{name:'KIRAN',sem:'5',section:'5C'},
+  '241302013':{name:'MAYANK NEHRA',sem:'5',section:'5C'},
+  '241302017':{name:'MOHIT KUMAR MISHRA',sem:'5',section:'5C'},
+  '241302020':{name:'VANSHIK SEHRAWAT',sem:'5',section:'5C'},
+  '241302021':{name:'SURYANSH CHOUDHARY',sem:'5',section:'5C'},
+  '241302029':{name:'JATIN CHAUHAN',sem:'5',section:'5C'},
+  '241302033':{name:'PRIYANSHU',sem:'5',section:'5C'},
+  '241302036':{name:'NIKHIL',sem:'5',section:'5C'},
+  '241302039':{name:'KYAN V SINGH',sem:'5',section:'5C'},
+  '241302042':{name:'VINCENT CHINLAL',sem:'5',section:'5C'},
+  '241302049':{name:'VANSH GULIA',sem:'5',section:'5C'},
+  '241302051':{name:'SHREYA SINGH',sem:'5',section:'5C'},
+  '241302052':{name:'NGACHAMMI KHAPUDANG',sem:'5',section:'5C'},
+  '241302053':{name:'CHAITANYA GARG',sem:'5',section:'5C'},
+  '241302055':{name:'UMANG SHARMA',sem:'5',section:'5C'},
+  '241302057':{name:'PREM KUMAR',sem:'5',section:'5C'},
+  '241302058':{name:'GOURAV SHOKEEN',sem:'5',section:'5C'},
+  '241302059':{name:'RACHNA RAI',sem:'5',section:'5C'},
+  '241302065':{name:'SHAILI YADAV',sem:'5',section:'5C'},
+  '241302068':{name:'SARIKA YADAV',sem:'5',section:'5C'},
+  '241302069':{name:'SAMEER YADAV',sem:'5',section:'5C'},
+  '241302070':{name:'RUBEN RAJEEV GEORGE',sem:'5',section:'5C'},
+  '241302071':{name:'DIVYANSH TANWAR',sem:'5',section:'5C'},
+  '241302075':{name:'RAHUL GULIA',sem:'5',section:'5C'},
+  '241302077':{name:'SAHIL CHOUDHARY',sem:'5',section:'5C'},
+  '241302078':{name:'RAHUL',sem:'5',section:'5C'},
+  '241302079':{name:'YASH ASWAL',sem:'5',section:'5C'},
+  '241302081':{name:'HARSHIT KHEMANI',sem:'5',section:'5C'},
+  '241302087':{name:'SANKET KUMAR PRASAD',sem:'5',section:'5C'},
+  '241302090':{name:'OMYANSH RAWAT',sem:'5',section:'5C'},
+  '241302096':{name:'CHALCY',sem:'5',section:'5C'},
+  '241302097':{name:'YASH PHALSWAL',sem:'5',section:'5C'},
+  '241302099':{name:'MANMEET SAROA',sem:'5',section:'5C'},
+  '241302100':{name:'MADHAV BASSI',sem:'5',section:'5C'},
+  '241302101':{name:'AMIT KUMAR PATRA',sem:'5',section:'5C'},
+  '241302104':{name:'EKTA',sem:'5',section:'5C'},
+  '241302106':{name:'GAURAV JOON',sem:'5',section:'5C'},
+  '241302107':{name:'BINIT KUMAR',sem:'5',section:'5C'},
+  '241302108':{name:'TANISHA',sem:'5',section:'5C'},
+  '241302109':{name:'KUSHAGRA AGRAWAL',sem:'5',section:'5C'},
+  '241302112':{name:'RANDEEP GIR',sem:'5',section:'5C'},
+  '241302113':{name:'HARSHIT SINGH',sem:'5',section:'5C'},
+  '241302117':{name:'GEETIKA',sem:'5',section:'5C'},
+  '241302118':{name:'HARSHIT',sem:'5',section:'5C'},
+  '241302122':{name:'KUSH AHUJA',sem:'5',section:'5C'},
+  '241302125':{name:'KESHAV SOOD',sem:'5',section:'5C'},
+  '241302126':{name:'RISHABH',sem:'5',section:'5C'},
+  '241302131':{name:'VAIBHAV SONI',sem:'5',section:'5C'},
+  '241302133':{name:'VANSH SINDHU',sem:'5',section:'5C'},
+  '241302138':{name:'KANUPRIYA .',sem:'5',section:'5C'},
+  '241302140':{name:'RIJUL JAIN',sem:'5',section:'5C'},
+  '241302141':{name:'ELEESA MERIN JACOB',sem:'5',section:'5C'},
+  '241302142':{name:'JONCY',sem:'5',section:'5C'},
+  '241302144':{name:'NISHANT GAWDERYA',sem:'5',section:'5D'},
+  '241302148':{name:'DEEPANSHU AHLAWAT',sem:'5',section:'5D'},
+  '241302150':{name:'ASEEM GOYAL',sem:'5',section:'5D'},
+  '241302152':{name:'YAMAN YADAV',sem:'5',section:'5D'},
+  '241302153':{name:'RIDDHI SAINI',sem:'5',section:'5D'},
+  '241302156':{name:'ANSHUL DAGAR',sem:'5',section:'5D'},
+  '241302158':{name:'SHUBHAM YADAV',sem:'5',section:'5D'},
+  '241302162':{name:'HIMANSHU',sem:'5',section:'5D'},
+  '241302163':{name:'FEBIN VARGHESE JOHN',sem:'5',section:'5D'},
+  '241302166':{name:'NISHANT SINGH',sem:'5',section:'5D'},
+  '241302173':{name:'GOMESH NIRWAL',sem:'5',section:'5D'},
+  '241302177':{name:'DEEPANSHU MATHUR',sem:'5',section:'5D'},
+  '241302178':{name:'PRITIKA',sem:'5',section:'5D'},
+  '241302181':{name:'NAITIK PODDAR',sem:'5',section:'5D'},
+  '241302182':{name:'NISHANT',sem:'5',section:'5D'},
+  '241302183':{name:'ROHIT SHARMA',sem:'5',section:'5D'},
+  '241302184':{name:'VANSH',sem:'5',section:'5D'},
+  '241302185':{name:'VISHESH GUPTA',sem:'5',section:'5D'},
+  '241302188':{name:'AMAN VASHIST',sem:'5',section:'5D'},
+  '241302189':{name:'ANANT RUHIL',sem:'5',section:'5D'},
+  '241302190':{name:'MANSHIT',sem:'5',section:'5D'},
+  '241302191':{name:'HARSHIT',sem:'5',section:'5D'},
+  '241302194':{name:'SOHAM PANDA',sem:'5',section:'5D'},
+  '241302196':{name:'KAMAL',sem:'5',section:'5D'},
+  '241302200':{name:'LAVISHA OBEROI',sem:'5',section:'5D'},
+  '241302205':{name:'PRACHI',sem:'5',section:'5D'},
+  '241302206':{name:'VANSH',sem:'5',section:'5D'},
+  '241302207':{name:'AKSH',sem:'5',section:'5D'},
+  '241302209':{name:'HIMANSHU',sem:'5',section:'5D'},
+  '241302214':{name:'SWIZER SINGH',sem:'5',section:'5D'},
+  '241302215':{name:'CHIRAG',sem:'5',section:'5D'},
+  '241302216':{name:'LAKSHITA KADIAN',sem:'5',section:'5D'},
+  '241302217':{name:'SAMEER MALIK',sem:'5',section:'5D'},
+  '241302219':{name:'HUNAR',sem:'5',section:'5D'},
+  '241302221':{name:'RAKHI SHARMA',sem:'5',section:'5D'},
+  '241302226':{name:'HIMANSHI',sem:'5',section:'5D'},
+  '241302230':{name:'ISHA DAHIYA',sem:'5',section:'5D'},
+  '241302232':{name:'HARSHIT',sem:'5',section:'5D'},
+  '241302233':{name:'RISHIKANT',sem:'5',section:'5D'},
+  '241302238':{name:'MOHIT',sem:'5',section:'5D'},
+  '241302239':{name:'SHREYA JOSHI',sem:'5',section:'5D'},
+  '241302261':{name:'SATYAM',sem:'5',section:'5D'},
+  '241302263':{name:'ARNAV',sem:'5',section:'5D'},
+  '241302264':{name:'AYUSH SAWATE',sem:'5',section:'5D'},
+  '241302270':{name:'RONAK YADAV',sem:'5',section:'5D'},
+  '241302272':{name:'NAINA',sem:'5',section:'5D'},
+  '241302277':{name:'NIDHI',sem:'5',section:'5D'},
+  '241302278':{name:'DAKSH',sem:'5',section:'5D'},
+  '241302281':{name:'JATIN',sem:'5',section:'5D'},
+  '241302283':{name:'SUPRIYA',sem:'5',section:'5D'},
+  '241302284':{name:'SUKREET',sem:'5',section:'5D'},
+  '241302287':{name:'MUSKAN',sem:'5',section:'5D'},
+  '241302289':{name:'VIPIN',sem:'5',section:'5D'},
+  '241302291':{name:'RADHIKA',sem:'5',section:'5D'},
+  '241302293':{name:'PIYUSH CHAUHAN',sem:'5',section:'5D'},
+  '241302294':{name:'KSHITIJ',sem:'5',section:'5D'},
+  '241302295':{name:'PARTH VERMA',sem:'5',section:'5D'},
+  '241302009':{name:'Kunal',sem:'5',section:'5E(IOSDS)'},
+  '241302019':{name:'Tushar Sehrawat',sem:'5',section:'5E(IOSDS)'},
+  '241302022':{name:'Pranav Aggarwal',sem:'5',section:'5E(IOSDS)'},
+  '241302025':{name:'Prem',sem:'5',section:'5E(IOSDS)'},
+  '241302040':{name:'Chakshu Saini',sem:'5',section:'5E(IOSDS)'},
+  '241302043':{name:'Sakshi',sem:'5',section:'5E(IOSDS)'},
+  '241302046':{name:'Yash Kumar Singh',sem:'5',section:'5E(IOSDS)'},
+  '241302047':{name:'Rahul Sharma',sem:'5',section:'5E(IOSDS)'},
+  '241302061':{name:'Jatin Malik',sem:'5',section:'5E(IOSDS)'},
+  '241302082':{name:'Jatin Kumar',sem:'5',section:'5E(IOSDS)'},
+  '241302083':{name:'Ansh Tayal',sem:'5',section:'5E(IOSDS)'},
+  '241302092':{name:'Lokesh Yadav',sem:'5',section:'5E(IOSDS)'},
+  '241302102':{name:'Yash Yadav',sem:'5',section:'5E(IOSDS)'},
+  '241302105':{name:'Yuvraj',sem:'5',section:'5E(IOSDS)'},
+  '241302132':{name:'Kushagra Yadav',sem:'5',section:'5E(IOSDS)'},
+  '241302161':{name:'Nitin',sem:'5',section:'5E(IOSDS)'},
+  '241302164':{name:'Sachin Yadav',sem:'5',section:'5E(IOSDS)'},
+  '241302171':{name:'Manish',sem:'5',section:'5E(IOSDS)'},
+  '241302172':{name:'Ryian Hughe',sem:'5',section:'5E(IOSDS)'},
+  '241302174':{name:'Raman',sem:'5',section:'5E(IOSDS)'},
+  '241302186':{name:'Anchal Rawat',sem:'5',section:'5E(IOSDS)'},
+  '241302193':{name:'Zaib Khan',sem:'5',section:'5E(IOSDS)'},
+  '241302199':{name:'Chirag Yadav',sem:'5',section:'5E(IOSDS)'},
+  '241302204':{name:'Ridhi Narang',sem:'5',section:'5E(IOSDS)'},
+  '241302224':{name:'Yogender Singh',sem:'5',section:'5E(IOSDS)'},
+  '241302225':{name:'Bhagat',sem:'5',section:'5E(IOSDS)'},
+  '241302240':{name:'Sumit Kumar',sem:'5',section:'5E(IOSDS)'},
+  '241302246':{name:'Shubham Negi',sem:'5',section:'5E(IOSDS)'},
+  '241302248':{name:'Sumit',sem:'5',section:'5E(IOSDS)'},
+  '241302249':{name:'Abhishek Jaiswal',sem:'5',section:'5E(IOSDS)'},
+  '241302252':{name:'Ansh Gahlawat',sem:'5',section:'5E(IOSDS)'},
+  '241302257':{name:'Prajyot',sem:'5',section:'5E(IOSDS)'},
+  '241302265':{name:'Vipul Yadav',sem:'5',section:'5E(IOSDS)'},
+  '241302266':{name:'Aryan',sem:'5',section:'5E(IOSDS)'},
+  '241302001':{name:'Bhavesh Khullar',sem:'5',section:'5E(IOSDS)'},
+  '241302014':{name:'Harsh Shokeen',sem:'5',section:'5E(IOSDS)'},
+  '241302048':{name:'Atul',sem:'5',section:'5E(IOSDS)'},
+  '241302086':{name:'Nikita',sem:'5',section:'5E(IOSDS)'},
+  '241302120':{name:'Garv Bhardwaj',sem:'5',section:'5E(IOSDS)'},
+  '241302121':{name:'Yash',sem:'5',section:'5E(IOSDS)'},
+  '241302143':{name:'Kartik Yadav',sem:'5',section:'5E(IOSDS)'},
+  '241302155':{name:'Sahil',sem:'5',section:'5E(IOSDS)'},
+  '241302195':{name:'Tanmay Goyal',sem:'5',section:'5E(IOSDS)'},
+  '241302245':{name:'Daksh Kumar',sem:'5',section:'5E(IOSDS)'},
+  '241302247':{name:'Arav Bazad',sem:'5',section:'5E(IOSDS)'},
+  '241302288':{name:'Daksh Saini',sem:'5',section:'5E(IOSDS)'},
+  '241302290':{name:'Shristi Yadav',sem:'5',section:'5E(IOSDS)'},
+  '241302292':{name:'Piyush Thakur',sem:'5',section:'5E(IOSDS)'},
+  '241302298':{name:'Aryan Khatri',sem:'5',section:'5E(IOSDS)'},
+  '241302300':{name:'Abhinav Singh',sem:'5',section:'5E(IOSDS)'},
+  '241302301':{name:'Himanshu Chhoker',sem:'5',section:'5E(IOSDS)'},
+  '231302002':{name:'TANNU TIWARI',sem:'7',section:'7A'},
+  '231302003':{name:'PRANAV SINGH',sem:'7',section:'7A'},
+  '231302006':{name:'TANISH',sem:'7',section:'7A'},
+  '231302007':{name:'PRINCE KUMAR',sem:'7',section:'7A'},
+  '231302023':{name:'RAHUL KUMAR',sem:'7',section:'7A'},
+  '231302024':{name:'HIMANSHU SINGH',sem:'7',section:'7A'},
+  '231302025':{name:'SAMYAK JAIN',sem:'7',section:'7A'},
+  '231302026':{name:'ANSHUL',sem:'7',section:'7A'},
+  '231302028':{name:'VIKASH SRIVASTAVA',sem:'7',section:'7A'},
+  '231302031':{name:'VARUN YADAV',sem:'7',section:'7A'},
+  '231302033':{name:'AMAN',sem:'7',section:'7A'},
+  '231302034':{name:'ANURAG',sem:'7',section:'7A'},
+  '231302035':{name:'SAHIL SINGH',sem:'7',section:'7A'},
+  '231302037':{name:'LAVISHA',sem:'7',section:'7A'},
+  '231302038':{name:'UMESH',sem:'7',section:'7A'},
+  '231302045':{name:'AAKASH',sem:'7',section:'7A'},
+  '231302047':{name:'ARSHAD KHAN',sem:'7',section:'7A'},
+  '231302049':{name:'DEEPESH',sem:'7',section:'7A'},
+  '231302051':{name:'KUNAL',sem:'7',section:'7A'},
+  '231302054':{name:'HARSH CHAUHAN',sem:'7',section:'7A'},
+  '231302055':{name:'LAKSHITA',sem:'7',section:'7A'},
+  '231302058':{name:'PRATISHTHA',sem:'7',section:'7A'},
+  '231302061':{name:'SARTHAK',sem:'7',section:'7A'},
+  '231302062':{name:'HUNNY GULIA',sem:'7',section:'7A'},
+  '231302065':{name:'DUSHYANT VASISHT',sem:'7',section:'7A'},
+  '231302066':{name:'MAYANK GOYAL',sem:'7',section:'7A'},
+  '231302072':{name:'SHUBHAM DAGAR',sem:'7',section:'7A'},
+  '231302073':{name:'MAHESH KUMAR',sem:'7',section:'7A'},
+  '231302075':{name:'SHUBHAM',sem:'7',section:'7A'},
+  '231302081':{name:'TANUSH BANDUNI',sem:'7',section:'7A'},
+  '231302082':{name:'ANJALI',sem:'7',section:'7A'},
+  '231302083':{name:'HIMANSHU SONI',sem:'7',section:'7A'},
+  '231302085':{name:'SHASHANK VERMA',sem:'7',section:'7A'},
+  '231302086':{name:'HARSH',sem:'7',section:'7A'},
+  '231302097':{name:'MEGHA SHARMA',sem:'7',section:'7A'},
+  '231302099':{name:'MAYANK GARG',sem:'7',section:'7A'},
+  '231302101':{name:'PUNIT',sem:'7',section:'7A'},
+  '231302102':{name:'Deepanshu',sem:'7',section:'7A'},
+  '231302105':{name:'TARUN YADAV',sem:'7',section:'7A'},
+  '231302107':{name:'PRIYA',sem:'7',section:'7A'},
+  '231302110':{name:'ARPIT',sem:'7',section:'7A'},
+  '231302111':{name:'ROHAN',sem:'7',section:'7A'},
+  '231302113':{name:'RAJAT YADAV',sem:'7',section:'7A'},
+  '231302118':{name:'VANDANA KUMARI',sem:'7',section:'7A'},
+  '231302121':{name:'ABHIMANYU KANDHAL',sem:'7',section:'7A'},
+  '231302128':{name:'RAGHAV KUMAR JHA',sem:'7',section:'7A'},
+  '231302133':{name:'RAHUL KUMAR',sem:'7',section:'7A'},
+  '231302136':{name:'PRASHANT ROHILLA',sem:'7',section:'7A'},
+  '231302140':{name:'VANSHIKA RATHI',sem:'7',section:'7A'},
+  '231302142':{name:'NIKHIL NARANG',sem:'7',section:'7A'},
+  '231302144':{name:'YUVRAJ SINGH YADAV',sem:'7',section:'7A'},
+  '231302149':{name:'YASH',sem:'7',section:'7A'},
+  '231302151':{name:'PUSHPENDER YADAV',sem:'7',section:'7A'},
+  '231302152':{name:'DEVESH DWIVEDI',sem:'7',section:'7A'},
+  '231302156':{name:'ANGEL SURI',sem:'7',section:'7A'},
+  '231302157':{name:'VISHAL KUMAR UPADHYAY',sem:'7',section:'7A'},
+  '231302163':{name:'SHUBHAM BHARDWAJ',sem:'7',section:'7A'},
+  '231302166':{name:'MANISH RATHI',sem:'7',section:'7A'},
+  '231302175':{name:'PINKI BADHANA',sem:'7',section:'7A'},
+  '231302186':{name:'DEEPAK KUMAR',sem:'7',section:'7A'},
+  '231302192':{name:'SALONI',sem:'7',section:'7A'},
+  '231302194':{name:'ROBIN',sem:'7',section:'7A'},
+  '231302203':{name:'VARSHA',sem:'7',section:'7A'},
+  '231302205':{name:'SNEHA',sem:'7',section:'7A'},
+  '231302214':{name:'MONU',sem:'7',section:'7A'},
+  '231302216':{name:'ARPIT GUPTA',sem:'7',section:'7A'},
+  '231302221':{name:'NIKSHEY YADAV',sem:'7',section:'7A'},
+  '231302230':{name:'ADITYA CHAUHAN',sem:'7',section:'7A'},
+  '231302232':{name:'DIKSHA SHARMA',sem:'7',section:'7A'},
+  '231302244':{name:'NAMAN SHARMA',sem:'7',section:'7A'},
+  '231302257':{name:'LAKSHAY ROHILLA',sem:'7',section:'7A'},
+  '231302022':{name:'HIMANSHU',sem:'7',section:'7B'},
+  '231302032':{name:'ADITYA',sem:'7',section:'7B'},
+  '231302043':{name:'DEEPAK',sem:'7',section:'7B'},
+  '231302050':{name:'SAVITENDER SINGH',sem:'7',section:'7B'},
+  '231302108':{name:'RIYA YADAV',sem:'7',section:'7B'},
+  '231302123':{name:'YUSUF SAFI',sem:'7',section:'7B'},
+  '231302148':{name:'PRATIK DAGAR',sem:'7',section:'7B'},
+  '231302160':{name:'PIYUSH KUMAR',sem:'7',section:'7B'},
+  '231302171':{name:'HARSH YADAV',sem:'7',section:'7B'},
+  '231302173':{name:'DEPINDER KUMAR',sem:'7',section:'7B'},
+  '231302178':{name:'JASMEET',sem:'7',section:'7B'},
+  '231302188':{name:'AMAN YADAV',sem:'7',section:'7B'},
+  '231302191':{name:'NITIN KUMAR',sem:'7',section:'7B'},
+  '231302200':{name:'VINIT SHEETAL',sem:'7',section:'7B'},
+  '231302201':{name:'ANSHU',sem:'7',section:'7B'},
+  '231302204':{name:'SAMARTH RATWAYA',sem:'7',section:'7B'},
+  '231302209':{name:'ANKIT',sem:'7',section:'7B'},
+  '231302215':{name:'VISHAL',sem:'7',section:'7B'},
+  '231302218':{name:'VANSH RANA',sem:'7',section:'7B'},
+  '231302222':{name:'NEERAJ LODHI',sem:'7',section:'7B'},
+  '231302224':{name:'RUDRANSH BHARDWAJ',sem:'7',section:'7B'},
+  '231302226':{name:'SIDDHARTH SEHWAG',sem:'7',section:'7B'},
+  '231302235':{name:'NAMAN KUMAR',sem:'7',section:'7B'},
+  '231302237':{name:'NISHANT CHOUDHARY',sem:'7',section:'7B'},
+  '231302245':{name:'PARIKSHIT GULIA',sem:'7',section:'7B'},
+  '231302253':{name:'TRISH DALAL',sem:'7',section:'7B'},
+  '231302258':{name:'PRIYANSHU',sem:'7',section:'7B'},
+  '231302262':{name:'ASHISH VERMA',sem:'7',section:'7B'},
+  '231302263':{name:'RANU RAJ',sem:'7',section:'7B'},
+  '241302030':{name:'ARCHI - LEET',sem:'7',section:'7B'},
+  '241302267':{name:'JATIN - LEET',sem:'7',section:'7B'},
+  '241302279':{name:'VIMARSH - LEET',sem:'7',section:'7B'},
+  '221302122':{name:'MAYANK',sem:'7',section:'7B'},
+  '231302001':{name:'YASH GUPTA',sem:'7',section:'7B'},
+  '231302013':{name:'KISHLAY KISU',sem:'7',section:'7B'},
+  '231302018':{name:'ABHISHEK PAL',sem:'7',section:'7B'},
+  '231302080':{name:'ARYAN SHARMA',sem:'7',section:'7B'},
+  '231302094':{name:'ROHIT KUMAR',sem:'7',section:'7B'},
+  '231302127':{name:'SHUBRANSHU SEKHER SAHOO',sem:'7',section:'7B'},
+  '231302129':{name:'KUNAL VASHIST',sem:'7',section:'7B'},
+  '231302137':{name:'MUSKAN',sem:'7',section:'7B'},
+  '231302138':{name:'POOJA',sem:'7',section:'7B'},
+  '231302177':{name:'ADARSH KUMAR',sem:'7',section:'7B'},
+  '231302190':{name:'LAKSHAY SHARMA',sem:'7',section:'7B'},
+  '231302193':{name:'USHA',sem:'7',section:'7B'},
+  '231302211':{name:'ADITYA TOKAS',sem:'7',section:'7B'},
+  '231302213':{name:'PRIYANSHU',sem:'7',section:'7B'},
+  '231302217':{name:'MUKUL PUNIA',sem:'7',section:'7B'},
+  '231302220':{name:'MISHRA SUYANSH NARESH',sem:'7',section:'7B'},
+  '231302233':{name:'AYUSH GUPTA',sem:'7',section:'7B'},
+  '231302252':{name:'ROHAN',sem:'7',section:'7B'},
+  '241302251':{name:'Rait Ranvirsingh Surinder Singh',sem:'7',section:'7B'},
+  '241302050':{name:'RAJAN',sem:'7',section:'7B'},
+  '231302009':{name:'HIMANSHU',sem:'7',section:'7C'},
+  '231302012':{name:'PRINCE KUMAR',sem:'7',section:'7C'},
+  '231302014':{name:'HARISH',sem:'7',section:'7C'},
+  '231302016':{name:'ARPIT SHARMA',sem:'7',section:'7C'},
+  '231302017':{name:'TUSHAR SINGH',sem:'7',section:'7C'},
+  '231302019':{name:'ARJUN SINGH DOGRA',sem:'7',section:'7C'},
+  '231302021':{name:'ANKIT',sem:'7',section:'7C'},
+  '231302027':{name:'JANVI',sem:'7',section:'7C'},
+  '231302029':{name:'HIMANI GUPTA',sem:'7',section:'7C'},
+  '231302030':{name:'MOHAMMAD ALI',sem:'7',section:'7C'},
+  '231302036':{name:'ISHAN',sem:'7',section:'7C'},
+  '231302039':{name:'ARYAN KUMAR',sem:'7',section:'7C'},
+  '231302040':{name:'VISHAL',sem:'7',section:'7C'},
+  '231302041':{name:'KARAN SHARMA',sem:'7',section:'7C'},
+  '231302042':{name:'ANSHUMAN SINGH',sem:'7',section:'7C'},
+  '231302044':{name:'GAURAV YADAV',sem:'7',section:'7C'},
+  '231302046':{name:'AAKASH BISHT',sem:'7',section:'7C'},
+  '231302048':{name:'ANVI GOYAL',sem:'7',section:'7C'},
+  '231302052':{name:'VISHAL',sem:'7',section:'7C'},
+  '231302056':{name:'DEVANSHI SHARMA',sem:'7',section:'7C'},
+  '231302057':{name:'NEHA SHARMA',sem:'7',section:'7C'},
+  '231302059':{name:'LEKIT YADAV',sem:'7',section:'7C'},
+  '231302060':{name:'RAHUL BAJAJ',sem:'7',section:'7C'},
+  '231302063':{name:'RIYA',sem:'7',section:'7C'},
+  '231302067':{name:'VARUN RAGHAV',sem:'7',section:'7C'},
+  '231302068':{name:'FAIZA',sem:'7',section:'7C'},
+  '231302069':{name:'DEEPAK YADAV',sem:'7',section:'7C'},
+  '231302070':{name:'NIRUPAM SHARMA',sem:'7',section:'7C'},
+  '231302071':{name:'DEEPANSHU JANGRA',sem:'7',section:'7C'},
+  '231302078':{name:'MANJEET',sem:'7',section:'7C'},
+  '231302079':{name:'JASNEET KAUR',sem:'7',section:'7C'},
+  '231302088':{name:'DEEPANSHU RAI',sem:'7',section:'7C'},
+  '231302089':{name:'SIDHANSHU',sem:'7',section:'7C'},
+  '231302093':{name:'VAIBHAV',sem:'7',section:'7C'},
+  '231302095':{name:'AYUSH PARASHAR',sem:'7',section:'7C'},
+  '231302100':{name:'RITIKA SHARMA',sem:'7',section:'7C'},
+  '231302103':{name:'AKASH RANA',sem:'7',section:'7C'},
+  '231302104':{name:'PALLAVI MUDGAL',sem:'7',section:'7C'},
+  '231302106':{name:'CHETAN SAGAR',sem:'7',section:'7C'},
+  '231302109':{name:'ARVIND KUMAR',sem:'7',section:'7C'},
+  '231302112':{name:'DAKSH YADAV',sem:'7',section:'7C'},
+  '231302114':{name:'GUNEET DHAKA',sem:'7',section:'7C'},
+  '231302115':{name:'AADITYA KAUSHIK',sem:'7',section:'7C'},
+  '231302116':{name:'JATIN NAGARWAL',sem:'7',section:'7C'},
+  '231302117':{name:'SNEHA BOORA',sem:'7',section:'7C'},
+  '231302120':{name:'KUSHAGAR SIWACH',sem:'7',section:'7C'},
+  '231302122':{name:'RENU',sem:'7',section:'7C'},
+  '231302125':{name:'MANISH DAHIYA',sem:'7',section:'7C'},
+  '231302130':{name:'TANUJ BHARDWAJ',sem:'7',section:'7C'},
+  '231302131':{name:'KARAN SINGH ASWAL',sem:'7',section:'7C'},
+  '231302135':{name:'ANEEK RAJ',sem:'7',section:'7C'},
+  '231302139':{name:'RAHUL',sem:'7',section:'7C'},
+  '231302141':{name:'VIVEK',sem:'7',section:'7C'},
+  '231302143':{name:'JAI ANMOL ARORA',sem:'7',section:'7C'},
+  '231302150':{name:'NOAMA SYED',sem:'7',section:'7C'},
+  '231302153':{name:'DHAIRYA SINGH',sem:'7',section:'7C'},
+  '231302154':{name:'GOUTAM VERMA',sem:'7',section:'7C'},
+  '231302155':{name:'VANSHIKA',sem:'7',section:'7C'},
+  '231302158':{name:'NISHANT',sem:'7',section:'7C'},
+  '231302159':{name:'KRRISH MALHOTRA',sem:'7',section:'7C'},
+  '231302161':{name:'TANYA SINGH',sem:'7',section:'7C'},
+  '231302162':{name:'ROHIT KORPAL',sem:'7',section:'7C'},
+  '231302164':{name:'Priyanshu',sem:'7',section:'7D'},
+  '231302165':{name:'Purav Tanwar',sem:'7',section:'7D'},
+  '231302167':{name:'Kislay Pandey',sem:'7',section:'7D'},
+  '231302169':{name:'Arpit Pandey',sem:'7',section:'7D'},
+  '231302174':{name:'Vishav Garg',sem:'7',section:'7D'},
+  '231302176':{name:'Sukhsham Sharma',sem:'7',section:'7D'},
+  '231302181':{name:'Devesh Yadav',sem:'7',section:'7D'},
+  '231302182':{name:'Aditya Vats',sem:'7',section:'7D'},
+  '231302185':{name:'Kunal Sharma',sem:'7',section:'7D'},
+  '231302189':{name:'Saurav',sem:'7',section:'7D'},
+  '231302196':{name:'Vrishank Sharma',sem:'7',section:'7D'},
+  '231302199':{name:'Parteek',sem:'7',section:'7D'},
+  '231302206':{name:'Dharam Singh',sem:'7',section:'7D'},
+  '231302207':{name:'Nikhil Kumar',sem:'7',section:'7D'},
+  '231302208':{name:'Punyam',sem:'7',section:'7D'},
+  '231302210':{name:'Pushpender Yadav',sem:'7',section:'7D'},
+  '231302212':{name:'Deepanshu',sem:'7',section:'7D'},
+  '231302223':{name:'Anurag',sem:'7',section:'7D'},
+  '231302227':{name:'Sandeep Singh',sem:'7',section:'7D'},
+  '231302228':{name:'Khushi Singhal',sem:'7',section:'7D'},
+  '231302231':{name:'Tanvir Singh Wasir',sem:'7',section:'7D'},
+  '231302234':{name:'Vanshika Bisht',sem:'7',section:'7D'},
+  '231302239':{name:'Aanchal',sem:'7',section:'7D'},
+  '231302247':{name:'Aakash Dagar',sem:'7',section:'7D'},
+  '231302250':{name:'Aakash',sem:'7',section:'7D'},
+  '231302251':{name:'Himanshu Aggarwal',sem:'7',section:'7D'},
+  '231302255':{name:'Anshika',sem:'7',section:'7D'},
+  '231302256':{name:'Tanishk',sem:'7',section:'7D'},
+  '231302266':{name:'Dhawan Sawant',sem:'7',section:'7D'},
+  '241302032':{name:'Arunava Chakraborty',sem:'7',section:'7D'},
+  '231302004':{name:'Vivek Singh',sem:'7',section:'7D'},
+  '231302005':{name:'Himanshi',sem:'7',section:'7D'},
+  '231302008':{name:'Aryan',sem:'7',section:'7D'},
+  '231302010':{name:'Hiten',sem:'7',section:'7D'},
+  '231302011':{name:'Muskan',sem:'7',section:'7D'},
+  '231302015':{name:'Devanshu Shekhar',sem:'7',section:'7D'},
+  '231302084':{name:'Nirmit',sem:'7',section:'7D'},
+  '231302087':{name:'Vikash Meena',sem:'7',section:'7D'},
+  '231302091':{name:'Muskan',sem:'7',section:'7D'},
+  '231302092':{name:'Yashika Janghu',sem:'7',section:'7D'},
+  '231302124':{name:'Harsh Vashisth',sem:'7',section:'7D'},
+  '231302145':{name:'Rajat Mallick',sem:'7',section:'7D'},
+  '231302170':{name:'Nikita Sengar',sem:'7',section:'7D'},
+  '231302183':{name:'Ayush Yadav',sem:'7',section:'7D'},
+  '231302184':{name:'Ayush Gulia',sem:'7',section:'7D'},
+  '231302197':{name:'Uday Pratap Singh',sem:'7',section:'7D'},
+  '231302219':{name:'Manish Kumar',sem:'7',section:'7D'},
+  '231302229':{name:'Prikshit',sem:'7',section:'7D'},
+  '231302246':{name:'Saket',sem:'7',section:'7D'},
+  '231302248':{name:'Sambhav',sem:'7',section:'7D'},
+  '231302254':{name:'Tushar Singh Tanwar',sem:'7',section:'7D'},
+  '231302264':{name:'Katrine Alice Daniel',sem:'7',section:'7D'}
+};
+
+// ══════════ STATE ══════════
+var resolvedName = '', resolvedSem = '', resolvedSection = '', needsFallback = false;
+var gpsLat = null, gpsLng = null, gpsAccuracy = null;
+var gpsStatus = 'pending', gpsRequested = false, submitting = false;
+
+function $(id){ return document.getElementById(id); }
+
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// ══════════ LIVE CLOCK ══════════
+function updateClock() {
+  var now = new Date();
+  $('hdrDate').textContent = now.toLocaleDateString('en-IN', {weekday:'short', day:'2-digit', month:'short', year:'numeric'});
+  $('hdrTime').textContent = now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+function fetchWithTimeout(url, opts) {
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, FETCH_TIMEOUT_MS);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts).finally(function(){ clearTimeout(timer); });
+}
+
+function showMsg(text, type) {
+  var el = $('msg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+  el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  if (type === 'success') setTimeout(function(){ el.style.display = 'none'; }, 8000);
+}
+
+function showGPSResult(type, text) {
+  var el = $('gpsResult');
+  el.textContent = text;
+  el.className = 'gps-result ' + (type === 'ok' ? 'gps-ok' : 'gps-warn');
+  el.style.display = 'block';
+}
+
+function haversine(la1, lo1, la2, lo2) {
+  var R = 6371000, dL = (la2-la1)*Math.PI/180, dO = (lo2-lo1)*Math.PI/180;
+  var a = Math.sin(dL/2)*Math.sin(dL/2) + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)*Math.sin(dO/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ══════════ GPS ══════════
+function handleGPSSuccess(pos) {
+  gpsLat = pos.coords.latitude; gpsLng = pos.coords.longitude;
+  gpsAccuracy = Math.round(pos.coords.accuracy);
+  var dist = haversine(gpsLat, gpsLng, SGT_LAT, SGT_LNG);
+  gpsStatus = dist <= RADIUS_M ? 'on-campus' : 'off-campus';
+  gpsRequested = true;
+  $('gpsBanner').style.display = 'none';
+  showGPSResult(gpsStatus === 'on-campus' ? 'ok' : 'warn',
+    gpsStatus === 'on-campus'
+      ? 'Location verified — on SGT campus (±' + gpsAccuracy + 'm)'
+      : 'You appear ' + Math.round(dist) + 'm from campus — submission will be flagged for review.');
+}
+function handleGPSError() {
+  gpsStatus = 'denied'; gpsRequested = true;
+  $('gpsBanner').style.display = 'none';
+  showGPSResult('warn', 'Location unavailable — submission will be marked GPS-unverified.');
+}
+function requestGPS() {
+  var btn = $('gpsBtn'); btn.textContent = 'Requesting...'; btn.disabled = true;
+  if (!navigator.geolocation) { handleGPSError(); return; }
+  navigator.geolocation.getCurrentPosition(handleGPSSuccess, handleGPSError, {enableHighAccuracy:true, timeout:12000, maximumAge:0});
+}
+window.addEventListener('load', function() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(handleGPSSuccess, function(){}, {enableHighAccuracy:false, timeout:6000, maximumAge:60000});
+  }
+});
+
+// ══════════ ROSTER LOOKUP ══════════
+$('reg').addEventListener('input', checkStudent);
+
+function checkStudent() {
+  var reg = $('reg').value.trim();
+  var box = $('nameBox'), meta = $('nameMeta'), fb = $('fallbackBox');
+  box.textContent = '—'; box.className = 'name-box';
+  meta.textContent = ''; fb.style.display = 'none';
+  resolvedName = ''; resolvedSem = ''; resolvedSection = ''; needsFallback = false;
+
+  if (reg.length < 6) return;
+
+  var rec = ROSTER[reg];
+  if (!rec) {
+    box.textContent = 'Not found in master roster'; box.className = 'name-box name-err';
+    return;
+  }
+  resolvedSem = rec.sem; resolvedSection = rec.section;
+  meta.textContent = 'Sem ' + rec.sem + ' · Section ' + rec.section;
+
+  if (rec.name) {
+    box.textContent = rec.name; box.className = 'name-box name-ok';
+    resolvedName = rec.name;
+  } else {
+    box.textContent = 'On roll, name pending verification'; box.className = 'name-box name-err';
+    fb.style.display = 'block';
+    needsFallback = true;
+  }
+}
+
+// ══════════ SUBMIT ══════════
+function setSubmitting(on) {
+  submitting = on;
+  var btn = $('submitBtn');
+  btn.disabled = on;
+  btn.innerHTML = on ? '<span class="spinner"></span>Submitting...' : 'Mark My Attendance';
+}
+
+function submitAttendance() {
+  if (submitting) return;
+  var problem = checkSheetUrl();
+  if (problem) { showMsg(problem, 'error'); return; }
+
+  var reg = $('reg').value.trim();
+  if (!gpsRequested) { showMsg('Enable location first — tap "Enable Location Now" above.', 'error'); return; }
+  if (!reg) { showMsg('Please enter your registration number.', 'error'); return; }
+  if (!resolvedSem) { showMsg('Registration number not found in the master roster.', 'error'); return; }
+
+  var finalName = resolvedName;
+  var nameSource = 'roster';
+  if (needsFallback) {
+    finalName = $('fallbackName').value.trim();
+    if (!finalName) { showMsg('Please type your name — it is not yet on file for this roll number.', 'error'); return; }
+    nameSource = 'self-reported';
+  }
+
+  setSubmitting(true);
+
+  var payload = {
+    type: 'attendance', reg: reg, name: finalName, nameSource: nameSource,
+    semester: resolvedSem, section: resolvedSection,
+    date: todayStr(), time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+    gpsStatus: gpsStatus,
+    gpsLat: gpsLat !== null ? gpsLat : 'N/A', gpsLng: gpsLng !== null ? gpsLng : 'N/A',
+    gpsAccuracy: gpsAccuracy !== null ? gpsAccuracy : 'N/A'
+  };
+
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST', redirect: 'follow', headers: {'Content-Type':'text/plain'}, body: JSON.stringify(payload)
+  })
+  .then(function(response) {
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    return response.json();
+  })
+  .then(function(result) {
+    if (result && result.success) {
+      showMsg('Attendance marked! ' + finalName + ' · Sem ' + resolvedSem + ' · Sec ' + resolvedSection, 'success');
+      $('reg').value = ''; $('fallbackName').value = '';
+      $('nameBox').textContent = '—'; $('nameBox').className = 'name-box';
+      $('nameMeta').textContent = ''; $('fallbackBox').style.display = 'none';
+      resolvedName = ''; resolvedSem = ''; resolvedSection = ''; needsFallback = false;
+      refreshCount();
+    } else {
+      showMsg((result && result.error) || 'Submission failed — try again.', 'error');
+    }
+  })
+  .catch(function(err) {
+    if (err.name === 'AbortError') {
+      showMsg('Request timed out — your attendance may still be recorded. Wait 10 seconds, then try once more.', 'error');
+    } else {
+      showMsg('Network problem — check internet and try again.', 'error');
+    }
+  })
+  .finally(function() { setSubmitting(false); });
+}
+
+$('reg').addEventListener('keydown', function(e) { if (e.key === 'Enter') submitAttendance(); });
+
+// ══════════ LIVE COUNT ══════════
+function refreshCount() {
+  var problem = checkSheetUrl();
+  if (problem) { $('liveCount').textContent = '?'; return; }
+  fetchWithTimeout(GAS_URL + '?action=get_count&date=' + encodeURIComponent(todayStr()))
+    .then(function(r){ return r.json(); })
+    .then(function(d){ $('liveCount').textContent = (d && typeof d.count === 'number') ? d.count : '?'; })
+    .catch(function(){ $('liveCount').textContent = '?'; });
+}
+refreshCount();
+setInterval(refreshCount, 20000);
+</script>
+</body>
+</html>
