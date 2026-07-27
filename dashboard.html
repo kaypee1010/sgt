@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Attendance Dashboard — Faculty</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3d8);min-height:100vh;padding:20px}
+.wrap{max-width:820px;margin:0 auto}
+.header{background:linear-gradient(135deg,#8B3A3A,#6B2D2D);color:#fff;padding:24px 28px;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:14px}
+.logo{width:56px;height:56px;border-radius:50%;border:2px solid rgba(255,255,255,.3);overflow:hidden;flex-shrink:0}
+.logo img{width:100%;height:100%;object-fit:cover}
+.hinfo h1{font-size:19px;margin-bottom:2px}
+.hinfo p{font-size:12px;opacity:.9}
+.datetime{font-family:'Courier New',monospace;font-size:14px;background:rgba(255,255,255,.12);padding:6px 14px;border-radius:16px}
+
+.body{background:#fff;padding:26px 28px;border-radius:0 0 10px 10px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.grand-total{background:linear-gradient(135deg,#8B3A3A,#6B2D2D);color:#fff;border-radius:10px;padding:22px;text-align:center;margin-bottom:24px}
+.grand-total .n{font-family:'Courier New',monospace;font-size:42px;font-weight:900}
+.grand-total .lbl{font-size:13px;opacity:.9;margin-top:4px}
+.grand-total .bar-track{background:rgba(255,255,255,.25);border-radius:6px;height:10px;margin-top:12px;overflow:hidden}
+.grand-total .bar-fill{background:#fff;height:100%;transition:width .4s}
+
+.controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.controls .updated{font-size:11.5px;color:#888;font-family:'Courier New',monospace}
+.btn-refresh{background:#f5ede8;color:#8B3A3A;border:1.5px solid #d0c8b8;padding:8px 18px;border-radius:16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-refresh:hover{border-color:#8B3A3A}
+.btn-refresh:disabled{opacity:.5;cursor:not-allowed}
+
+.section-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.sec-card{background:#faf7f0;border:1.5px solid #e5dccf;border-radius:10px;padding:16px 18px}
+.sec-card .sec-name{font-family:'Georgia',serif;font-weight:700;color:#8B3A3A;font-size:15px;margin-bottom:8px}
+.sec-card .sec-frac{font-family:'Courier New',monospace;font-size:24px;font-weight:700;color:#2c2c2c}
+.sec-card .sec-frac .total{font-size:14px;color:#999;font-weight:400}
+.sec-card .bar-track{background:#e5dccf;border-radius:5px;height:8px;margin-top:10px;overflow:hidden}
+.sec-card .bar-fill{background:#8B3A3A;height:100%;transition:width .4s}
+.sec-card .pct{font-size:11px;color:#888;margin-top:5px;font-family:'Courier New',monospace}
+.sec-card.full{border-color:#2e7d6b;background:#eef7f4}
+.sec-card.full .sec-name{color:#2e7d6b}
+.sec-card.full .bar-fill{background:#2e7d6b}
+
+.loading{text-align:center;padding:40px;color:#aaa}
+.spinner{width:28px;height:28px;border:3px solid #eee;border-top-color:#8B3A3A;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-box{background:#fbeaea;color:#c0392b;padding:14px 18px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.footer{text-align:center;font-size:11px;color:#aaa;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo"><img src="KP_Singh.png" alt="KP Singh" onerror="this.style.display='none'"></div>
+      <div class="hinfo">
+        <h1>Event Attendance Dashboard</h1>
+        <p>SGT University · Live Check-in by Section</p>
+      </div>
+    </div>
+    <div class="datetime" id="hdrTime">--:--:--</div>
+  </div>
+  <div class="body">
+    <div id="errBox" class="err-box" style="display:none"></div>
+
+    <div class="grand-total" id="grandTotal">
+      <div class="loading"><div class="spinner"></div>Loading...</div>
+    </div>
+
+    <div class="controls">
+      <span class="updated" id="updatedAt">—</span>
+      <button class="btn-refresh" id="refreshBtn" onclick="loadDashboard(true)">🔄 Refresh Now</button>
+    </div>
+
+    <div class="section-grid" id="sectionGrid">
+      <div class="loading"><div class="spinner"></div>Loading sections...</div>
+    </div>
+
+    <div class="footer">Auto-refreshes every 15 seconds · kpsingh.in</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+var GAS_URL = 'PASTE_YOUR_EVENT_ATTENDANCE_WEB_APP_URL_HERE'; // same URL as the student check-in page
+
+function checkSheetUrl() {
+  if (GAS_URL.indexOf('PASTE_') === 0) return 'Setup incomplete: GAS_URL has not been set yet.';
+  if (GAS_URL.indexOf('/macros/s/') === -1 || GAS_URL.indexOf('/exec') === -1) return 'GAS_URL does not look like a valid Web App URL.';
+  return null;
+}
+
+function $(id){ return document.getElementById(id); }
+
+function updateClock() {
+  $('hdrTime').textContent = new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+var loading = false;
+function loadDashboard(manual) {
+  var problem = checkSheetUrl();
+  if (problem) { $('errBox').textContent = problem; $('errBox').style.display = 'block'; return; }
+  if (loading) return;
+  loading = true;
+  if (manual) { $('refreshBtn').disabled = true; $('refreshBtn').textContent = 'Refreshing...'; }
+
+  fetch(GAS_URL + '?action=dashboard&date=' + encodeURIComponent(todayStr()))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.status !== 'ok') { $('errBox').textContent = d.message || 'Error loading dashboard.'; $('errBox').style.display = 'block'; return; }
+      $('errBox').style.display = 'none';
+      render(d);
+      $('updatedAt').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    })
+    .catch(function(err){
+      $('errBox').textContent = 'Could not reach server — check connection.';
+      $('errBox').style.display = 'block';
+    })
+    .finally(function(){
+      loading = false;
+      $('refreshBtn').disabled = false;
+      $('refreshBtn').textContent = '🔄 Refresh Now';
+    });
+}
+
+function render(d) {
+  var pct = d.grandTotal ? Math.round(d.grandCount / d.grandTotal * 100) : 0;
+  $('grandTotal').innerHTML =
+    '<div class="n">' + d.grandCount + ' / ' + d.grandTotal + '</div>' +
+    '<div class="lbl">Total checked in today (' + d.date + ')</div>' +
+    '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>';
+
+  var html = d.sections.map(function(s){
+    var p = s.total ? Math.round(s.count / s.total * 100) : 0;
+    var full = s.total > 0 && s.count >= s.total;
+    return '<div class="sec-card' + (full ? ' full' : '') + '">' +
+      '<div class="sec-name">' + s.section + (full ? ' ✅' : '') + '</div>' +
+      '<div class="sec-frac">' + s.count + ' <span class="total">/ ' + s.total + '</span></div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + p + '%"></div></div>' +
+      '<div class="pct">' + p + '% checked in</div>' +
+      '</div>';
+  }).join('');
+  $('sectionGrid').innerHTML = html;
+}
+
+loadDashboard(false);
+setInterval(function(){ loadDashboard(false); }, 15000);
+</script>
+</body>
+</html>
