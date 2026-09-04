@@ -638,7 +638,8 @@ button {
 
 
 <script>
-
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxmkUGPHYXKF7AT5EHoJAWHg_gE0HgmSJkNBgo8bQAPa7Q-UKXD7Hq8dAjaLxQxsz1A/exec";
 
 /*******************************************************
  * VARIABLES
@@ -688,10 +689,10 @@ window.onload = function() {
   }
 
 
-  google.script.run
-    .withSuccessHandler(loadStudents)
-    .withFailureHandler(showError)
-    .getStudents();
+  fetch(WEB_APP_URL, {
+  method: "POST",
+  body: JSON.stringify(data)
+})
 
 
   canvas =
