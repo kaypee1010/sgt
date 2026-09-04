@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoP Attendance — Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3d8);min-height:100vh;padding:20px}
+.wrap{max-width:640px;margin:0 auto}
+.header{background:linear-gradient(135deg,#8B3A3A,#6B2D2D);color:#fff;padding:24px 28px;border-radius:10px 10px 0 0}
+.header h1{font-size:21px;margin-bottom:3px}
+.header p{font-size:13px;opacity:.9}
+.body{background:#fff;padding:28px;border-radius:0 0 10px 10px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.pin-field{margin-bottom:24px;padding:14px 16px;background:#fdf8f3;border:1.5px solid #e0d5c0;border-radius:8px}
+.pin-field label{display:block;font-size:12px;font-weight:700;color:#8B3A3A;margin-bottom:6px}
+.pin-field input{width:100%;padding:9px 11px;border:1px solid #d0c8b8;border-radius:5px;font-size:14px;font-family:inherit}
+.pin-hint{font-size:10.5px;color:#999;margin-top:5px}
+h2.section-h{font-size:14px;color:#8B3A3A;margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em}
+.card{border:1.5px solid #e0d5c0;border-radius:10px;padding:20px;margin-bottom:24px;background:#fafafa}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:5px}
+.field input,.field select{width:100%;padding:10px 12px;border:1px solid #d0c8b8;border-radius:5px;font-size:14px;font-family:inherit;background:#fff}
+.field input:focus,.field select:focus{outline:none;border-color:#8B3A3A}
+.row2{display:flex;gap:12px}
+.row2 .field{flex:1}
+.btn-add{width:100%;padding:11px;background:#8B3A3A;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:2px}
+.btn-add:disabled{background:#aaa;cursor:not-allowed}
+.hint{font-size:11px;color:#999;margin-top:4px;line-height:1.5}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:#999;padding:8px 6px;border-bottom:2px solid #eee}
+td{padding:10px 6px;border-bottom:1px solid #f2ece0;color:#444}
+td.sem{color:#8B3A3A;font-weight:700}
+.btn-remove{background:none;border:1px solid #d9b8b8;color:#a33;font-size:11px;font-weight:700;padding:5px 10px;border-radius:5px;cursor:pointer;font-family:inherit}
+.btn-remove:hover{background:#fbeaea}
+.empty-note{text-align:center;color:#999;font-size:12.5px;padding:20px 0}
+.spec-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f2ece0;font-size:13px}
+.spec-row:last-child{border-bottom:none}
+.spec-sec{font-weight:700;color:#8B3A3A;width:44px;flex-shrink:0}
+.spec-name{color:#555;flex:1}
+.msg{padding:12px 16px;border-radius:5px;margin-bottom:16px;font-size:14px;display:none}
+.msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.msg.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>PoP Attendance — Admin</h1>
+    <p>Faculty accounts · School of Engineering &amp; Technology, SGT University</p>
+  </div>
+  <div class="body">
+    <div id="msg" class="msg" role="alert"></div>
+
+    <div class="pin-field">
+      <label for="pin">Admin PIN</label>
+      <input type="password" id="pin" placeholder="Enter shared admin PIN" autocomplete="off" oninput="onPinChange()">
+      <div class="pin-hint">Kept in this browser tab only — not saved. This page adds/removes faculty logins; it does not open or close attendance sessions (that's faculty.html).</div>
+    </div>
+
+    <h2 class="section-h">Add a Faculty Account</h2>
+    <div class="card">
+      <div class="field">
+        <label for="fName">Faculty Name</label>
+        <input type="text" id="fName" placeholder="e.g. Dr. Rekha Sharma" autocomplete="off">
+        <div class="hint">This exact name is what shows up on every session they open/close. If two faculty share a name, add something to tell them apart (an initial, "Dr.", a department tag) — the system will refuse a second account under an indistinguishable name.</div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="fPass">Password</label>
+          <input type="text" id="fPass" placeholder="At least 4 characters" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="fSem">Semester</label>
+          <select id="fSem">
+            <option value="3">Semester 3</option>
+            <option value="5" selected>Semester 5</option>
+            <option value="7">Semester 7</option>
+          </select>
+        </div>
+      </div>
+      <div class="hint" style="margin-bottom:10px;">This account will only work on sections whose code starts with this semester's digit (e.g. Semester 5 → 5A, 5B, 5C, 5D, 5E) — enforced on the server, not just hidden in the UI.</div>
+      <button class="btn-add" id="addBtn" onclick="addFaculty()">Add Faculty</button>
+    </div>
+
+    <h2 class="section-h">Current Faculty Accounts</h2>
+    <div class="card">
+      <table id="facultyTable" style="display:none;">
+        <thead><tr><th>Name</th><th>Semester</th><th></th></tr></thead>
+        <tbody id="facultyBody"></tbody>
+      </table>
+      <div class="empty-note" id="facultyEmpty">Enter the admin PIN above to load the current list.</div>
+    </div>
+
+    <h2 class="section-h">Sections &amp; Specializations (reference)</h2>
+    <div class="card">
+      <div id="specList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+var GAS_URL = 'PASTE_YOUR_APPS_SCRIPT_/exec_URL_HERE';
+var FETCH_TIMEOUT_MS = 15000;
+
+// Mirrors SECTION_CONFIG in Code.gs — reference-only display here, doesn't
+// need the subject lists, just section → specialization.
+var SECTION_SPECIALIZATION = {
+  '5A': 'Cyber Security',
+  '5B': 'Cyber Security / Cloud Computing',
+  '5C': 'Artificial Intelligence & Machine Learning',
+  '5D': 'Artificial Intelligence & Machine Learning',
+  '5E': 'iOS Development / Data Science'
+};
+
+function $(id){ return document.getElementById(id); }
+
+function fetchWithTimeout(url, opts) {
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, FETCH_TIMEOUT_MS);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts).finally(function(){ clearTimeout(timer); });
+}
+
+function showMsg(text, type) {
+  var el = $('msg');
+  el.textContent = text; el.className = 'msg ' + type; el.style.display = 'block';
+  if (type !== 'error') setTimeout(function(){ el.style.display = 'none'; }, 4000);
+}
+
+function renderSpecList() {
+  var wrap = $('specList');
+  wrap.innerHTML = Object.keys(SECTION_SPECIALIZATION).map(function(sec) {
+    return '<div class="spec-row"><div class="spec-sec">' + sec + '</div><div class="spec-name">' + SECTION_SPECIALIZATION[sec] + '</div></div>';
+  }).join('');
+}
+
+var pinDebounce = null;
+function onPinChange() {
+  clearTimeout(pinDebounce);
+  pinDebounce = setTimeout(loadFaculty, 500);
+}
+
+function loadFaculty() {
+  var pin = $('pin').value.trim();
+  if (!pin) { $('facultyTable').style.display = 'none'; $('facultyEmpty').style.display = 'block'; $('facultyEmpty').textContent = 'Enter the admin PIN above to load the current list.'; return; }
+  fetchWithTimeout(GAS_URL + '?action=list_faculty&pin=' + encodeURIComponent(pin))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d || !d.success) {
+        $('facultyTable').style.display = 'none';
+        $('facultyEmpty').style.display = 'block';
+        $('facultyEmpty').textContent = (d && d.error) || 'Could not load faculty list.';
+        return;
+      }
+      renderFaculty(d.faculty);
+    })
+    .catch(function(){
+      $('facultyTable').style.display = 'none';
+      $('facultyEmpty').style.display = 'block';
+      $('facultyEmpty').textContent = 'Network problem loading faculty list.';
+    });
+}
+
+function renderFaculty(list) {
+  if (!list || list.length === 0) {
+    $('facultyTable').style.display = 'none';
+    $('facultyEmpty').style.display = 'block';
+    $('facultyEmpty').textContent = 'No faculty accounts yet — add the first one above.';
+    return;
+  }
+  $('facultyEmpty').style.display = 'none';
+  $('facultyTable').style.display = 'table';
+  var body = $('facultyBody');
+  body.innerHTML = '';
+  list.forEach(function(f) {
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + f.name + '</td>' +
+      '<td class="sem">Sem ' + f.semester + '</td>' +
+      '<td style="text-align:right;"><button class="btn-remove" onclick="removeFaculty(\'' + f.name.replace(/'/g, "\\'") + '\', this)">Remove</button></td>';
+    body.appendChild(tr);
+  });
+}
+
+function addFaculty() {
+  var pin = $('pin').value.trim();
+  if (!pin) { showMsg('Enter the admin PIN first.', 'error'); return; }
+  var name = $('fName').value.trim();
+  var password = $('fPass').value;
+  var semester = Number($('fSem').value);
+  if (!name) { showMsg('Enter the faculty name.', 'error'); return; }
+  if (!password || password.length < 4) { showMsg('Password must be at least 4 characters.', 'error'); return; }
+
+  $('addBtn').disabled = true; $('addBtn').textContent = 'Adding…';
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST', redirect: 'follow', headers: {'Content-Type':'text/plain'},
+    body: JSON.stringify({ type: 'faculty_add', pin: pin, name: name, password: password, semester: semester })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    $('addBtn').disabled = false; $('addBtn').textContent = 'Add Faculty';
+    if (d && d.success) {
+      showMsg('Added ' + d.name + ' (Semester ' + d.semester + ').', 'success');
+      $('fName').value = ''; $('fPass').value = '';
+      loadFaculty();
+    } else {
+      showMsg((d && d.error) || 'Could not add faculty.', 'error');
+    }
+  })
+  .catch(function(){
+    $('addBtn').disabled = false; $('addBtn').textContent = 'Add Faculty';
+    showMsg('Network problem adding faculty.', 'error');
+  });
+}
+
+function removeFaculty(name, btnEl) {
+  var pin = $('pin').value.trim();
+  if (!pin) { showMsg('Enter the admin PIN first.', 'error'); return; }
+  if (!confirm('Remove faculty account "' + name + '"? They will no longer be able to log in to faculty.html.')) return;
+  btnEl.disabled = true; btnEl.textContent = '…';
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST', redirect: 'follow', headers: {'Content-Type':'text/plain'},
+    body: JSON.stringify({ type: 'faculty_remove', pin: pin, name: name })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d && d.success) {
+      showMsg('Removed ' + name + '.', 'success');
+      loadFaculty();
+    } else {
+      showMsg((d && d.error) || 'Could not remove faculty.', 'error');
+      btnEl.disabled = false; btnEl.textContent = 'Remove';
+    }
+  })
+  .catch(function(){
+    showMsg('Network problem removing faculty.', 'error');
+    btnEl.disabled = false; btnEl.textContent = 'Remove';
+  });
+}
+
+renderSpecList();
+</script>
+</body>
+</html>

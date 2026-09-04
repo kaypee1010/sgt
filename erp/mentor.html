@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoP Attendance — Mentor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3d8);min-height:100vh;padding:20px}
+.wrap{max-width:640px;margin:0 auto}
+.header{background:linear-gradient(135deg,#2F3C7E,#1F2A5C);color:#fff;padding:24px 28px;border-radius:10px 10px 0 0}
+.header h1{font-size:21px;margin-bottom:3px}
+.header p{font-size:13px;opacity:.9}
+.body{background:#fff;padding:28px;border-radius:0 0 10px 10px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.pin-field{margin-bottom:16px;padding:14px 16px;background:#f0f2fa;border:1.5px solid #c8cfe8;border-radius:8px}
+.pin-field label{display:block;font-size:12px;font-weight:700;color:#2F3C7E;margin-bottom:6px}
+.pin-field input,.pin-field select{width:100%;padding:9px 11px;border:1px solid #c8cfe8;border-radius:5px;font-size:14px;font-family:inherit;margin-bottom:8px}
+.pin-hint{font-size:10.5px;color:#999;margin-top:4px}
+.tab-row{display:flex;gap:8px;margin-bottom:18px;border-bottom:2px solid #eee}
+.tab-btn{flex:1;padding:10px 6px;background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;color:#999;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+.tab-btn.active{color:#2F3C7E;border-bottom-color:#2F3C7E}
+.msg{padding:12px 16px;border-radius:5px;margin-bottom:16px;font-size:14px;display:none}
+.msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.msg.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.empty-state{text-align:center;padding:40px 20px;color:#999;font-size:13px;display:none}
+
+/* ── Requests tab ── */
+.req-card{border:1.5px solid #d0c8b8;border-radius:10px;padding:18px 20px;margin-bottom:16px;background:#fafafa}
+.req-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.req-name{font-weight:700;font-size:15px;color:#2F3C7E}
+.req-reg{font-size:11px;color:#999}
+.req-cat{background:#e8e3d8;color:#5a4a2a;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px}
+.req-dates{font-size:13px;color:#8B3A3A;font-weight:700;margin-bottom:6px}
+.req-reason{font-size:13px;color:#444;line-height:1.5;margin-bottom:10px}
+.req-file{display:inline-block;font-size:12px;color:#2F3C7E;font-weight:700;text-decoration:none;margin-bottom:14px;border:1px solid #c8cfe8;padding:6px 12px;border-radius:6px}
+.req-file:hover{background:#f0f2fa}
+.req-actions{display:flex;gap:10px}
+.btn{flex:1;padding:11px;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-approve{background:#1a5c2a;color:#fff}
+.btn-reject{background:#8B3A3A;color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.refresh-note{font-size:10px;color:#aaa;margin-top:8px;text-align:center}
+
+/* ── Attendance Watch tab ── */
+.watch-controls{background:#f7f5ef;border:1.5px solid #e6ddc8;border-radius:8px;padding:16px 18px;margin-bottom:18px}
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.slider-row input[type=range]{flex:1;accent-color:#8B3A3A}
+.slider-val{font-size:20px;font-weight:900;color:#8B3A3A;min-width:52px;text-align:right}
+.slider-caption{font-size:11px;color:#999;margin-bottom:14px}
+.btn-load{width:100%;padding:11px;background:#2F3C7E;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-load:disabled{background:#aaa;cursor:not-allowed}
+.watch-summary{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.watch-summary .count{font-size:13px;color:#555}
+.watch-summary .count b{color:#8B3A3A;font-size:16px}
+.btn-copy{background:#1a5c2a;color:#fff;border:none;padding:9px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-copy:hover{background:#134a20}
+.btn-copy.copied{background:#555}
+.student-card{border:1.5px solid #e2dbc8;border-radius:10px;padding:14px 16px;margin-bottom:12px;background:#fafafa}
+.student-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.student-name{font-weight:700;font-size:14px;color:#333}
+.student-reg{font-size:11px;color:#999}
+.subj-chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.subj-chip{font-size:11.5px;padding:5px 10px;border-radius:20px;font-weight:700;background:#f8d7da;color:#721c24}
+.subj-chip.mid{background:#fff3cd;color:#856404}
+.subj-chip.ok{background:#e2e6f5;color:#2F3C7E}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>PoP Attendance — Mentor</h1>
+    <p>Request approvals &amp; attendance watch</p>
+  </div>
+  <div class="body">
+    <div id="msg" class="msg" role="alert"></div>
+
+    <div class="pin-field">
+      <label for="pin">Mentor PIN</label>
+      <input type="password" id="pin" placeholder="Enter mentor PIN" autocomplete="off">
+      <label for="section">Section</label>
+      <select id="section" onchange="onSectionChange()"></select>
+      <div class="pin-hint" id="pinHint">Approving a request applies attendance automatically across every subject configured for this section, for every date the student requested.</div>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" id="tabBtnReq" onclick="switchTab('requests')">Pending Requests</button>
+      <button class="tab-btn" id="tabBtnWatch" onclick="switchTab('watch')">Attendance Watch</button>
+    </div>
+
+    <div id="requestsTab">
+      <div id="cardsWrap"></div>
+      <div class="empty-state" id="emptyState">No pending requests for this section right now.</div>
+      <div class="refresh-note">Refresh the page to check for new requests.</div>
+    </div>
+
+    <div id="watchTab" style="display:none;">
+      <div class="watch-controls">
+        <label style="font-size:11px;font-weight:700;color:#2F3C7E;display:block;margin-bottom:8px;">Flag students below</label>
+        <div class="slider-row">
+          <input type="range" id="thresholdSlider" min="30" max="90" step="5" value="75" oninput="onSliderInput()">
+          <div class="slider-val" id="thresholdVal">75%</div>
+        </div>
+        <div class="slider-caption">Per-subject attendance, calculated from classes actually opened so far this semester.</div>
+        <button class="btn-load" id="loadBtn" onclick="loadWatch()">Load Report</button>
+      </div>
+      <div id="watchResults"></div>
+      <div class="empty-state" id="watchEmpty">Enter the mentor PIN, pick a section, and load the report.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+var GAS_URL = 'PASTE_YOUR_APPS_SCRIPT_/exec_URL_HERE';
+var FETCH_TIMEOUT_MS = 15000;
+
+// Mirrors SECTION_CONFIG's keys in Code.gs/admin.html/faculty.html/student.html.
+var SECTIONS = ['5A', '5B', '5C', '5D', '5E'];
+var SECTION_SPECIALIZATION = {
+  '5A': 'Cyber Security',
+  '5B': 'Cyber Security / Cloud Computing',
+  '5C': 'Artificial Intelligence & Machine Learning',
+  '5D': 'Artificial Intelligence & Machine Learning',
+  '5E': 'iOS Development / Data Science'
+};
+
+var activeTab = 'requests';
+var lastWatchReport = null; // kept so "Copy WhatsApp Summary" doesn't need a re-fetch
+
+function $(id){ return document.getElementById(id); }
+
+function fetchWithTimeout(url, opts) {
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, FETCH_TIMEOUT_MS);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts).finally(function(){ clearTimeout(timer); });
+}
+
+function showMsg(text, type) {
+  var el = $('msg');
+  el.textContent = text; el.className = 'msg ' + type; el.style.display = 'block';
+  if (type !== 'error') setTimeout(function(){ el.style.display = 'none'; }, 5000);
+}
+
+function initSectionPicker() {
+  var sel = $('section');
+  sel.innerHTML = SECTIONS.map(function(s){
+    return '<option value="' + s + '">' + s + ' — ' + SECTION_SPECIALIZATION[s] + '</option>';
+  }).join('');
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  $('tabBtnReq').classList.toggle('active', tab === 'requests');
+  $('tabBtnWatch').classList.toggle('active', tab === 'watch');
+  $('requestsTab').style.display = tab === 'requests' ? 'block' : 'none';
+  $('watchTab').style.display = tab === 'watch' ? 'block' : 'none';
+  $('pinHint').textContent = tab === 'requests'
+    ? 'Approving a request applies attendance automatically across every subject configured for this section, for every date the student requested.'
+    : 'This report reads live from the same sheets faculty mark attendance into — no extra setup needed.';
+}
+
+function onSectionChange() {
+  if (activeTab === 'requests') loadRequests(); else { lastWatchReport = null; renderWatchEmpty('Section changed — load the report again.'); }
+}
+
+// ══════════ PENDING REQUESTS (unchanged behavior) ══════════
+function loadRequests() {
+  var pin = $('pin').value.trim();
+  var section = $('section').value;
+  if (!pin) { return; }
+  fetchWithTimeout(GAS_URL + '?action=get_pending_requests&section=' + section + '&pin=' + encodeURIComponent(pin))
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d || !d.success) {
+        showMsg((d && d.error) || 'Could not load requests.', 'error');
+        return;
+      }
+      renderRequests(d.requests, section);
+    })
+    .catch(function(){ showMsg('Network problem loading requests.', 'error'); });
+}
+
+function renderRequests(requests, section) {
+  var wrap = $('cardsWrap');
+  wrap.innerHTML = '';
+  if (!requests || requests.length === 0) {
+    $('emptyState').style.display = 'block';
+    return;
+  }
+  $('emptyState').style.display = 'none';
+  requests.forEach(function(r) {
+    var card = document.createElement('div');
+    card.className = 'req-card';
+    card.innerHTML =
+      '<div class="req-top">' +
+        '<div><div class="req-name">' + r.name + '</div><div class="req-reg">Reg. No. ' + r.reg + '</div></div>' +
+        '<span class="req-cat">' + r.category + '</span>' +
+      '</div>' +
+      '<div class="req-dates">' + r.dates + '</div>' +
+      '<div class="req-reason">' + r.reason + '</div>' +
+      '<a class="req-file" href="' + r.fileUrl + '" target="_blank" rel="noopener">&#128206; View signed document</a>' +
+      '<div class="req-actions">' +
+        '<button class="btn btn-approve" onclick="action_(\'' + r.requestId + '\', \'approve\', this, \'' + section + '\')">Approve</button>' +
+        '<button class="btn btn-reject" onclick="action_(\'' + r.requestId + '\', \'reject\', this, \'' + section + '\')">Reject</button>' +
+      '</div>';
+    wrap.appendChild(card);
+  });
+}
+
+function action_(requestId, act, btnEl, section) {
+  var pin = $('pin').value.trim();
+  var card = btnEl.closest('.req-card');
+  var buttons = card.querySelectorAll('button');
+  buttons.forEach(function(b){ b.disabled = true; });
+
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST', redirect: 'follow', headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify({ type: 'action_request', requestId: requestId, action: act, pin: pin, actionedBy: 'Mentor' })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d && d.success) {
+      showMsg(act === 'approve' ? 'Approved — attendance applied across all subjects for the requested dates.' : 'Request rejected.', 'success');
+      card.remove();
+      loadRequests();
+    } else {
+      showMsg((d && d.error) || 'Could not process this request.', 'error');
+      buttons.forEach(function(b){ b.disabled = false; });
+    }
+  })
+  .catch(function() {
+    showMsg('Network problem — try again.', 'error');
+    buttons.forEach(function(b){ b.disabled = false; });
+  });
+}
+
+// ══════════ ATTENDANCE WATCH (low-attendance dashboard) ══════════
+function onSliderInput() {
+  $('thresholdVal').textContent = $('thresholdSlider').value + '%';
+}
+
+function renderWatchEmpty(text) {
+  $('watchResults').innerHTML = '';
+  $('watchEmpty').style.display = 'block';
+  $('watchEmpty').textContent = text;
+}
+
+function loadWatch() {
+  var pin = $('pin').value.trim();
+  var section = $('section').value;
+  var threshold = $('thresholdSlider').value;
+  if (!pin) { showMsg('Enter the mentor PIN first.', 'error'); return; }
+
+  $('loadBtn').disabled = true; $('loadBtn').textContent = 'Loading…';
+  fetchWithTimeout(GAS_URL + '?action=get_low_attendance&section=' + section + '&pin=' + encodeURIComponent(pin) + '&threshold=' + threshold)
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      $('loadBtn').disabled = false; $('loadBtn').textContent = 'Load Report';
+      if (!d || !d.success) {
+        showMsg((d && d.error) || 'Could not load the report.', 'error');
+        renderWatchEmpty('Could not load the report.');
+        return;
+      }
+      lastWatchReport = d;
+      renderWatch(d);
+    })
+    .catch(function(){
+      $('loadBtn').disabled = false; $('loadBtn').textContent = 'Load Report';
+      showMsg('Network problem loading the report.', 'error');
+    });
+}
+
+function chipClass_(pct) {
+  if (pct < 50) return '';       // red (default .subj-chip)
+  if (pct < 65) return 'mid';    // amber
+  return 'ok';                   // indigo — still under threshold, but closer
+}
+
+function groupByStudent_(rows) {
+  var byReg = {};
+  var order = [];
+  rows.forEach(function(r) {
+    if (!byReg[r.reg]) { byReg[r.reg] = { reg: r.reg, name: r.name, subjects: [], worst: 100 }; order.push(r.reg); }
+    byReg[r.reg].subjects.push(r);
+    if (r.pct < byReg[r.reg].worst) byReg[r.reg].worst = r.pct;
+  });
+  var list = order.map(function(reg){ return byReg[reg]; });
+  list.sort(function(a, b){ return a.worst - b.worst; });
+  return list;
+}
+
+function renderWatch(d) {
+  var wrap = $('watchResults');
+  wrap.innerHTML = '';
+  if (!d.rows || d.rows.length === 0) {
+    wrap.innerHTML = '<div class="watch-summary"><div class="count">No students below <b>' + d.threshold + '%</b> in any subject — nice.</div></div>';
+    $('watchEmpty').style.display = 'none';
+    return;
+  }
+  $('watchEmpty').style.display = 'none';
+
+  var students = groupByStudent_(d.rows);
+  var summary = document.createElement('div');
+  summary.className = 'watch-summary';
+  summary.innerHTML =
+    '<div class="count"><b>' + students.length + '</b> student' + (students.length === 1 ? '' : 's') + ' below ' + d.threshold + '% in at least one subject</div>' +
+    '<button class="btn-copy" id="copyBtn" onclick="copyWhatsAppSummary()">Copy WhatsApp Summary</button>';
+  wrap.appendChild(summary);
+
+  students.forEach(function(s) {
+    s.subjects.sort(function(a, b){ return a.pct - b.pct; });
+    var card = document.createElement('div');
+    card.className = 'student-card';
+    card.innerHTML =
+      '<div class="student-top"><div class="student-name">' + s.name + '</div><div class="student-reg">Reg. No. ' + s.reg + '</div></div>' +
+      '<div class="subj-chip-row">' +
+        s.subjects.map(function(subj){
+          return '<span class="subj-chip ' + chipClass_(subj.pct) + '">' + subj.subjectCode + ' &middot; ' + subj.pct + '% (' + subj.attended + '/' + subj.held + ')</span>';
+        }).join('') +
+      '</div>';
+    wrap.appendChild(card);
+  });
+}
+
+function copyWhatsAppSummary() {
+  if (!lastWatchReport || !lastWatchReport.rows || lastWatchReport.rows.length === 0) return;
+  var section = $('section').value;
+  var students = groupByStudent_(lastWatchReport.rows);
+  var today = new Date();
+  var dateStr = today.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  var lines = [];
+  lines.push('*Attendance Alert — Section ' + section + '*');
+  lines.push('Below ' + lastWatchReport.threshold + '% · as of ' + dateStr);
+  lines.push('');
+  students.forEach(function(s, i) {
+    var subjBits = s.subjects.map(function(subj){ return subj.subjectCode + ': ' + subj.pct + '%'; }).join(', ');
+    lines.push((i + 1) + '. ' + s.name + ' (' + s.reg + ') — ' + subjBits);
+  });
+  lines.push('');
+  lines.push('Please encourage these students to attend regularly before the next internal assessment.');
+  var text = lines.join('\n');
+
+  var btn = $('copyBtn');
+  function markCopied() {
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = 'Copy WhatsApp Summary'; btn.classList.remove('copied'); }, 2500);
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(markCopied).catch(function(){
+      showMsg('Could not copy automatically — select and copy the text manually.', 'error');
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); markCopied(); } catch (e) { showMsg('Could not copy automatically — select and copy the text manually.', 'error'); }
+    document.body.removeChild(ta);
+  }
+}
+
+initSectionPicker();
+</script>
+</body>
+</html>

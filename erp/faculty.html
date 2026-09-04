@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoP Attendance — Faculty</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3d8);min-height:100vh;padding:20px}
+.wrap{max-width:640px;margin:0 auto}
+.header{background:linear-gradient(135deg,#8B3A3A,#6B2D2D);color:#fff;padding:24px 28px;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.header h1{font-size:21px;margin-bottom:3px}
+.header p{font-size:13px;opacity:.9}
+.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;font-family:inherit;font-size:11.5px;font-weight:700;padding:7px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;display:none}
+.logout-btn:hover{background:rgba(255,255,255,.25)}
+.body{background:#fff;padding:28px;border-radius:0 0 10px 10px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.login-box{max-width:360px;margin:0 auto}
+.login-box h2{font-size:16px;color:#8B3A3A;margin-bottom:6px}
+.login-box .sub{font-size:12.5px;color:#888;margin-bottom:20px;line-height:1.5}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:5px}
+.field input{width:100%;padding:11px 13px;border:1px solid #d0c8b8;border-radius:5px;font-size:14px;font-family:inherit;background:#fafafa}
+.field input:focus{outline:none;border-color:#8B3A3A;background:#fff}
+.btn-login{width:100%;padding:12px;background:#8B3A3A;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px}
+.btn-login:disabled{background:#aaa;cursor:not-allowed}
+.login-hint{font-size:11px;color:#999;margin-top:14px;text-align:center;line-height:1.5}
+.faculty-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:12px 16px;background:#fdf8f3;border:1.5px solid #e0d5c0;border-radius:8px}
+.faculty-bar .who{font-size:13px;color:#5a3a1a}
+.faculty-bar .who b{color:#8B3A3A}
+.faculty-bar .sem-tag{font-size:11px;background:#8B3A3A;color:#fff;padding:3px 10px;border-radius:20px;font-weight:700}
+.section-card{border:2px solid #d0c8b8;border-radius:10px;padding:20px;margin-bottom:18px;background:#fafafa}
+.section-card.live{border-color:#8B3A3A;background:#fdf8f3}
+.sec-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.sec-title{font-size:17px;font-weight:bold;color:#8B3A3A}
+.sec-spec{font-size:11px;color:#a58}
+.subject-select,.cs-select{width:100%;padding:9px 11px;border:1px solid #d0c8b8;border-radius:5px;font-size:14px;font-family:inherit;margin-bottom:10px;background:#fff;margin-top:10px}
+.cs-label{font-size:11px;font-weight:700;color:#777;margin-bottom:4px;display:block}
+.cs-extra{display:none;margin-bottom:10px}
+.cs-extra input{width:100%;padding:9px 11px;border:1px solid #d0c8b8;border-radius:5px;font-size:13px;font-family:inherit;margin-bottom:8px}
+.taughtby-box{background:#f0ebe0;border:1px solid #c8b89a;border-radius:5px;padding:9px 11px;font-size:13px;color:#5a3a1a;margin-bottom:8px}
+.taughtby-box b{color:#8B3A3A}
+.cs-hint{font-size:10.5px;color:#999;margin:-4px 0 10px 0}
+.btn-savestatus{display:none;width:100%;padding:10px;background:#6B7B8C;color:#fff;border:none;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.toggle-label{font-size:12px;font-weight:700;color:#555}
+.toggle{position:relative;width:58px;height:30px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle input:disabled + .slider{opacity:.45;cursor:not-allowed}
+.slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:30px;transition:.2s}
+.slider:before{content:"";position:absolute;height:24px;width:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+input:checked + .slider{background:#8B3A3A}
+input:checked + .slider:before{transform:translateX(28px)}
+.toggle-gate-note{font-size:10.5px;color:#a55;margin-bottom:10px;display:none}
+.status-line{font-size:13px;font-weight:600;margin-bottom:10px}
+.status-open{color:#1a5c2a}
+.status-closed{color:#888}
+.counts{display:flex;gap:10px;margin-top:10px}
+.count-box{flex:1;text-align:center;padding:10px 6px;border-radius:8px;background:#fff;border:1px solid #eee}
+.count-box .num{font-size:26px;font-weight:900;color:#8B3A3A}
+.count-box.green .num{color:#1a5c2a}
+.count-box.red .num{color:#c0392b}
+.count-box .lbl{font-size:10px;color:#888;margin-top:2px}
+.refresh-note{font-size:10px;color:#aaa;margin-top:8px;text-align:center}
+.msg{padding:12px 16px;border-radius:5px;margin-bottom:16px;font-size:14px;display:none}
+.msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.msg.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.msg.info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <h1>PoP Attendance — Faculty</h1>
+      <p>School of Engineering &amp; Technology, SGT University</p>
+    </div>
+    <button class="logout-btn" id="logoutBtn" onclick="doLogout()">Log out</button>
+  </div>
+  <div class="body">
+    <div id="msg" class="msg" role="alert"></div>
+
+    <div id="loginScreen" class="login-box">
+      <h2>Faculty Login</h2>
+      <div class="sub">Log in with the name and password your admin set up for you. Every session you open or close is recorded under this name — nothing typed by hand.</div>
+      <div class="field">
+        <label for="facName">Your Name</label>
+        <input type="text" id="facName" placeholder="Exactly as your admin entered it" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="facPass">Password</label>
+        <input type="password" id="facPass" placeholder="Your password" autocomplete="off">
+      </div>
+      <button class="btn-login" id="loginBtn" onclick="doLogin()">Log In</button>
+      <div class="login-hint">Don't have an account yet? Ask K.P. Singh (admin) to add you via admin.html.</div>
+    </div>
+
+    <div id="mainScreen" style="display:none;">
+      <div class="faculty-bar">
+        <div class="who">Logged in as <b id="facNameDisplay"></b></div>
+        <div class="sem-tag" id="facSemDisplay"></div>
+      </div>
+      <div id="cardsWrap"></div>
+      <div class="refresh-note">Live counts auto-refresh every 15 seconds while a session is open.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+var GAS_URL = 'PASTE_YOUR_APPS_SCRIPT_/exec_URL_HERE';
+var FETCH_TIMEOUT_MS = 15000;
+var REFRESH_MS = 15000;
+
+// Mirrors SECTION_CONFIG in Code.gs — if you edit sections/subjects there,
+// mirror the same edit here (and in admin.html / student.html).
+var SECTION_CONFIG = {
+  '5A': {
+    specialization: 'Cyber Security',
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'DBSAC', name: "DB Security and Access Control", requiresDesk: false },
+      { code: 'DBSACL', name: "DB Security and Access Control Lab", requiresDesk: true }
+    ]
+  },
+  '5B': {
+    specialization: 'Cyber Security / Cloud Computing',
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'DBSAC', name: "DB Security and Access Control (CS)", requiresDesk: false },
+      { code: 'DBSACL', name: "DB Security and Access Control Lab (CS)", requiresDesk: true },
+      { code: 'PCE', name: "Private Cloud Environment (CC)", requiresDesk: false },
+      { code: 'PCEL', name: "Private Cloud Environment Lab (CC)", requiresDesk: true }
+    ]
+  },
+  '5C': {
+    specialization: 'Artificial Intelligence & Machine Learning',
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'AMLP', name: "Advanced Machine Learning with Python Lab", requiresDesk: true },
+      { code: 'DLNN', name: "Deep Learning and Neural Network Lab", requiresDesk: true }
+    ]
+  },
+  '5D': {
+    specialization: 'Artificial Intelligence & Machine Learning',
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'AMLP', name: "Advanced Machine Learning with Python Lab", requiresDesk: true },
+      { code: 'DLNN', name: "Deep Learning and Neural Network Lab", requiresDesk: true }
+    ]
+  },
+  '5E': {
+    specialization: 'iOS Development / Data Science',
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'SWE', name: "Swift Essential (iOS)", requiresDesk: false },
+      { code: 'SWEL', name: "Swift Essential Lab (iOS)", requiresDesk: true },
+      { code: 'PBI', name: "Power BI (Data Science)", requiresDesk: false },
+      { code: 'PBIL', name: "Power BI Lab (Data Science)", requiresDesk: true }
+    ]
+  }
+};
+
+var state = {};
+var refreshTimer = null;
+var faculty = null; // { name, semester } once logged in — kept in-memory only, this tab, this session
+
+function $(id){ return document.getElementById(id); }
+
+function fetchWithTimeout(url, opts) {
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, FETCH_TIMEOUT_MS);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts).finally(function(){ clearTimeout(timer); });
+}
+
+function showMsg(text, type) {
+  var el = $('msg');
+  el.textContent = text; el.className = 'msg ' + type; el.style.display = 'block';
+  if (type !== 'error') setTimeout(function(){ el.style.display = 'none'; }, 4000);
+}
+
+// ══════════ LOGIN ══════════
+function doLogin() {
+  var name = $('facName').value.trim();
+  var password = $('facPass').value;
+  if (!name || !password) { showMsg('Enter both your name and password.', 'error'); return; }
+  $('loginBtn').disabled = true; $('loginBtn').textContent = 'Checking…';
+
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST', redirect: 'follow', headers: {'Content-Type':'text/plain'},
+    body: JSON.stringify({ type: 'faculty_login', name: name, password: password })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    $('loginBtn').disabled = false; $('loginBtn').textContent = 'Log In';
+    if (d && d.success) {
+      faculty = { name: d.name, password: password, semester: d.semester };
+      $('facPass').value = '';
+      enterMain();
+    } else {
+      showMsg((d && d.error) || 'Login failed.', 'error');
+    }
+  })
+  .catch(function(){
+    $('loginBtn').disabled = false; $('loginBtn').textContent = 'Log In';
+    showMsg('Network problem logging in.', 'error');
+  });
+}
+
+function doLogout() {
+  clearInterval(refreshTimer);
+  faculty = null;
+  state = {};
+  $('mainScreen').style.display = 'none';
+  $('loginScreen').style.display = 'block';
+  $('logoutBtn').style.display = 'none';
+  $('facName').value = ''; $('facPass').value = '';
+}
+
+function enterMain() {
+  $('loginScreen').style.display = 'none';
+  $('mainScreen').style.display = 'block';
+  $('logoutBtn').style.display = 'inline-block';
+  $('facNameDisplay').textContent = faculty.name;
+  $('facSemDisplay').textContent = 'Semester ' + faculty.semester;
+  buildCards();
+  Object.keys(state).forEach(refreshOne);
+}
+
+// ══════════ SECTIONS FOR THIS FACULTY'S SEMESTER ══════════
+function sectionsForSemester_() {
+  return Object.keys(SECTION_CONFIG).filter(function(sec) {
+    var m = sec.match(/^(\d+)/);
+    return m && Number(m[1]) === faculty.semester;
+  });
+}
+
+function buildCards() {
+  var wrap = $('cardsWrap');
+  wrap.innerHTML = '';
+  state = {};
+  var sections = sectionsForSemester_();
+  if (sections.length === 0) {
+    wrap.innerHTML = '<div style="text-align:center;color:#999;font-size:13px;padding:30px 0;">No sections configured yet for Semester ' + faculty.semester + '.</div>';
+    return;
+  }
+  sections.forEach(function(section) {
+    state[section] = { subject: SECTION_CONFIG[section].subjects[0].code, open: false };
+
+    var card = document.createElement('div');
+    card.className = 'section-card';
+    card.id = 'card_' + section;
+
+    var options = SECTION_CONFIG[section].subjects.map(function(s) {
+      return '<option value="' + s.code + '">' + s.name + '</option>';
+    }).join('');
+
+    card.innerHTML =
+      '<div class="sec-row"><div class="sec-title">Section ' + section + '</div></div>' +
+      '<div class="sec-spec">' + (SECTION_CONFIG[section].specialization || '') + '</div>' +
+      '<select class="subject-select" id="subject_' + section + '" onchange="onSubjectChange(\'' + section + '\')">' + options + '</select>' +
+
+      '<label class="cs-label">Class Type *</label>' +
+      '<select class="cs-select" id="ct_' + section + '" oninput="updateToggleGate(\'' + section + '\')">' +
+        '<option value="">Select&hellip;</option>' +
+        '<option value="Regular Class">Regular Class</option>' +
+        '<option value="Extra Class">Extra Class</option>' +
+        '<option value="Makeup Class">Makeup Class</option>' +
+      '</select>' +
+
+      '<label class="cs-label">Attendance Status *</label>' +
+      '<select class="cs-select" id="cs_' + section + '" onchange="onClassStatusChange(\'' + section + '\')">' +
+        '<option value="">Select&hellip;</option>' +
+        '<option value="Completed">Completed</option>' +
+        '<option value="Continued">Continued</option>' +
+        '<option value="Mass Bunk">Mass Bunk</option>' +
+        '<option value="College Function">College Function</option>' +
+        '<option value="Holiday">Holiday</option>' +
+        '<option value="Others">Others</option>' +
+        '<option value="Internal Exam">Internal Exam</option>' +
+      '</select>' +
+
+      '<div class="cs-extra" id="csExtra_' + section + '">' +
+        '<input type="text" id="topic_' + section + '" placeholder="Topic Covered *" oninput="updateToggleGate(\'' + section + '\')">' +
+        '<div class="taughtby-box">Taught By: <b>' + faculty.name + '</b> <span style="color:#999;">(from your login — can’t be changed here)</span></div>' +
+        '<label class="cs-label">Time Slot (optional)</label>' +
+        '<select class="cs-select" id="slot_' + section + '" style="margin-bottom:0;">' +
+          '<option value="">Not specified</option>' +
+          '<option value="S1">S1 &middot; 9:00&ndash;10:00</option>' +
+          '<option value="S2">S2 &middot; 10:00&ndash;11:00</option>' +
+          '<option value="S3">S3 &middot; 11:00&ndash;12:00</option>' +
+          '<option value="S4">S4 &middot; 12:00&ndash;1:00</option>' +
+          '<option value="S5">S5 &middot; 1:30&ndash;2:30</option>' +
+          '<option value="S6">S6 &middot; 2:30&ndash;3:30</option>' +
+          '<option value="S7">S7 &middot; 3:30&ndash;4:30</option>' +
+        '</select>' +
+      '</div>' +
+      '<div class="cs-hint" id="csHint_' + section + '"></div>' +
+      '<button class="btn-savestatus" id="saveStatus_' + section + '" onclick="saveNonCompletedStatus(\'' + section + '\')">Save Status (no attendance today)</button>' +
+      '<div class="toggle-row">' +
+        '<div class="toggle-label">Open Attendance</div>' +
+        '<label class="toggle">' +
+          '<input type="checkbox" id="toggle_' + section + '" disabled onchange="onToggle(\'' + section + '\', this.checked)">' +
+          '<span class="slider"></span>' +
+        '</label>' +
+      '</div>' +
+      '<div class="toggle-gate-note" id="gateNote_' + section + '">Set Class Type + Attendance Status to Completed, then fill Topic Covered, to unlock this.</div>' +
+      '<div class="status-line status-closed" id="status_' + section + '">Closed</div>' +
+      '<div class="counts">' +
+        '<div class="count-box"><div class="num" id="present_' + section + '">0</div><div class="lbl">PRESENT</div></div>' +
+        '<div class="count-box green"><div class="num" id="oncampus_' + section + '">0</div><div class="lbl">ON-CAMPUS</div></div>' +
+        '<div class="count-box red"><div class="num" id="offcampus_' + section + '">0</div><div class="lbl">OFF-CAMPUS</div></div>' +
+      '</div>';
+    wrap.appendChild(card);
+  });
+}
+
+function onClassStatusChange(section) {
+  var cs = $('cs_' + section).value;
+  var extra = $('csExtra_' + section);
+  var saveBtn = $('saveStatus_' + section);
+  if (cs === 'Completed') {
+    extra.style.display = 'block';
+    saveBtn.style.display = 'none';
+  } else if (cs) { // any selected status other than Completed means "no attendance today"
+    extra.style.display = 'none';
+    saveBtn.style.display = state[section].open ? 'none' : 'block';
+  } else {
+    extra.style.display = 'none';
+    saveBtn.style.display = 'none';
+  }
+  updateToggleGate(section);
+}
+
+function updateToggleGate(section) {
+  var cs = $('cs_' + section).value;
+  var topic = $('topic_' + section).value.trim();
+  var classType = $('ct_' + section).value;
+  var valid = cs === 'Completed' && topic && classType;
+  var toggle = $('toggle_' + section);
+  var note = $('gateNote_' + section);
+  if (state[section].open) {
+    toggle.disabled = false;
+    note.style.display = 'none';
+  } else {
+    toggle.disabled = !valid;
+    note.style.display = valid ? 'none' : 'block';
+  }
+}
+
+function saveNonCompletedStatus(section) {
+  var subject = state[section].subject;
+  var classStatus = $('cs_' + section).value;
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST', redirect: 'follow', headers: {'Content-Type':'text/plain'},
+    body: JSON.stringify({ type: 'log_class_status', section: section, subject: subject, classStatus: classStatus, facultyName: faculty.name, facultyPassword: faculty.password })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d && d.success) {
+      showMsg('Logged: ' + section + ' (' + subjectName_(section, subject) + ') — ' + classStatus + '.', 'success');
+    } else {
+      showMsg((d && d.error) || 'Could not save status.', 'error');
+    }
+  })
+  .catch(function(){ showMsg('Network problem saving status.', 'error'); });
+}
+
+function onSubjectChange(section) {
+  state[section].subject = $('subject_' + section).value;
+  $('cs_' + section).value = '';
+  $('topic_' + section).value = '';
+  $('ct_' + section).value = '';
+  $('slot_' + section).value = '';
+  onClassStatusChange(section);
+  refreshOne(section);
+}
+
+function onToggle(section, isOpen) {
+  var subject = state[section].subject;
+  var payload = { type: 'session_toggle', section: section, subject: subject, action: isOpen ? 'open' : 'close', facultyName: faculty.name, facultyPassword: faculty.password };
+  if (isOpen) {
+    payload.classStatus = $('cs_' + section).value;
+    payload.topicCovered = $('topic_' + section).value.trim();
+    payload.classType = $('ct_' + section).value;
+    payload.timeSlot = $('slot_' + section).value;
+  }
+
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST', redirect: 'follow', headers: {'Content-Type':'text/plain'},
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d && d.success) {
+      state[section].open = isOpen;
+      updateCard(section, isOpen);
+      updateToggleGate(section);
+      showMsg('Section ' + section + ' (' + subjectName_(section, subject) + ') attendance ' + (isOpen ? 'opened' : 'closed') + '.', 'success');
+      manageRefresh();
+    } else {
+      showMsg((d && d.error) || 'Could not update session.', 'error');
+      $('toggle_' + section).checked = !isOpen;
+    }
+  })
+  .catch(function(){
+    showMsg('Network problem toggling ' + section + '.', 'error');
+    $('toggle_' + section).checked = !isOpen;
+  });
+}
+
+function subjectName_(section, code) {
+  var subs = SECTION_CONFIG[section].subjects;
+  for (var i = 0; i < subs.length; i++) if (subs[i].code === code) return subs[i].name;
+  return code;
+}
+
+function updateCard(section, isOpen) {
+  var card = $('card_' + section);
+  var status = $('status_' + section);
+  card.classList.toggle('live', isOpen);
+  status.textContent = isOpen ? 'Open — students can mark now' : 'Closed';
+  status.className = 'status-line ' + (isOpen ? 'status-open' : 'status-closed');
+}
+
+function refreshCounts() {
+  Object.keys(state).forEach(function(section) {
+    if (!state[section].open) return;
+    var subject = state[section].subject;
+    fetchWithTimeout(GAS_URL + '?action=get_live_count&section=' + section + '&subject=' + subject)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (!d || !d.success) return;
+        $('present_' + section).textContent = d.present;
+        $('oncampus_' + section).textContent = d.onCampus;
+        $('offcampus_' + section).textContent = d.offCampus;
+      })
+      .catch(function(){});
+  });
+}
+
+function manageRefresh() {
+  clearInterval(refreshTimer);
+  var anyOpen = Object.keys(state).some(function(s){ return state[s].open; });
+  if (anyOpen) {
+    refreshCounts();
+    refreshTimer = setInterval(refreshCounts, REFRESH_MS);
+  }
+}
+
+function refreshOne(section) {
+  var subject = state[section].subject;
+  fetchWithTimeout(GAS_URL + '?action=get_session_status&section=' + section + '&subject=' + subject)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d || !d.success) return;
+      var isOpen = !!d.open;
+      state[section].open = isOpen;
+      $('toggle_' + section).checked = isOpen;
+      updateCard(section, isOpen);
+
+      $('cs_' + section).value = d.classStatus || '';
+      $('topic_' + section).value = d.topicCovered || '';
+      $('ct_' + section).value = d.classType || '';
+      $('slot_' + section).value = d.timeSlot || '';
+      onClassStatusChange(section);
+
+      manageRefresh();
+    })
+    .catch(function(){});
+}
+</script>
+</body>
+</html>
