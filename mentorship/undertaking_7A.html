@@ -88,19 +88,36 @@ function studentSelected(){
    document.getElementById('agreement').checked=false;clearSignature();
  });
 }
-function setupCanvas(){
- const ratio=Math.max(devicePixelRatio||1,1),rect=canvas.getBoundingClientRect();
- canvas.width=rect.width*ratio;canvas.height=rect.height*ratio;ctx=canvas.getContext('2d');ctx.scale(ratio,ratio);
- ctx.lineWidth=2.2;ctx.lineCap='round';ctx.lineJoin='round';
- canvas.addEventListener('mousedown',startDrawing);canvas.addEventListener('mousemove',draw);canvas.addEventListener('mouseup',stopDrawing);canvas.addEventListener('mouseleave',stopDrawing);
- canvas.addEventListener('touchstart',e=>{e.preventDefault();startDrawing(e.touches[0])},{passive:false});
- canvas.addEventListener('touchmove',e=>{e.preventDefault();draw(e.touches[0])},{passive:false});
- canvas.addEventListener('touchend',e=>{e.preventDefault();stopDrawing()},{passive:false});
+function setupCanvas() {
+
+  if (!canvas) return;
+
+  canvas.style.touchAction = 'none';
+
+  resizeCanvas();
+
+  canvas.addEventListener('pointerdown', startDrawing);
+  canvas.addEventListener('pointermove', draw);
+  canvas.addEventListener('pointerup', stopDrawing);
+  canvas.addEventListener('pointercancel', stopDrawing);
+  canvas.addEventListener('pointerleave', stopDrawing);
 }
-function pos(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-function startDrawing(e){drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)}
-function draw(e){if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();hasSignature=true;validateForm()}
-function stopDrawing(){drawing=false}
+
+
+function resizeCanvas() {
+
+  if (!canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  if (rect.width === 0 || rect.height === 0) return;
+
+  const ratio = window.devicePixelRatio || 1;
+
+  canvas.width = Math.round(rect.width * ratio);
+  canvas.height = Math.round(rect.height * ratio);
+
+ 
 function clearSignature(){if(!ctx)return;ctx.clearRect(0,0,canvas.width,canvas.height);hasSignature=false;validateForm()}
 function validateForm(){document.getElementById('submitBtn').disabled=!selectedStudent||!document.getElementById('agreement').checked||!hasSignature}
 function prepareSubmit(){
