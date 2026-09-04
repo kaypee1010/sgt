@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoP Attendance — Section 5A</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3d8);min-height:100vh;padding:16px}
+.card{max-width:460px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.12);overflow:hidden}
+.header{background:linear-gradient(135deg,#8B3A3A,#6B2D2D);color:#fff;padding:20px 24px}
+.header h1{font-size:18px;margin-bottom:2px}
+.header p{font-size:12px;opacity:.9}
+.body{padding:24px}
+.status-banner{border-radius:8px;padding:12px 14px;margin-bottom:18px;font-size:13px;line-height:1.5;display:none}
+.status-open{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.status-closed{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.status-marked{background:#cfe2ff;color:#084298;border:1px solid #b6d4fe}
+.gps-banner{background:#fff8e1;border:2px solid #f9a825;border-radius:8px;padding:14px 16px;margin-bottom:18px;font-size:12px;color:#555}
+.gps-result{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:16px;display:none}
+.gps-ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.gps-warn{background:#fff3cd;color:#856404;border:1px solid #ffeeba}
+.field{margin-bottom:16px}
+label{display:block;font-weight:600;font-size:13px;color:#444;margin-bottom:5px}
+input[type=text],select{width:100%;padding:11px 13px;border:1px solid #d0c8b8;border-radius:5px;font-size:15px;background:#fafafa;font-family:inherit}
+input:focus,select:focus{outline:none;border-color:#8B3A3A;box-shadow:0 0 0 3px rgba(139,58,58,.1);background:#fff}
+select:disabled{color:#aaa;background:#f0ede6}
+.name-box{background:#f0ebe0;border:1px solid #c8b89a;border-radius:5px;padding:11px 13px;font-size:15px;font-weight:600;color:#5a3a1a;min-height:44px;display:flex;align-items:center}
+.name-ok{color:#1a5c2a !important}
+.name-err{color:#7c1c24 !important}
+.hint{font-size:11px;color:#999;margin-top:4px}
+.btn-submit{width:100%;padding:14px;background:#8B3A3A;color:#fff;border:none;border-radius:5px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px}
+.btn-submit:disabled{background:#aaa;cursor:not-allowed}
+.msg{padding:14px;border-radius:6px;margin-bottom:16px;font-size:14px;display:none;text-align:center;line-height:1.5}
+.msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.msg.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.footer{text-align:center;font-size:11px;color:#aaa;margin-top:18px;padding-top:14px;border-top:1px solid #eee}
+#subjectField{display:none}
+#deskField{display:none}
+.tab-row{display:flex;gap:8px;margin-bottom:18px;border-bottom:2px solid #eee}
+.tab-btn{flex:1;padding:10px 6px;background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;color:#999;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+.tab-btn.active{color:#8B3A3A;border-bottom-color:#8B3A3A}
+#requestTab{display:none}
+textarea{width:100%;padding:11px 13px;border:1px solid #d0c8b8;border-radius:5px;font-size:14px;background:#fafafa;font-family:inherit;resize:vertical;min-height:64px}
+textarea:focus{outline:none;border-color:#8B3A3A;box-shadow:0 0 0 3px rgba(139,58,58,.1);background:#fff}
+.date-row{display:flex;gap:10px}
+.date-row .field{flex:1}
+input[type=file]{width:100%;padding:9px;border:1.5px dashed #c8b89a;border-radius:5px;font-size:12.5px;background:#fafafa;font-family:inherit}
+.req-hint{font-size:11px;color:#999;margin-top:4px;line-height:1.5}
+.my-requests{margin-top:22px;padding-top:16px;border-top:1px solid #eee}
+.my-requests h4{font-size:12px;color:#777;margin-bottom:10px;text-transform:uppercase;letter-spacing:.03em}
+.req-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f3ede1;font-size:12.5px}
+.req-dates{color:#444;font-weight:600}
+.req-reason{color:#999;font-size:11px}
+.req-badge{padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700}
+.req-badge.Pending{background:#fff3cd;color:#856404}
+.req-badge.Approved{background:#d4edda;color:#155724}
+.req-badge.Rejected{background:#f8d7da;color:#721c24}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <h1>PoP Attendance</h1>
+    <p>B.Tech Sem 5 · School of Engineering & Technology, SGT University</p>
+  </div>
+  <div class="body">
+    <div id="msg" class="msg" role="alert"></div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" id="tabBtnMark" onclick="switchTab('mark')">Mark Attendance</button>
+      <button class="tab-btn" id="tabBtnRequest" onclick="switchTab('request')">Request Attendance</button>
+    </div>
+
+    <div class="field">
+      <label for="reg">Registration Number *</label>
+      <input type="text" id="reg" placeholder="e.g. 231302022" maxlength="16" autocomplete="off">
+      <div class="hint">LEET / lateral-entry students: include the -LEET suffix, e.g. 251302265-LEET.</div>
+    </div>
+    <div class="field">
+      <label>Name / Section (auto-detected)</label>
+      <div class="name-box" id="nameBox">&mdash;</div>
+    </div>
+
+    <div id="markTab">
+      <div id="statusBanner" class="status-banner"></div>
+      <div class="gps-banner" id="gpsBanner">
+        &#128205; Checking your location for on-campus verification&hellip;
+      </div>
+      <div id="gpsResult" class="gps-result"></div>
+      <div class="field" id="subjectField">
+        <label for="subject">Which class are you marking attendance for? *</label>
+        <select id="subject"><option value="">Select a subject&hellip;</option></select>
+      </div>
+      <div class="field" id="deskField">
+        <label for="desk">Lab Desktop / PC Number *</label>
+        <input type="text" id="desk" placeholder="e.g. PC-14" maxlength="10" autocomplete="off">
+      </div>
+      <button class="btn-submit" id="submitBtn" onclick="submitAttendance()" disabled>Mark My Attendance</button>
+    </div>
+
+    <div id="requestTab">
+      <div class="req-hint" style="margin-bottom:14px;">For an approved event, sports meet, or activity — upload your already HOD/Dean-signed document, and if a mentor approves it, attendance is marked automatically across <b>every subject</b> for the dates you select. No need to inform each faculty separately.</div>
+      <div class="date-row">
+        <div class="field">
+          <label for="reqFrom">From Date *</label>
+          <input type="date" id="reqFrom">
+        </div>
+        <div class="field">
+          <label for="reqTo">To Date *</label>
+          <input type="date" id="reqTo">
+        </div>
+      </div>
+      <div class="field">
+        <label for="reqCategory">Category *</label>
+        <select id="reqCategory">
+          <option value="">Select&hellip;</option>
+          <option value="Event">Event</option>
+          <option value="Sports">Sports</option>
+          <option value="Synergy / Cultural">Synergy / Cultural</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="reqReason">Reason *</label>
+        <textarea id="reqReason" placeholder="e.g. Represented SGT at Inter-University Basketball Championship"></textarea>
+      </div>
+      <div class="field">
+        <label for="reqFile">Signed Supporting Document *</label>
+        <input type="file" id="reqFile" accept="image/*,.pdf">
+        <div class="req-hint">Must already carry HOD/Dean approval — this only routes it to your mentor for the final attendance approval.</div>
+      </div>
+      <button class="btn-submit" id="reqSubmitBtn" onclick="submitRequest()">Submit Request</button>
+
+      <div class="my-requests" id="myRequests" style="display:none;">
+        <h4>Your Recent Requests</h4>
+        <div id="myRequestsList"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      PoP Attendance · B.Tech Sem 5, Section 5A<br>
+      Attendance is only accepted while your teacher's session is open.
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ══════════ CONFIG ══════════
+var GAS_URL = 'PASTE_YOUR_APPS_SCRIPT_/exec_URL_HERE';
+var CAMPUS_LAT = 28.482876235405023, CAMPUS_LNG = 76.90686746329484, RADIUS_M = 400;
+var FETCH_TIMEOUT_MS = 20000;
+var POLL_MS = 8000;
+
+// Mirrors SECTION_CONFIG in Code.gs — subject list per section, used purely
+// to populate the dropdown client-side without an extra round-trip. If you
+// edit subjects in Code.gs, mirror the same edit here.
+var SECTION_CONFIG = {
+  '5A': {
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'DBSAC', name: "DB Security and Access Control", requiresDesk: false },
+      { code: 'DBSACL', name: "DB Security and Access Control Lab", requiresDesk: true }
+    ]
+  },
+  '5B': {
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'DBSAC', name: "DB Security and Access Control (CS)", requiresDesk: false },
+      { code: 'DBSACL', name: "DB Security and Access Control Lab (CS)", requiresDesk: true },
+      { code: 'PCE', name: "Private Cloud Environment (CC)", requiresDesk: false },
+      { code: 'PCEL', name: "Private Cloud Environment Lab (CC)", requiresDesk: true }
+    ]
+  },
+  '5C': {
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'AMLP', name: "Advanced Machine Learning with Python Lab", requiresDesk: true },
+      { code: 'DLNN', name: "Deep Learning and Neural Network Lab", requiresDesk: true }
+    ]
+  },
+  '5D': {
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'AMLP', name: "Advanced Machine Learning with Python Lab", requiresDesk: true },
+      { code: 'DLNN', name: "Deep Learning and Neural Network Lab", requiresDesk: true }
+    ]
+  },
+  '5E': {
+    subjects: [
+      { code: 'DAA', name: "Design and Analysis of Algorithms", requiresDesk: false },
+      { code: 'DAAL', name: "Design and Analysis of Algorithms Lab", requiresDesk: true },
+      { code: 'CD', name: "Compiler Design", requiresDesk: false },
+      { code: 'CDL', name: "Compiler Design Lab", requiresDesk: true },
+      { code: 'DBMS', name: "Database Management Systems", requiresDesk: false },
+      { code: 'DBMSL', name: "Database Management Systems Lab", requiresDesk: true },
+      { code: 'IVP', name: "Image and Video Processing", requiresDesk: false },
+      { code: 'PDCB', name: "Personality Development & Career Building", requiresDesk: false },
+      { code: 'BPLSE', name: "Blockchain Policy: Legal, Social and Economic Impact", requiresDesk: false },
+      { code: 'ITR1', name: "Industrial Training-I", requiresDesk: false },
+      { code: 'SEC3', name: "SEC-III (MATLAB)", requiresDesk: true },
+      { code: 'SWE', name: "Swift Essential (iOS)", requiresDesk: false },
+      { code: 'SWEL', name: "Swift Essential Lab (iOS)", requiresDesk: true },
+      { code: 'PBI', name: "Power BI (Data Science)", requiresDesk: false },
+      { code: 'PBIL', name: "Power BI Lab (Data Science)", requiresDesk: true }
+    ]
+  }
+};
+
+// Roster: regNo -> {n: name, s: section}. Example entries only — replace
+// with your real roster at generation time. Kept as a separate source of
+// truth from the Sheet (same reasoning as the original template): fast,
+// works even if Apps Script is cold, but means a roster change requires
+// regenerating/redeploying this file, not just editing the Sheet.
+var ROSTER = {"241302003":{n:"NIDHI GOYAL",s:"5A"},"241302012":{n:"ARUN PRASAD",s:"5A"},"241302023":{n:"HIMANSHU JANGRA",s:"5A"},"241302024":{n:"ABHINAV PANT",s:"5A"},"241302026":{n:"TANUJ GARG",s:"5A"},"241302028":{n:"MOHIT",s:"5A"},"241302031":{n:"LAKSHIT",s:"5A"},"241302034":{n:"SAMYAK JAIN",s:"5A"},"241302035":{n:"RITIK",s:"5A"},"241302037":{n:"MUKUL",s:"5A"},"241302045":{n:"HARSH KANT VARDHAN",s:"5A"},"241302062":{n:"KARTIK MALIK",s:"5A"},"241302067":{n:"DEEPANSHU YADAV",s:"5A"},"241302072":{n:"TAMANNA HOODA",s:"5A"},"241302073":{n:"PANKAJ",s:"5A"},"241302074":{n:"HIMANSHU JANGHU",s:"5A"},"241302076":{n:"NEHA",s:"5A"},"241302085":{n:"RAUMAN ALAM",s:"5A"},"241302088":{n:"MANISH",s:"5A"},"241302091":{n:"DEVASHISH",s:"5A"},"241302093":{n:"DHRUV SHARMA",s:"5A"},"241302098":{n:"YASHIKA YADAV",s:"5A"},"241302103":{n:"RAHUL SAINI",s:"5A"},"2413022110":{n:"UDAY",s:"5A"},"241302116":{n:"SAURABH KUMAR",s:"5A"},"241302130":{n:"TIYA SHARMA",s:"5A"},"241302135":{n:"SURAJ NAYAK",s:"5A"},"241302137":{n:"HEMANT CHAUHAN",s:"5A"},"241302145":{n:"SYED EMAAD UD DIN ANDRABI",s:"5A"},"241302147":{n:"AYUSH MISHRA",s:"5A"},"241302154":{n:"DIKSHA DAHIYA",s:"5A"},"241302157":{n:"HARSH YADAV",s:"5A"},"241302159":{n:"BRISHABH DEV SINGH",s:"5A"},"241302165":{n:"MADHU LATA",s:"5A"},"241302167":{n:"RISHIKA SINGH",s:"5A"},"241302169":{n:"NAVNEET SINGH",s:"5A"},"241302170":{n:"BHAVISHYA SANGWAN",s:"5A"},"241302175":{n:"DEVANSHI",s:"5A"},"241302179":{n:"SACHIN",s:"5A"},"241302187":{n:"RONAK",s:"5A"},"241302192":{n:"KARTIK VATS",s:"5A"},"241302197":{n:"KASHISH",s:"5A"},"241302201":{n:"ANISH BRODIYA",s:"5A"},"241302203":{n:"YASH DESHWAL",s:"5A"},"241302210":{n:"DHEERAJ YADAV",s:"5A"},"241302211":{n:"KHUSHAL",s:"5A"},"241302212":{n:"RISHITA .",s:"5A"},"241302213":{n:"BHANU PRATAP SHARMA",s:"5A"},"241302218":{n:"ASHISH KUMAR SHARMA",s:"5A"},"241302222":{n:"DHRUV SHARMA",s:"5A"},"241302223":{n:"PRANAV PRASUN",s:"5A"},"241302227":{n:"DIVYANSH SARAOGI",s:"5A"},"241302234":{n:"DEEPAK MITTAL",s:"5A"},"241302235":{n:"VEER SISODIA",s:"5A"},"241302237":{n:"VIVEK SINGH BISHT",s:"5A"},"251302251-LEET":{n:"HAPPY YADAV",s:"5A"},"241302241":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302244":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302250":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302253":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302254":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302255":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302258":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302259":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302260":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302262":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302268":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302269":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302271":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302273":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302276":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302280":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302282":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302286":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302296":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302297":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302299":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302302":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302305":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302306":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302307":{n:"(name pending \u2014 not in source file)",s:"5B"},"251302298-LEET":{n:"(name pending \u2014 not in source file)",s:"5B"},"251302193-LEET":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302006":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302007":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302011":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302015":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302016":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302018":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302027":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302044":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302054":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302060":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302063":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302064":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302066":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302084":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302089":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302095":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302111":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302119":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302123":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302124":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302127":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302134":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302136":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302139":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302149":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302168":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302176":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302180":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302208":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302220":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302228":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302229":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302236":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302256":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302303":{n:"(name pending \u2014 not in source file)",s:"5B"},"251302265-LEET":{n:"(name pending \u2014 not in source file)",s:"5B"},"241302002":{n:"RAKSHITA HOODA",s:"5C"},"241302004":{n:"PRARIT SHARMA",s:"5C"},"241302005":{n:"KRRISH SHARMA",s:"5C"},"241302008":{n:"TARUN",s:"5C"},"241302010":{n:"KIRAN",s:"5C"},"241302013":{n:"MAYANK NEHRA",s:"5C"},"241302017":{n:"MOHIT KUMAR MISHRA",s:"5C"},"241302020":{n:"VANSHIK SEHRAWAT",s:"5C"},"241302021":{n:"SURYANSH CHOUDHARY",s:"5C"},"241302029":{n:"JATIN CHAUHAN",s:"5C"},"241302033":{n:"PRIYANSHU",s:"5C"},"241302036":{n:"NIKHIL",s:"5C"},"241302039":{n:"KYAN V SINGH",s:"5C"},"241302042":{n:"VINCENT CHINLAL",s:"5C"},"241302049":{n:"VANSH GULIA",s:"5C"},"241302051":{n:"SHREYA SINGH",s:"5C"},"241302052":{n:"NGACHAMMI KHAPUDANG",s:"5C"},"241302053":{n:"CHAITANYA GARG",s:"5C"},"241302055":{n:"UMANG SHARMA",s:"5C"},"241302057":{n:"PREM KUMAR",s:"5C"},"241302058":{n:"GOURAV SHOKEEN",s:"5C"},"241302059":{n:"RACHNA RAI",s:"5C"},"241302065":{n:"SHAILI YADAV",s:"5C"},"241302068":{n:"SARIKA YADAV",s:"5C"},"241302069":{n:"SAMEER YADAV",s:"5C"},"241302070":{n:"RUBEN RAJEEV GEORGE",s:"5C"},"241302071":{n:"DIVYANSH TANWAR",s:"5C"},"241302075":{n:"RAHUL GULIA",s:"5C"},"241302077":{n:"SAHIL CHOUDHARY",s:"5C"},"241302078":{n:"RAHUL",s:"5C"},"241302079":{n:"YASH ASWAL",s:"5C"},"241302081":{n:"HARSHIT KHEMANI",s:"5C"},"241302087":{n:"SANKET KUMAR PRASAD",s:"5C"},"241302090":{n:"OMYANSH RAWAT",s:"5C"},"241302096":{n:"CHALCY",s:"5C"},"241302097":{n:"YASH PHALSWAL",s:"5C"},"241302099":{n:"MANMEET SAROA",s:"5C"},"241302100":{n:"MADHAV BASSI",s:"5C"},"241302101":{n:"AMIT KUMAR PATRA",s:"5C"},"241302104":{n:"EKTA",s:"5C"},"241302106":{n:"GAURAV JOON",s:"5C"},"241302107":{n:"BINIT KUMAR",s:"5C"},"241302108":{n:"TANISHA",s:"5C"},"241302109":{n:"KUSHAGRA AGRAWAL",s:"5C"},"241302112":{n:"RANDEEP GIR",s:"5C"},"241302113":{n:"HARSHIT SINGH",s:"5C"},"241302117":{n:"GEETIKA",s:"5C"},"241302118":{n:"HARSHIT",s:"5C"},"241302122":{n:"KUSH AHUJA",s:"5C"},"241302125":{n:"KESHAV SOOD",s:"5C"},"241302126":{n:"RISHABH",s:"5C"},"241302131":{n:"VAIBHAV SONI",s:"5C"},"241302133":{n:"VANSH SINDHU",s:"5C"},"241302138":{n:"KANUPRIYA .",s:"5C"},"241302140":{n:"RIJUL JAIN",s:"5C"},"241302141":{n:"ELEESA MERIN JACOB",s:"5C"},"241302142":{n:"JONCY",s:"5C"},"241302144":{n:"NISHANT GAWDERYA",s:"5D"},"241302148":{n:"DEEPANSHU AHLAWAT",s:"5D"},"241302150":{n:"ASEEM GOYAL",s:"5D"},"241302152":{n:"YAMAN YADAV",s:"5D"},"241302153":{n:"RIDDHI SAINI",s:"5D"},"241302156":{n:"ANSHUL DAGAR",s:"5D"},"241302158":{n:"SHUBHAM YADAV",s:"5D"},"241302162":{n:"HIMANSHU",s:"5D"},"241302163":{n:"FEBIN VARGHESE JOHN",s:"5D"},"241302166":{n:"NISHANT SINGH",s:"5D"},"241302173":{n:"GOMESH NIRWAL",s:"5D"},"241302177":{n:"DEEPANSHU MATHUR",s:"5D"},"241302178":{n:"PRITIKA",s:"5D"},"241302181":{n:"NAITIK PODDAR",s:"5D"},"241302182":{n:"NISHANT",s:"5D"},"241302183":{n:"ROHIT SHARMA",s:"5D"},"241302184":{n:"VANSH",s:"5D"},"241302185":{n:"VISHESH GUPTA",s:"5D"},"241302188":{n:"AMAN VASHIST",s:"5D"},"241302189":{n:"ANANT RUHIL",s:"5D"},"241302190":{n:"MANSHIT",s:"5D"},"241302191":{n:"HARSHIT",s:"5D"},"241302194":{n:"SOHAM PANDA",s:"5D"},"241302196":{n:"KAMAL",s:"5D"},"241302200":{n:"LAVISHA OBEROI",s:"5D"},"241302205":{n:"PRACHI",s:"5D"},"241302206":{n:"VANSH",s:"5D"},"241302207":{n:"AKSH",s:"5D"},"241302209":{n:"HIMANSHU",s:"5D"},"241302214":{n:"SWIZER SINGH",s:"5D"},"241302215":{n:"CHIRAG",s:"5D"},"241302216":{n:"LAKSHITA KADIAN",s:"5D"},"241302217":{n:"SAMEER MALIK",s:"5D"},"241302219":{n:"HUNAR",s:"5D"},"241302221":{n:"RAKHI SHARMA",s:"5D"},"241302226":{n:"HIMANSHI",s:"5D"},"241302230":{n:"ISHA DAHIYA",s:"5D"},"241302232":{n:"HARSHIT",s:"5D"},"241302233":{n:"RISHIKANT",s:"5D"},"241302238":{n:"MOHIT",s:"5D"},"241302239":{n:"SHREYA JOSHI",s:"5D"},"241302261":{n:"SATYAM",s:"5D"},"241302263":{n:"ARNAV",s:"5D"},"241302264":{n:"AYUSH SAWATE",s:"5D"},"241302270":{n:"RONAK YADAV",s:"5D"},"241302272":{n:"NAINA",s:"5D"},"241302277":{n:"NIDHI",s:"5D"},"241302278":{n:"DAKSH",s:"5D"},"241302281":{n:"JATIN",s:"5D"},"241302283":{n:"SUPRIYA",s:"5D"},"241302284":{n:"SUKREET",s:"5D"},"241302287":{n:"MUSKAN",s:"5D"},"241302289":{n:"VIPIN",s:"5D"},"241302291":{n:"RADHIKA",s:"5D"},"241302293":{n:"PIYUSH CHAUHAN",s:"5D"},"241302294":{n:"KSHITIJ",s:"5D"},"241302295":{n:"PARTH VERMA",s:"5D"},"241302009":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302019":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302022":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302025":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302040":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302043":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302046":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302047":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302061":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302082":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302083":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302092":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302102":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302105":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302132":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302161":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302164":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302171":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302172":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302174":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302186":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302193":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302199":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302204":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302224":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302225":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302240":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302246":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302248":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302249":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302252":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302257":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302265":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302266":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302001":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302014":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302048":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302086":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302120":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302121":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302143":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302155":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302195":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302245":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302247":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302288":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302290":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302292":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302298":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302300":{n:"(name pending \u2014 not in source file)",s:"5E"},"241302301":{n:"(name pending \u2014 not in source file)",s:"5E"}};
+
+// ══════════ STATE ══════════
+var resolvedSection = '', resolvedName = '', resolvedSubject = '';
+var gpsStatus = 'pending', gpsChecked = false;
+var sessionOpenForSubject = false, alreadyMarked = false, submitting = false, pollTimer = null;
+
+function $(id){ return document.getElementById(id); }
+
+function fetchWithTimeout(url, opts) {
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, FETCH_TIMEOUT_MS);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts).finally(function(){ clearTimeout(timer); });
+}
+
+function showMsg(text, type) {
+  var el = $('msg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+  if (type === 'success') setTimeout(function(){ el.style.display = 'none'; }, 6000);
+}
+
+function showGPSResult(type, text) {
+  var el = $('gpsResult');
+  el.textContent = text;
+  el.className = 'gps-result ' + (type === 'ok' ? 'gps-ok' : 'gps-warn');
+  el.style.display = 'block';
+  clearTimeout(gpsHideTimer);
+  gpsHideTimer = setTimeout(function(){ el.style.display = 'none'; }, 6000);
+}
+var gpsHideTimer = null;
+
+var statusHideTimer = null;
+function showStatusBanner(cls, text) {
+  var el = $('statusBanner');
+  el.className = 'status-banner ' + cls;
+  el.textContent = text;
+  el.style.display = 'block';
+  clearTimeout(statusHideTimer);
+  statusHideTimer = setTimeout(function(){ el.style.display = 'none'; }, 7000);
+}
+
+// ══════════ GPS (unchanged from original — on-campus/off-campus flag only) ══════════
+function haversineMeters(lat1, lng1, lat2, lng2) {
+  var R = 6371000, toRad = function(d){ return d * Math.PI / 180; };
+  var dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)*Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function checkGPS() {
+  if (!navigator.geolocation) {
+    gpsStatus = 'unavailable'; gpsChecked = true;
+    $('gpsBanner').style.display = 'none';
+    showGPSResult('warn', 'Location unavailable — your submission will be marked unverified.');
+    updateSubmitState();
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, CAMPUS_LAT, CAMPUS_LNG);
+    gpsStatus = dist <= RADIUS_M ? 'on-campus' : 'off-campus';
+    gpsChecked = true;
+    $('gpsBanner').style.display = 'none';
+    showGPSResult(gpsStatus === 'on-campus' ? 'ok' : 'warn',
+      gpsStatus === 'on-campus' ? '\u2713 On-campus location confirmed.' : 'Location looks off-campus — submission will be flagged.');
+    updateSubmitState();
+  }, function(){
+    gpsStatus = 'unavailable'; gpsChecked = true;
+    $('gpsBanner').style.display = 'none';
+    showGPSResult('warn', 'Location unavailable — your submission will be marked unverified.');
+    updateSubmitState();
+  }, { timeout: 10000 });
+}
+checkGPS();
+
+// ══════════ SUBJECT DROPDOWN ══════════
+function populateSubjects(section) {
+  var sel = $('subject');
+  sel.innerHTML = '<option value="">Select a subject&hellip;</option>';
+  var cfg = SECTION_CONFIG[section];
+  if (!cfg) { $('subjectField').style.display = 'none'; return; }
+  cfg.subjects.forEach(function(s){
+    var opt = document.createElement('option');
+    opt.value = s.code; opt.textContent = s.name;
+    sel.appendChild(opt);
+  });
+  $('subjectField').style.display = 'block';
+}
+
+$('subject').addEventListener('change', function() {
+  resolvedSubject = $('subject').value;
+  alreadyMarked = false;
+  sessionOpenForSubject = false;
+  $('statusBanner').style.display = 'none';
+  clearInterval(pollTimer);
+
+  var cfg = SECTION_CONFIG[resolvedSection];
+  var subj = cfg && cfg.subjects.filter(function(s){ return s.code === resolvedSubject; })[0];
+  $('deskField').style.display = (subj && subj.requiresDesk) ? 'block' : 'none';
+  if (!(subj && subj.requiresDesk)) $('desk').value = '';
+
+  updateSubmitState();
+  if (resolvedSubject) {
+    pollStudentStatus();
+    pollTimer = setInterval(pollStudentStatus, POLL_MS);
+  }
+});
+
+// ══════════ ROSTER LOOKUP ══════════
+$('reg').addEventListener('input', function() {
+  var reg = $('reg').value.trim();
+  var box = $('nameBox');
+  box.textContent = '\u2014';
+  box.className = 'name-box';
+  resolvedName = ''; resolvedSection = ''; resolvedSubject = ''; alreadyMarked = false;
+  clearInterval(pollTimer);
+  $('statusBanner').style.display = 'none';
+  $('subjectField').style.display = 'none';
+  $('deskField').style.display = 'none';
+  $('subject').value = '';
+  updateSubmitState();
+  if (reg.length < 9) return;
+  var entry = ROSTER[reg];
+  if (entry) {
+    box.textContent = entry.n + '  \u00B7  Section ' + entry.s;
+    box.className = 'name-box name-ok';
+    resolvedName = entry.n;
+    resolvedSection = entry.s;
+    populateSubjects(entry.s);
+    loadMyRequests();
+  } else {
+    box.textContent = 'Not found in Section 5A roster';
+    box.className = 'name-box name-err';
+  }
+});
+
+function pollStudentStatus() {
+  if (!resolvedSection || !resolvedSubject) return;
+  var reg = $('reg').value.trim();
+  fetchWithTimeout(GAS_URL + '?action=get_student_status&section=' + resolvedSection + '&subject=' + resolvedSubject + '&reg=' + encodeURIComponent(reg))
+    .then(function(r){
+      return r.text().then(function(txt){
+        try { return JSON.parse(txt); }
+        catch (e) {
+          throw new Error('Non-JSON response (deployment access/auth issue?): ' + txt.slice(0, 120));
+        }
+      });
+    })
+    .then(function(d){
+      if (!d || !d.success) {
+        showStatusBanner('status-closed', 'Could not check session status' + (d && d.error ? (': ' + d.error) : '') + '. Pull to refresh or tell your teacher if this persists.');
+        return;
+      }
+      sessionOpenForSubject = !!d.open;
+      alreadyMarked = !!d.marked;
+      if (alreadyMarked) {
+        showStatusBanner('status-marked', '\u2713 You are already marked present today.');
+      } else if (sessionOpenForSubject) {
+        showStatusBanner('status-open', 'Attendance is OPEN. You can mark now.');
+      } else {
+        showStatusBanner('status-closed', 'Attendance is not open right now. Wait for your teacher to start the session.');
+      }
+      updateSubmitState();
+    })
+    .catch(function(err){
+      console.error('pollStudentStatus failed:', err);
+      showStatusBanner('status-closed', err && err.name === 'AbortError'
+        ? 'Status check timed out — check your internet connection.'
+        : 'Network problem checking session status — check your internet connection.');
+    });
+}
+
+// ══════════ SUBMIT GATE ══════════
+function updateSubmitState() {
+  var cfg = SECTION_CONFIG[resolvedSection];
+  var subj = cfg && cfg.subjects.filter(function(s){ return s.code === resolvedSubject; })[0];
+  var deskOk = !(subj && subj.requiresDesk) || $('desk').value.trim().length > 0;
+  var ok = resolvedName && resolvedSubject && sessionOpenForSubject && !alreadyMarked && gpsChecked && deskOk && !submitting;
+  $('submitBtn').disabled = !ok;
+  $('submitBtn').textContent = submitting ? 'Submitting...' : (alreadyMarked ? 'Already Marked' : 'Mark My Attendance');
+}
+$('desk').addEventListener('input', updateSubmitState);
+
+function setSubmitting(on) {
+  submitting = on;
+  updateSubmitState();
+}
+
+function submitAttendance() {
+  if (submitting || alreadyMarked) return;
+  var reg = $('reg').value.trim();
+  if (!resolvedName || !resolvedSection) { showMsg('Enter a valid registration number.', 'error'); return; }
+  if (!resolvedSubject) { showMsg('Select which class you\u2019re marking attendance for.', 'error'); return; }
+  if (!sessionOpenForSubject) { showMsg('Attendance is not open right now.', 'error'); return; }
+
+  setSubmitting(true);
+
+  var payload = {
+    type: 'mark_attendance',
+    section: resolvedSection,
+    subject: resolvedSubject,
+    reg: reg,
+    gpsStatus: gpsStatus
+  };
+
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result) {
+    if (result && result.success) {
+      showMsg('Attendance marked! ' + result.name, 'success');
+      alreadyMarked = true;
+      showStatusBanner('status-marked', '\u2713 You are already marked present today.');
+      $('desk').value = '';
+      updateSubmitState();
+    } else if (result && /already marked/i.test(result.error || '')) {
+      showMsg(result.error, 'error');
+      alreadyMarked = true;
+      showStatusBanner('status-marked', '\u2713 You are already marked present today.');
+      updateSubmitState();
+    } else {
+      showMsg((result && result.error) || 'Submission failed — try again.', 'error');
+    }
+  })
+  .catch(function(err) {
+    showMsg(err.name === 'AbortError' ? 'Request timed out — try again in a few seconds.' : 'Network problem — check internet and try again.', 'error');
+  })
+  .finally(function(){ setSubmitting(false); });
+}
+
+// ══════════ TAB SWITCHER ══════════
+function switchTab(which) {
+  var isMark = which === 'mark';
+  $('markTab').style.display = isMark ? 'block' : 'none';
+  $('requestTab').style.display = isMark ? 'none' : 'block';
+  $('tabBtnMark').className = 'tab-btn' + (isMark ? ' active' : '');
+  $('tabBtnRequest').className = 'tab-btn' + (isMark ? '' : ' active');
+  if (!isMark) loadMyRequests();
+}
+
+// ══════════ ATTENDANCE REQUEST (OD) ══════════
+function fileToBase64(file) {
+  return new Promise(function(resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function() {
+      // reader.result is "data:<mime>;base64,<data>" — strip the prefix.
+      var result = reader.result;
+      var comma = result.indexOf(',');
+      resolve(result.slice(comma + 1));
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function dateRange_(fromStr, toStr) {
+  var out = [];
+  var from = new Date(fromStr + 'T00:00:00');
+  var to = new Date(toStr + 'T00:00:00');
+  if (isNaN(from) || isNaN(to) || from > to) return out;
+  var d = new Date(from);
+  while (d <= to) {
+    out.push(d.toISOString().slice(0, 10));
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+
+var requestSubmitting = false;
+
+function submitRequest() {
+  if (requestSubmitting) return;
+  var reg = $('reg').value.trim();
+  if (!resolvedName || !resolvedSection) { showMsg('Enter a valid registration number first.', 'error'); return; }
+
+  var fromStr = $('reqFrom').value, toStr = $('reqTo').value;
+  var dates = dateRange_(fromStr, toStr);
+  if (dates.length === 0) { showMsg('Pick a valid From/To date range.', 'error'); return; }
+  if (dates.length > 14) { showMsg('That\'s more than 14 days in one request — split it up, or check the dates.', 'error'); return; }
+
+  var category = $('reqCategory').value;
+  var reason = $('reqReason').value.trim();
+  if (!category || !reason) { showMsg('Category and reason are both required.', 'error'); return; }
+
+  var fileInput = $('reqFile');
+  if (!fileInput.files || fileInput.files.length === 0) { showMsg('Attach the signed supporting document.', 'error'); return; }
+  var file = fileInput.files[0];
+  if (file.size > 8 * 1024 * 1024) { showMsg('File is too large (max 8MB) — try a smaller scan or photo.', 'error'); return; }
+
+  requestSubmitting = true;
+  $('reqSubmitBtn').disabled = true;
+  $('reqSubmitBtn').textContent = 'Submitting...';
+
+  fileToBase64(file).then(function(base64) {
+    var payload = {
+      type: 'submit_request',
+      section: resolvedSection,
+      reg: reg,
+      name: resolvedName,
+      dates: dates,
+      category: category,
+      reason: reason,
+      fileBase64: base64,
+      fileName: file.name,
+      fileMimeType: file.type
+    };
+    return fetchWithTimeout(GAS_URL, {
+      method: 'POST', redirect: 'follow', headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify(payload)
+    });
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result) {
+    if (result && result.success) {
+      showMsg('Request submitted — your mentor will review it.', 'success');
+      $('reqFrom').value = ''; $('reqTo').value = ''; $('reqCategory').value = ''; $('reqReason').value = ''; fileInput.value = '';
+      loadMyRequests();
+    } else {
+      showMsg((result && result.error) || 'Could not submit request — try again.', 'error');
+    }
+  })
+  .catch(function(err) {
+    showMsg(err.name === 'AbortError' ? 'Request timed out — try again.' : 'Network problem — check internet and try again.', 'error');
+  })
+  .finally(function() {
+    requestSubmitting = false;
+    $('reqSubmitBtn').disabled = false;
+    $('reqSubmitBtn').textContent = 'Submit Request';
+  });
+}
+
+function loadMyRequests() {
+  var reg = $('reg').value.trim();
+  if (!resolvedSection || !reg) return;
+  fetchWithTimeout(GAS_URL + '?action=get_my_requests&section=' + resolvedSection + '&reg=' + encodeURIComponent(reg))
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d || !d.success || !d.requests || d.requests.length === 0) {
+        $('myRequests').style.display = 'none';
+        return;
+      }
+      var list = $('myRequestsList');
+      list.innerHTML = '';
+      d.requests.slice().reverse().forEach(function(r) {
+        var row = document.createElement('div');
+        row.className = 'req-row';
+        row.innerHTML =
+          '<div><div class="req-dates">' + r.dates + '</div><div class="req-reason">' + r.category + '</div></div>' +
+          '<span class="req-badge ' + r.status + '">' + r.status + '</span>';
+        list.appendChild(row);
+      });
+      $('myRequests').style.display = 'block';
+    })
+    .catch(function(){});
+}
+</script>
+</body>
+</html>

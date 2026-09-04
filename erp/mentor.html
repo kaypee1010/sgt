@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoP Attendance — Mentor Approvals</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3d8);min-height:100vh;padding:20px}
+.wrap{max-width:640px;margin:0 auto}
+.header{background:linear-gradient(135deg,#2F3C7E,#1F2A5C);color:#fff;padding:24px 28px;border-radius:10px 10px 0 0}
+.header h1{font-size:21px;margin-bottom:3px}
+.header p{font-size:13px;opacity:.9}
+.body{background:#fff;padding:28px;border-radius:0 0 10px 10px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.pin-field{margin-bottom:20px;padding:14px 16px;background:#f0f2fa;border:1.5px solid #c8cfe8;border-radius:8px}
+.pin-field label{display:block;font-size:12px;font-weight:700;color:#2F3C7E;margin-bottom:6px}
+.pin-field input,.pin-field select{width:100%;padding:9px 11px;border:1px solid #c8cfe8;border-radius:5px;font-size:14px;font-family:inherit;margin-bottom:8px}
+.pin-hint{font-size:10.5px;color:#999;margin-top:4px}
+.msg{padding:12px 16px;border-radius:5px;margin-bottom:16px;font-size:14px;display:none}
+.msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.msg.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.empty-state{text-align:center;padding:40px 20px;color:#999;font-size:13px;display:none}
+.req-card{border:1.5px solid #d0c8b8;border-radius:10px;padding:18px 20px;margin-bottom:16px;background:#fafafa}
+.req-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.req-name{font-weight:700;font-size:15px;color:#2F3C7E}
+.req-reg{font-size:11px;color:#999}
+.req-cat{background:#e8e3d8;color:#5a4a2a;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px}
+.req-dates{font-size:13px;color:#8B3A3A;font-weight:700;margin-bottom:6px}
+.req-reason{font-size:13px;color:#444;line-height:1.5;margin-bottom:10px}
+.req-file{display:inline-block;font-size:12px;color:#2F3C7E;font-weight:700;text-decoration:none;margin-bottom:14px;border:1px solid #c8cfe8;padding:6px 12px;border-radius:6px}
+.req-file:hover{background:#f0f2fa}
+.req-actions{display:flex;gap:10px}
+.btn{flex:1;padding:11px;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-approve{background:#1a5c2a;color:#fff}
+.btn-reject{background:#8B3A3A;color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.refresh-note{font-size:10px;color:#aaa;margin-top:8px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>PoP Attendance — Mentor Approvals</h1>
+    <p>Attendance Request review</p>
+  </div>
+  <div class="body">
+    <div id="msg" class="msg" role="alert"></div>
+
+    <div class="pin-field">
+      <label for="pin">Mentor PIN</label>
+      <input type="password" id="pin" placeholder="Enter mentor PIN" autocomplete="off">
+      <label for="section">Section</label>
+      <select id="section" onchange="loadRequests()"></select>
+      <div class="pin-hint">Approving applies attendance automatically across every subject configured for this section, for every date the student requested.</div>
+    </div>
+
+    <div id="cardsWrap"></div>
+    <div class="empty-state" id="emptyState">No pending requests for this section right now.</div>
+
+    <div class="refresh-note">Refresh the page to check for new requests.</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+var GAS_URL = 'PASTE_YOUR_APPS_SCRIPT_/exec_URL_HERE';
+var FETCH_TIMEOUT_MS = 15000;
+
+// Mirrors SECTION_CONFIG's keys in Code.gs/admin.html/student.html — only
+// the section list is needed here, not the subject detail, since approval
+// applies to "every subject configured for this section" server-side.
+var SECTIONS = ['5A', '5B', '5C', '5D', '5E'];
+
+function $(id){ return document.getElementById(id); }
+
+function fetchWithTimeout(url, opts) {
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, FETCH_TIMEOUT_MS);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts).finally(function(){ clearTimeout(timer); });
+}
+
+function showMsg(text, type) {
+  var el = $('msg');
+  el.textContent = text; el.className = 'msg ' + type; el.style.display = 'block';
+  if (type !== 'error') setTimeout(function(){ el.style.display = 'none'; }, 5000);
+}
+
+function initSectionPicker() {
+  var sel = $('section');
+  sel.innerHTML = SECTIONS.map(function(s){ return '<option value="' + s + '">' + s + '</option>'; }).join('');
+}
+
+function loadRequests() {
+  var pin = $('pin').value.trim();
+  var section = $('section').value;
+  if (!pin) { return; }
+  fetchWithTimeout(GAS_URL + '?action=get_pending_requests&section=' + section + '&pin=' + encodeURIComponent(pin))
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d || !d.success) {
+        showMsg((d && d.error) || 'Could not load requests.', 'error');
+        return;
+      }
+      renderRequests(d.requests, section);
+    })
+    .catch(function(){ showMsg('Network problem loading requests.', 'error'); });
+}
+
+function renderRequests(requests, section) {
+  var wrap = $('cardsWrap');
+  wrap.innerHTML = '';
+  if (!requests || requests.length === 0) {
+    $('emptyState').style.display = 'block';
+    return;
+  }
+  $('emptyState').style.display = 'none';
+  requests.forEach(function(r) {
+    var card = document.createElement('div');
+    card.className = 'req-card';
+    card.innerHTML =
+      '<div class="req-top">' +
+        '<div><div class="req-name">' + r.name + '</div><div class="req-reg">Reg. No. ' + r.reg + '</div></div>' +
+        '<span class="req-cat">' + r.category + '</span>' +
+      '</div>' +
+      '<div class="req-dates">' + r.dates + '</div>' +
+      '<div class="req-reason">' + r.reason + '</div>' +
+      '<a class="req-file" href="' + r.fileUrl + '" target="_blank" rel="noopener">&#128206; View signed document</a>' +
+      '<div class="req-actions">' +
+        '<button class="btn btn-approve" onclick="action_(\'' + r.requestId + '\', \'approve\', this, \'' + section + '\')">Approve</button>' +
+        '<button class="btn btn-reject" onclick="action_(\'' + r.requestId + '\', \'reject\', this, \'' + section + '\')">Reject</button>' +
+      '</div>';
+    wrap.appendChild(card);
+  });
+}
+
+function action_(requestId, act, btnEl, section) {
+  var pin = $('pin').value.trim();
+  var card = btnEl.closest('.req-card');
+  var buttons = card.querySelectorAll('button');
+  buttons.forEach(function(b){ b.disabled = true; });
+
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST', redirect: 'follow', headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify({ type: 'action_request', requestId: requestId, action: act, pin: pin, actionedBy: 'Mentor' })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d && d.success) {
+      showMsg(act === 'approve' ? 'Approved — attendance applied across all subjects for the requested dates.' : 'Request rejected.', 'success');
+      card.remove();
+      loadRequests();
+    } else {
+      showMsg((d && d.error) || 'Could not process this request.', 'error');
+      buttons.forEach(function(b){ b.disabled = false; });
+    }
+  })
+  .catch(function() {
+    showMsg('Network problem — try again.', 'error');
+    buttons.forEach(function(b){ b.disabled = false; });
+  });
+}
+
+initSectionPicker();
+</script>
+</body>
+</html>
