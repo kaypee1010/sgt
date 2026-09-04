@@ -4,147 +4,1125 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>7A Attendance Undertaking</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2937}.container{max-width:720px;margin:auto;padding:15px}
-.header{background:#111827;color:#fff;padding:22px;border-radius:14px;margin-bottom:15px}.header h1{margin:0;font-size:23px}.header p{margin:7px 0 0;font-size:14px;opacity:.85}
-.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:15px;box-shadow:0 3px 12px rgba(0,0,0,.06)}label{display:block;font-weight:bold;font-size:14px;margin-bottom:7px}
-select,input[type=password]{width:100%;padding:14px;border:1px solid #d1d5db;border-radius:9px;background:#fff;font-size:16px}.student-info{display:none;margin-top:15px;padding:14px;background:#f3f4f6;border-radius:9px}
-.undertaking{background:#f9fafb;border-left:4px solid #111827;padding:16px;border-radius:6px;line-height:1.65;font-size:15px}.agreement{display:flex;gap:10px;margin-top:15px;font-weight:normal;line-height:1.5}.agreement input{width:20px;height:20px;flex-shrink:0}
-.signature-box{border:2px dashed #9ca3af;border-radius:10px;position:relative;overflow:hidden}canvas{width:100%;height:190px;display:block;touch-action:none}.signature-label{position:absolute;top:8px;left:10px;font-size:11px;color:#9ca3af;pointer-events:none}
-button{border:none;border-radius:9px;padding:13px 18px;font-size:15px;font-weight:bold;cursor:pointer}.clear{background:#e5e7eb;margin-top:8px}.submit{width:100%;background:#111827;color:#fff;margin-top:16px}.submit:disabled{opacity:.45}
-.status{display:none;padding:13px;border-radius:9px;margin-top:13px;font-size:14px}.error{background:#fee2e2;color:#991b1b}.loading{background:#e0f2fe;color:#075985}
-#undertakingCard,#signatureCard{display:none}.footer{text-align:center;color:#6b7280;font-size:11px;padding:15px}.dashboard{display:none}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#fff;border-radius:12px;padding:15px 5px;text-align:center}.number{font-size:26px;font-weight:bold}.stat-label{font-size:11px;color:#6b7280}
-.progress{height:12px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin-top:10px}.progress-bar{height:100%;width:0;background:#16a34a;transition:.4s}.student-row{background:#fff;border-radius:10px;padding:13px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;align-items:center}
-.student-name{font-weight:bold;font-size:14px}.student-roll{color:#6b7280;font-size:12px;margin-top:3px}.badge{border-radius:20px;padding:6px 9px;font-size:10px;font-weight:bold;white-space:nowrap}.completed{background:#dcfce7;color:#166534}.pending{background:#fee2e2;color:#991b1b}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2937}
+.container{max-width:720px;margin:auto;padding:15px}
+.header{background:#111827;color:#fff;padding:22px;border-radius:14px;margin-bottom:15px}
+.header h1{margin:0;font-size:23px}.header p{margin:7px 0 0;font-size:14px;opacity:.85}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:15px;box-shadow:0 3px 12px rgba(0,0,0,.06)}
+label{display:block;font-weight:bold;font-size:14px;margin-bottom:7px}
+select,input[type=password]{width:100%;padding:14px;border:1px solid #d1d5db;border-radius:9px;background:#fff;font-size:16px}
+.student-info{display:none;margin-top:15px;padding:14px;background:#f3f4f6;border-radius:9px}
+.undertaking{background:#f9fafb;border-left:4px solid #111827;padding:16px;border-radius:6px;line-height:1.65;font-size:15px}
+.agreement{display:flex;gap:10px;margin-top:15px;font-weight:normal;line-height:1.5}
+.agreement input{width:20px;height:20px;flex-shrink:0}
+.signature-box{border:2px dashed #9ca3af;border-radius:10px;position:relative;overflow:hidden;background:#fff}
+canvas{width:100%;height:190px;display:block;touch-action:none;cursor:crosshair}
+.signature-label{position:absolute;top:8px;left:10px;font-size:11px;color:#9ca3af;pointer-events:none}
+.signature-hint{text-align:center;color:#6b7280;font-size:12px;margin-top:8px}
+button{border:none;border-radius:9px;padding:13px 18px;font-size:15px;font-weight:bold;cursor:pointer}
+.clear{background:#e5e7eb;margin-top:8px}
+.submit{width:100%;background:#111827;color:#fff;margin-top:16px}
+.submit:disabled{opacity:.45;cursor:not-allowed}
+.status{display:none;padding:13px;border-radius:9px;margin-top:13px;font-size:14px}
+.error{background:#fee2e2;color:#991b1b}
+.loading{background:#e0f2fe;color:#075985}
+.success{background:#dcfce7;color:#166534}
+#undertakingCard,#signatureCard{display:none}
+.footer{text-align:center;color:#6b7280;font-size:11px;padding:15px}
+.dashboard{display:none}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:#fff;border-radius:12px;padding:15px 5px;text-align:center}
+.number{font-size:26px;font-weight:bold}.stat-label{font-size:11px;color:#6b7280}
+.progress{height:12px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin-top:10px}
+.progress-bar{height:100%;width:0;background:#16a34a;transition:.4s}
+.student-row{background:#fff;border-radius:10px;padding:13px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.student-name{font-weight:bold;font-size:14px}.student-roll{color:#6b7280;font-size:12px;margin-top:3px}
+.badge{border-radius:20px;padding:6px 9px;font-size:10px;font-weight:bold;white-space:nowrap}
+.completed{background:#dcfce7;color:#166534}.pending{background:#fee2e2;color:#991b1b}
 @media(max-width:500px){.container{padding:10px}.card{padding:16px}.header{padding:18px}}
 </style>
 </head>
+
 <body>
 <div class="container">
+
 <div id="studentView">
-<div class="header"><h1>Attendance Undertaking</h1><p>Section 7A • Minimum Attendance Requirement: 75%</p></div>
-<div class="card"><label>Select Your Name</label><select id="studentSelect"><option value="">-- Select your name --</option></select>
-<div id="studentInfo" class="student-info"><strong id="studentName"></strong><br><span id="studentRoll"></span></div></div>
-<div id="undertakingCard" class="card"><h3>Student Undertaking</h3><div class="undertaking">I hereby acknowledge that a <strong>minimum attendance of 75%</strong> is required to be eligible to appear in the University examination. I understand that it is my responsibility to maintain the prescribed attendance and that shortage of attendance may affect my eligibility to appear in the examination.</div>
-<label class="agreement"><input type="checkbox" id="agreement"><span>I have read and understood the above undertaking and agree to abide by the minimum 75% attendance requirement.</span></label></div>
-<div id="signatureCard" class="card"><label>Digital Signature</label><div class="signature-box"><span class="signature-label">Sign inside this box</span><canvas id="signatureCanvas"></canvas></div>
-<button class="clear" onclick="clearSignature()">Clear Signature</button>
-<form id="submitForm" method="POST" target="_blank" onsubmit="return prepareSubmit()">
-<input type="hidden" name="roll" id="formRoll"><input type="hidden" name="name" id="formName"><input type="hidden" name="signature" id="formSignature">
-<button id="submitBtn" class="submit" type="submit" disabled>Sign & Submit Undertaking</button></form>
-<div id="status" class="status"></div></div>
+  <div class="header">
+    <h1>Attendance Undertaking</h1>
+    <p>Section 7A • Minimum Attendance Requirement: 75%</p>
+  </div>
+
+  <div class="card">
+    <label for="studentSelect">Select Your Name</label>
+    <select id="studentSelect">
+      <option value="">-- Select your name --</option>
+    </select>
+
+    <div id="studentInfo" class="student-info">
+      <strong id="studentName"></strong><br>
+      <span id="studentRoll"></span>
+    </div>
+  </div>
+
+  <div id="undertakingCard" class="card">
+    <h3>Student Undertaking</h3>
+    <div class="undertaking">
+      I hereby acknowledge that a <strong>minimum attendance of 75%</strong>
+      is required to be eligible to appear in the University examination.
+      I understand that it is my responsibility to maintain the prescribed
+      attendance and that shortage of attendance may affect my eligibility
+      to appear in the examination.
+    </div>
+
+    <label class="agreement">
+      <input type="checkbox" id="agreement">
+      <span>
+        I have read and understood the above undertaking and agree to abide
+        by the minimum 75% attendance requirement.
+      </span>
+    </label>
+  </div>
+
+  <div id="signatureCard" class="card">
+    <label>Digital Signature</label>
+
+    <div class="signature-box">
+      <span class="signature-label">Sign inside this box</span>
+      <canvas id="signatureCanvas"></canvas>
+    </div>
+
+    <div class="signature-hint">
+      Use your finger, mouse or stylus to sign above.
+    </div>
+
+    <button type="button" class="clear" onclick="clearSignature()">
+      Clear Signature
+    </button>
+
+    <form id="submitForm" method="POST" target="_blank"
+          onsubmit="return prepareSubmit()">
+      <input type="hidden" name="roll" id="formRoll">
+      <input type="hidden" name="name" id="formName">
+      <input type="hidden" name="signature" id="formSignature">
+
+      <button id="submitBtn" class="submit" type="submit" disabled>
+        Sign & Submit Undertaking
+      </button>
+    </form>
+
+    <div id="status" class="status"></div>
+  </div>
 </div>
+
 
 <div id="dashboard">
-<div class="header"><h1>Section 7A Dashboard</h1><p>Attendance Undertaking Compliance</p></div>
-<div id="pinBox" class="card"><h3>Mentor Access</h3><input id="mentorPin" type="password" placeholder="Enter mentor PIN"><button class="submit" onclick="loadDashboard()">View Dashboard</button><div id="dashboardError" class="status error"></div></div>
-<div id="dashboardContent" style="display:none"><div class="stats">
-<div class="stat"><div id="totalCount" class="number">71</div><div class="stat-label">TOTAL</div></div>
-<div class="stat"><div id="completedCount" class="number">0</div><div class="stat-label">COMPLETED</div></div>
-<div class="stat"><div id="pendingCount" class="number">71</div><div class="stat-label">PENDING</div></div></div>
-<div class="card"><strong>Completion Progress</strong><div class="progress"><div id="progressBar" class="progress-bar"></div></div><div id="progressText" style="font-size:13px;margin-top:8px"></div></div>
-<div id="studentList"></div></div></div>
-<div class="footer">Section 7A • Attendance Undertaking System</div>
+  <div class="header">
+    <h1>Section 7A Dashboard</h1>
+    <p>Attendance Undertaking Compliance</p>
+  </div>
+
+  <div id="pinBox" class="card">
+    <h3>Mentor Access</h3>
+
+    <input id="mentorPin" type="password" placeholder="Enter mentor PIN">
+
+    <button class="submit" type="button" onclick="loadDashboard()">
+      View Dashboard
+    </button>
+
+    <div id="dashboardError" class="status error"></div>
+  </div>
+
+  <div id="dashboardContent" style="display:none">
+    <div class="stats">
+      <div class="stat">
+        <div id="totalCount" class="number">71</div>
+        <div class="stat-label">TOTAL</div>
+      </div>
+      <div class="stat">
+        <div id="completedCount" class="number">0</div>
+        <div class="stat-label">COMPLETED</div>
+      </div>
+      <div class="stat">
+        <div id="pendingCount" class="number">71</div>
+        <div class="stat-label">PENDING</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <strong>Completion Progress</strong>
+      <div class="progress">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+      <div id="progressText" style="font-size:13px;margin-top:8px"></div>
+    </div>
+
+    <div id="studentList"></div>
+  </div>
 </div>
 
+<div class="footer">
+  Section 7A • Attendance Undertaking System
+</div>
+
+</div>
+
+
 <script>
-const WEB_APP_URL="https://script.google.com/macros/s/AKfycbxmkUGPHYXKF7AT5EHoJAWHg_gE0HgmSJkNBgo8bQAPa7Q-UKXD7Hq8dAjaLxQxsz1A/exec";
-let students=[],selectedStudent=null,canvas,ctx,drawing=false,hasSignature=false;
+const WEB_APP_URL =
+"https://script.google.com/macros/s/AKfycbxmkUGPHYXKF7AT5EHoJAWHg_gE0HgmSJkNBgo8bQAPa7Q-UKXD7Hq8dAjaLxQxsz1A/exec";
 
-window.onload=function(){
- const params=new URLSearchParams(location.search);
- if(params.get('page')==='dashboard'){
-   document.getElementById('studentView').style.display='none';
-   document.getElementById('dashboard').style.display='block';
- }
- canvas=document.getElementById('signatureCanvas'); setupCanvas(); loadStudents();
- document.getElementById('studentSelect').addEventListener('change',studentSelected);
- document.getElementById('agreement').addEventListener('change',validateForm);
-};
+let students = [];
+let selectedStudent = null;
 
-function jsonp(action,params,handler){
- const cb='cb_'+Date.now()+'_'+Math.floor(Math.random()*10000);
- window[cb]=function(data){delete window[cb];script.remove();handler(data)};
- const script=document.createElement('script');
- const q=new URLSearchParams(Object.assign({action,callback:cb},params||{}));
- script.src=WEB_APP_URL+'?'+q.toString();script.onerror=function(){delete window[cb];script.remove();alert('Unable to connect to the server.')};
- document.body.appendChild(script);
+let canvas = null;
+let ctx = null;
+
+let drawing = false;
+let hasSignature = false;
+let activePointerId = null;
+
+
+/* =====================================================
+   PAGE INITIALIZATION
+   ===================================================== */
+
+window.addEventListener("load", function(){
+
+  const params = new URLSearchParams(location.search);
+
+  if(params.get("page") === "dashboard"){
+    document.getElementById("studentView").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+  }
+
+  canvas = document.getElementById("signatureCanvas");
+
+  setupCanvas();
+
+  document.getElementById("studentSelect")
+    .addEventListener("change", studentSelected);
+
+  document.getElementById("agreement")
+    .addEventListener("change", validateForm);
+
+  document.getElementById("submitForm")
+    .action = WEB_APP_URL;
+
+  loadStudents();
+});
+
+
+/* =====================================================
+   JSONP API
+   ===================================================== */
+
+function jsonp(action, params, handler){
+
+  const callbackName =
+    "cb_" +
+    Date.now() +
+    "_" +
+    Math.floor(Math.random() * 100000);
+
+  let finished = false;
+
+  const script =
+    document.createElement("script");
+
+  window[callbackName] = function(data){
+
+    if(finished) return;
+
+    finished = true;
+
+    delete window[callbackName];
+
+    if(script.parentNode){
+      script.parentNode.removeChild(script);
+    }
+
+    handler(data);
+  };
+
+  const query =
+    new URLSearchParams(
+      Object.assign(
+        {
+          action: action,
+          callback: callbackName
+        },
+        params || {}
+      )
+    );
+
+  script.src =
+    WEB_APP_URL + "?" + query.toString();
+
+  script.onerror = function(){
+
+    if(finished) return;
+
+    finished = true;
+
+    delete window[callbackName];
+
+    if(script.parentNode){
+      script.parentNode.removeChild(script);
+    }
+
+    handler({
+      success:false,
+      error:true,
+      message:"Unable to connect to the server."
+    });
+  };
+
+  document.body.appendChild(script);
 }
-function loadStudents(){jsonp('students',{},loadStudentsData)}
-function loadStudentsData(data){
- students=data;const s=document.getElementById('studentSelect');
- data.forEach(x=>{const o=document.createElement('option');o.value=x.roll;o.textContent=x.name+' — '+x.roll;s.appendChild(o)});
+
+
+/* =====================================================
+   LOAD STUDENTS
+   ===================================================== */
+
+function loadStudents(){
+
+  jsonp(
+    "students",
+    {},
+    function(data){
+
+      if(!Array.isArray(data)){
+        alert(
+          "Server returned an invalid student list."
+        );
+        return;
+      }
+
+      students = data;
+
+      const select =
+        document.getElementById("studentSelect");
+
+      select.innerHTML =
+        '<option value="">-- Select your name --</option>';
+
+      data.forEach(function(student){
+
+        const option =
+          document.createElement("option");
+
+        option.value = student.roll;
+
+        option.textContent =
+          student.name + " — " + student.roll;
+
+        select.appendChild(option);
+      });
+    }
+  );
 }
+
+
+/* =====================================================
+   STUDENT SELECTION
+   ===================================================== */
+
 function studentSelected(){
- const roll=document.getElementById('studentSelect').value;
- document.getElementById('undertakingCard').style.display='none';document.getElementById('signatureCard').style.display='none';
- if(!roll){document.getElementById('studentInfo').style.display='none';return}
- selectedStudent=students.find(x=>x.roll===roll);
- document.getElementById('studentName').textContent=selectedStudent.name;
- document.getElementById('studentRoll').textContent='Roll No.: '+selectedStudent.roll;
- document.getElementById('studentInfo').style.display='block';
- jsonp('check',{roll},function(r){
-   if(r.submitted){showStatus('This student has already submitted the undertaking.','error');return}
-   document.getElementById('undertakingCard').style.display='block';document.getElementById('signatureCard').style.display='block';
-   document.getElementById('agreement').checked=false;clearSignature();
- });
+
+  const roll =
+    document.getElementById("studentSelect").value;
+
+  hideForm();
+
+  if(!roll){
+
+    selectedStudent = null;
+
+    document.getElementById(
+      "studentInfo"
+    ).style.display = "none";
+
+    validateForm();
+
+    return;
+  }
+
+  selectedStudent =
+    students.find(function(student){
+      return student.roll === roll;
+    });
+
+  if(!selectedStudent){
+    alert("Student could not be found.");
+    return;
+  }
+
+  document.getElementById(
+    "studentName"
+  ).textContent = selectedStudent.name;
+
+  document.getElementById(
+    "studentRoll"
+  ).textContent =
+    "Roll No.: " + selectedStudent.roll;
+
+  document.getElementById(
+    "studentInfo"
+  ).style.display = "block";
+
+
+  showStatus(
+    "Checking submission status...",
+    "loading"
+  );
+
+
+  jsonp(
+    "check",
+    {roll: roll},
+    function(result){
+
+      if(result && result.submitted){
+
+        hideForm();
+
+        showStatus(
+          "This student has already submitted the undertaking.",
+          "error"
+        );
+
+        return;
+      }
+
+      if(result && result.error){
+
+        hideForm();
+
+        showStatus(
+          result.message || "Unable to connect to the server.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      document.getElementById(
+        "undertakingCard"
+      ).style.display = "block";
+
+      document.getElementById(
+        "signatureCard"
+      ).style.display = "block";
+
+
+      document.getElementById(
+        "agreement"
+      ).checked = false;
+
+
+      requestAnimationFrame(function(){
+
+        resizeCanvas();
+
+        clearSignature();
+
+      });
+
+      hideStatus();
+
+    }
+  );
 }
-function setupCanvas() {
 
-  if (!canvas) return;
 
-  canvas.style.touchAction = 'none';
+/* =====================================================
+   SIGNATURE CANVAS
+   ===================================================== */
 
-  resizeCanvas();
+function setupCanvas(){
 
-  canvas.addEventListener('pointerdown', startDrawing);
-  canvas.addEventListener('pointermove', draw);
-  canvas.addEventListener('pointerup', stopDrawing);
-  canvas.addEventListener('pointercancel', stopDrawing);
-  canvas.addEventListener('pointerleave', stopDrawing);
+  if(!canvas) return;
+
+  canvas.style.touchAction = "none";
+
+  canvas.addEventListener(
+    "pointerdown",
+    startDrawing
+  );
+
+  canvas.addEventListener(
+    "pointermove",
+    draw
+  );
+
+  canvas.addEventListener(
+    "pointerup",
+    stopDrawing
+  );
+
+  canvas.addEventListener(
+    "pointercancel",
+    stopDrawing
+  );
+
+  canvas.addEventListener(
+    "pointerleave",
+    stopDrawing
+  );
+
+  window.addEventListener(
+    "resize",
+    function(){
+
+      if(
+        document.getElementById(
+          "signatureCard"
+        ).style.display !== "none"
+      ){
+        resizeCanvas();
+      }
+
+    }
+  );
 }
 
 
-function resizeCanvas() {
+function resizeCanvas(){
 
-  if (!canvas) return;
+  if(!canvas) return;
 
-  const rect = canvas.getBoundingClientRect();
+  const rect =
+    canvas.getBoundingClientRect();
 
-  if (rect.width === 0 || rect.height === 0) return;
+  if(
+    rect.width <= 0 ||
+    rect.height <= 0
+  ){
+    return;
+  }
 
-  const ratio = window.devicePixelRatio || 1;
+  const ratio =
+    Math.max(
+      window.devicePixelRatio || 1,
+      1
+    );
 
-  canvas.width = Math.round(rect.width * ratio);
-  canvas.height = Math.round(rect.height * ratio);
 
- 
-function clearSignature(){if(!ctx)return;ctx.clearRect(0,0,canvas.width,canvas.height);hasSignature=false;validateForm()}
-function validateForm(){document.getElementById('submitBtn').disabled=!selectedStudent||!document.getElementById('agreement').checked||!hasSignature}
+  canvas.width =
+    Math.round(rect.width * ratio);
+
+  canvas.height =
+    Math.round(rect.height * ratio);
+
+
+  canvas.style.width =
+    rect.width + "px";
+
+  canvas.style.height =
+    rect.height + "px";
+
+
+  ctx =
+    canvas.getContext("2d");
+
+  ctx.setTransform(
+    ratio,
+    0,
+    0,
+    ratio,
+    0,
+    0
+  );
+
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+}
+
+
+function getPointerPosition(e){
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
+}
+
+
+function startDrawing(e){
+
+  if(!ctx) return;
+
+  e.preventDefault();
+
+  drawing = true;
+
+  activePointerId =
+    e.pointerId;
+
+  try{
+    canvas.setPointerCapture(
+      e.pointerId
+    );
+  }catch(err){}
+
+
+  const p =
+    getPointerPosition(e);
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    p.x,
+    p.y
+  );
+}
+
+
+function draw(e){
+
+  if(!drawing) return;
+
+  if(
+    activePointerId !== null &&
+    e.pointerId !== activePointerId
+  ){
+    return;
+  }
+
+  e.preventDefault();
+
+  const p =
+    getPointerPosition(e);
+
+  ctx.lineTo(
+    p.x,
+    p.y
+  );
+
+  ctx.stroke();
+
+  hasSignature = true;
+
+  validateForm();
+}
+
+
+function stopDrawing(e){
+
+  if(!drawing) return;
+
+  if(e){
+    e.preventDefault();
+  }
+
+  drawing = false;
+
+  try{
+
+    if(
+      e &&
+      canvas.hasPointerCapture &&
+      canvas.hasPointerCapture(
+        e.pointerId
+      )
+    ){
+      canvas.releasePointerCapture(
+        e.pointerId
+      );
+    }
+
+  }catch(err){}
+
+  activePointerId = null;
+
+  if(ctx){
+    ctx.closePath();
+  }
+}
+
+
+function clearSignature(){
+
+  if(!canvas || !ctx){
+    hasSignature = false;
+    validateForm();
+    return;
+  }
+
+  const ratio =
+    Math.max(
+      window.devicePixelRatio || 1,
+      1
+    );
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width / ratio,
+    canvas.height / ratio
+  );
+
+  hasSignature = false;
+
+  validateForm();
+}
+
+
+/* =====================================================
+   FORM VALIDATION
+   ===================================================== */
+
+function validateForm(){
+
+  const agreement =
+    document.getElementById(
+      "agreement"
+    ).checked;
+
+  const button =
+    document.getElementById(
+      "submitBtn"
+    );
+
+  button.disabled =
+    !selectedStudent ||
+    !agreement ||
+    !hasSignature;
+}
+
+
+/* =====================================================
+   SUBMIT
+   ===================================================== */
+
 function prepareSubmit(){
- if(!selectedStudent||!document.getElementById('agreement').checked||!hasSignature){return false}
- document.getElementById('formRoll').value=selectedStudent.roll;
- document.getElementById('formName').value=selectedStudent.name;
- document.getElementById('formSignature').value=canvas.toDataURL('image/png');
- document.getElementById('submitBtn').disabled=true;document.getElementById('submitBtn').textContent='Submitting...';
- return true;
+
+  if(
+    !selectedStudent ||
+    !document.getElementById("agreement").checked ||
+    !hasSignature
+  ){
+    return false;
+  }
+
+
+  document.getElementById(
+    "formRoll"
+  ).value =
+    selectedStudent.roll;
+
+
+  document.getElementById(
+    "formName"
+  ).value =
+    selectedStudent.name;
+
+
+  document.getElementById(
+    "formSignature"
+  ).value =
+    canvas.toDataURL(
+      "image/png"
+    );
+
+
+  const button =
+    document.getElementById(
+      "submitBtn"
+    );
+
+  button.disabled = true;
+
+  button.textContent =
+    "Submitting...";
+
+
+  return true;
 }
-function showStatus(msg,type){const x=document.getElementById('status');x.textContent=msg;x.className='status '+type;x.style.display='block'}
+
+
+/* =====================================================
+   STATUS
+   ===================================================== */
+
+function showStatus(message, type){
+
+  const box =
+    document.getElementById(
+      "status"
+    );
+
+  box.textContent = message;
+
+  box.className =
+    "status " + type;
+
+  box.style.display =
+    "block";
+}
+
+
+function hideStatus(){
+
+  const box =
+    document.getElementById(
+      "status"
+    );
+
+  box.style.display =
+    "none";
+}
+
+
+function hideForm(){
+
+  document.getElementById(
+    "undertakingCard"
+  ).style.display = "none";
+
+  document.getElementById(
+    "signatureCard"
+  ).style.display = "none";
+
+  clearSignature();
+
+  document.getElementById(
+    "agreement"
+  ).checked = false;
+
+  validateForm();
+}
+
+
+/* =====================================================
+   DASHBOARD
+   ===================================================== */
+
 function loadDashboard(){
- const pin=document.getElementById('mentorPin').value.trim();if(!pin){dashboardError('Please enter the mentor PIN.');return}
- jsonp('dashboard',{pin},function(data){if(!data.success){dashboardError(data.message);return}renderDashboard(data)})
+
+  const pin =
+    document.getElementById(
+      "mentorPin"
+    ).value.trim();
+
+
+  if(!pin){
+
+    dashboardError(
+      "Please enter the mentor PIN."
+    );
+
+    return;
+  }
+
+
+  dashboardError("");
+
+
+  jsonp(
+    "dashboard",
+    {pin: pin},
+    function(data){
+
+      if(
+        !data ||
+        !data.success
+      ){
+
+        dashboardError(
+          data && data.message
+            ? data.message
+            : "Unable to load dashboard."
+        );
+
+        return;
+      }
+
+      renderDashboard(data);
+    }
+  );
 }
-function dashboardError(msg){const x=document.getElementById('dashboardError');x.textContent=msg;x.style.display='block'}
+
+
+function dashboardError(message){
+
+  const box =
+    document.getElementById(
+      "dashboardError"
+    );
+
+  if(!message){
+
+    box.style.display =
+      "none";
+
+    box.textContent = "";
+
+    return;
+  }
+
+  box.textContent = message;
+
+  box.style.display =
+    "block";
+}
+
+
 function renderDashboard(data){
- document.getElementById('pinBox').style.display='none';document.getElementById('dashboardContent').style.display='block';
- totalCount.textContent=data.total;completedCount.textContent=data.completed;pendingCount.textContent=data.pending;
- const pct=data.total?Math.round(data.completed/data.total*100):0;progressBar.style.width=pct+'%';progressText.textContent=data.completed+' / '+data.total+' completed ('+pct+'%)';
- const list=document.getElementById('studentList');list.innerHTML='';
- data.students.forEach(s=>{
-   const row=document.createElement('div');row.className='student-row';
-   let right=s.status==='COMPLETED'?'<div style="text-align:right"><span class="badge completed">COMPLETED</span><div style="font-size:10px;color:#6b7280;margin-top:5px">'+s.timestamp+'</div><div style="margin-top:4px">'+(s.pdfUrl?'<a target="_blank" style="font-size:11px" href="'+s.pdfUrl+'">PDF</a>':'')+' '+(s.signatureUrl?'<a target="_blank" style="font-size:11px" href="'+s.signatureUrl+'">Signature</a>':'')+'</div></div>':'<span class="badge pending">PENDING</span>';
-   row.innerHTML='<div><div class="student-name">'+s.name+'</div><div class="student-roll">'+s.roll+'</div></div>'+right;list.appendChild(row);
- });
+
+  document.getElementById(
+    "pinBox"
+  ).style.display = "none";
+
+  document.getElementById(
+    "dashboardContent"
+  ).style.display = "block";
+
+
+  document.getElementById(
+    "totalCount"
+  ).textContent = data.total;
+
+
+  document.getElementById(
+    "completedCount"
+  ).textContent =
+    data.completed;
+
+
+  document.getElementById(
+    "pendingCount"
+  ).textContent =
+    data.pending;
+
+
+  const pct =
+    data.total
+      ? Math.round(
+          data.completed /
+          data.total *
+          100
+        )
+      : 0;
+
+
+  document.getElementById(
+    "progressBar"
+  ).style.width =
+    pct + "%";
+
+
+  document.getElementById(
+    "progressText"
+  ).textContent =
+    data.completed +
+    " / " +
+    data.total +
+    " completed (" +
+    pct +
+    "%)";
+
+
+  const list =
+    document.getElementById(
+      "studentList"
+    );
+
+  list.innerHTML = "";
+
+
+  data.students.forEach(
+    function(student){
+
+      const row =
+        document.createElement(
+          "div"
+        );
+
+      row.className =
+        "student-row";
+
+
+      const left =
+        document.createElement(
+          "div"
+        );
+
+
+      const name =
+        document.createElement(
+          "div"
+        );
+
+      name.className =
+        "student-name";
+
+      name.textContent =
+        student.name;
+
+
+      const roll =
+        document.createElement(
+          "div"
+        );
+
+      roll.className =
+        "student-roll";
+
+      roll.textContent =
+        student.roll;
+
+
+      left.appendChild(name);
+      left.appendChild(roll);
+
+
+      const right =
+        document.createElement(
+          "div"
+        );
+
+      right.style.textAlign =
+        "right";
+
+
+      const badge =
+        document.createElement(
+          "span"
+        );
+
+      badge.className =
+        "badge " +
+        (
+          student.status ===
+          "COMPLETED"
+            ? "completed"
+            : "pending"
+        );
+
+      badge.textContent =
+        student.status;
+
+
+      right.appendChild(badge);
+
+
+      if(
+        student.status ===
+        "COMPLETED"
+      ){
+
+        if(student.timestamp){
+
+          const time =
+            document.createElement(
+              "div"
+            );
+
+          time.style.cssText =
+            "font-size:10px;color:#6b7280;margin-top:5px";
+
+          time.textContent =
+            student.timestamp;
+
+          right.appendChild(time);
+        }
+
+
+        const links =
+          document.createElement(
+            "div"
+          );
+
+        links.style.marginTop =
+          "4px";
+
+
+        if(student.pdfUrl){
+
+          const pdf =
+            document.createElement(
+              "a"
+            );
+
+          pdf.href =
+            student.pdfUrl;
+
+          pdf.target =
+            "_blank";
+
+          pdf.rel =
+            "noopener";
+
+          pdf.textContent =
+            "PDF";
+
+          pdf.style.fontSize =
+            "11px";
+
+          links.appendChild(pdf);
+        }
+
+
+        if(
+          student.pdfUrl &&
+          student.signatureUrl
+        ){
+
+          links.appendChild(
+            document.createTextNode(
+              "  "
+            )
+          );
+        }
+
+
+        if(student.signatureUrl){
+
+          const sig =
+            document.createElement(
+              "a"
+            );
+
+          sig.href =
+            student.signatureUrl;
+
+          sig.target =
+            "_blank";
+
+          sig.rel =
+            "noopener";
+
+          sig.textContent =
+            "Signature";
+
+          sig.style.fontSize =
+            "11px";
+
+          links.appendChild(sig);
+        }
+
+
+        right.appendChild(links);
+      }
+
+
+      row.appendChild(left);
+      row.appendChild(right);
+
+      list.appendChild(row);
+    }
+  );
 }
 </script>
+
 </body>
 </html>
