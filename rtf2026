@@ -112,6 +112,18 @@
   .week-grid{ display:grid; grid-template-columns: 30px repeat(7,1fr); gap:3px; }
   .week-grid .head{ font-size:0.65rem; font-weight:600; text-align:center; color:var(--ink-soft); }
   .week-grid .cell{ height:26px; border-radius:3px; background:#EFE6C4; transition: background .4s ease; }
+
+  .timetable{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .timetable table{ width:100%; min-width:420px; border-collapse:collapse; }
+  .timetable th, .timetable td{
+    border:1px solid var(--line); text-align:center; padding:5px 3px;
+    font-size:0.68rem; line-height:1.2;
+  }
+  .timetable thead th{ background:var(--ink); color:var(--paper); font-weight:600; }
+  .timetable td.slot-label{ background:#EFE6C4; font-weight:600; color:var(--ink-soft); white-space:nowrap; font-size:0.62rem; }
+  .timetable td.free{ background:var(--white); }
+  .timetable td.lec{ background:var(--ink-soft); color:white; font-weight:600; }
+  .timetable td.lab{ background:var(--red); color:white; font-weight:600; }
   .legend{ display:flex; gap:12px; margin-top:8px; font-size:0.68rem; flex-wrap:wrap;}
   .legend span{ display:flex; align-items:center; gap:5px; }
   .swatch{ width:10px; height:10px; border-radius:3px; display:inline-block;}
@@ -128,6 +140,7 @@
 
   .center-quote{ font-family:'Source Serif 4'; font-size:1.05rem; text-align:center; max-width:420px; margin:auto; }
   .center-quote.hand{ font-family:'Kalam',cursive; color:var(--red); font-size:1.25rem; }
+  .calc-line{ font-size:0.8rem; color:var(--ink-soft); margin-bottom:8px; text-align:center; font-family:'Inter'; }
 
   /* Subtitle / caption bar */
   #captionBar{
@@ -146,19 +159,115 @@
     background: rgba(0,0,0,0.15);
   }
   #progressFill{ height:100%; width:0%; background: var(--red); transition: width 0.2s linear; }
-  #playPause{
+  #controlBtns{
     position:absolute; top:6px; right:16px; z-index:26;
+    display:flex; align-items:center; gap:8px;
+  }
+  #playPause{
     background: var(--paper); color:var(--ink); border:none; border-radius:20px;
     padding:5px 14px; font-family:'Inter'; font-weight:700; font-size:0.75rem; cursor:pointer;
   }
   #restartBtn{
-    position:absolute; top:6px; right:100px; z-index:26;
     background: transparent; color:var(--paper); border:1px solid var(--paper); border-radius:20px;
     padding:4px 12px; font-family:'Inter'; font-weight:600; font-size:0.72rem; cursor:pointer;
+  }
+  #prevBtn, #nextBtn{
+    background: rgba(255,255,255,0.14); color: var(--paper);
+    border:1px solid rgba(255,255,255,0.4); border-radius:20px;
+    padding:4px 11px; font-family:'Inter'; font-weight:600; font-size:0.72rem; cursor:pointer;
+  }
+  #prevBtn:hover, #nextBtn:hover{ background: rgba(255,255,255,0.26); }
+  #volumeWrap{
+    position:absolute; top:6px; left:16px; z-index:26;
+    display:flex; align-items:center; gap:6px;
+  }
+  #volIcon{ font-size:0.85rem; }
+  #volumeSlider{
+    width:80px; accent-color: var(--red); cursor:pointer;
   }
   #uploadNote{
     position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
     color:#9AA3B5; font-size:0.72rem; font-family:'Inter';
+  }
+  #startOverlay{
+    position:absolute; inset:0; z-index:200;
+    background: rgba(20,24,32,0.82);
+    display:flex; align-items:center; justify-content:center;
+    backdrop-filter: blur(2px);
+  }
+  .start-card{
+    background: var(--white); border:2px solid var(--ink); border-radius:10px;
+    padding:32px 36px; max-width:420px; text-align:center;
+    box-shadow: 8px 8px 0 var(--shadow);
+  }
+  .start-title{ font-family:'Source Serif 4'; font-weight:700; font-size:1.2rem; color:var(--ink); margin-bottom:6px; }
+  .start-sub{ font-size:0.85rem; color:var(--ink-soft); margin-bottom:20px; }
+  #startBtn{
+    font-family:'Inter'; font-weight:700; font-size:1rem;
+    background: var(--red); color:white; border:none; border-radius:30px;
+    padding:14px 28px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.2);
+  }
+  #startBtn:active{ transform: translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,0.2); }
+  .start-note{ font-size:0.7rem; color:#8a93a8; margin-top:16px; line-height:1.4; }
+
+  #pauseOverlay{
+    position:absolute; inset:0; z-index:150;
+    display:none; align-items:center; justify-content:center; gap:26px;
+    background: rgba(20,24,32,0.32);
+    pointer-events:none;
+  }
+  #pauseOverlay.visible{ display:flex; }
+  #pauseOverlay button{ pointer-events:auto; }
+  .pause-nav{
+    width:56px; height:56px; border-radius:50%;
+    background: rgba(255,255,255,0.18); border:2px solid rgba(255,255,255,0.55);
+    color:white; font-size:1.3rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pause-nav:hover{ background: rgba(255,255,255,0.3); }
+  .pause-play{
+    width:78px; height:78px; border-radius:50%;
+    background: var(--red); border:none; color:white; font-size:1.8rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:4px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+
+  /* ============ Mobile ============ */
+  @media (max-width: 700px){
+    body{ align-items:stretch; }
+    #stage{
+      width:100vw; height:100vh; max-height:100dvh;
+      aspect-ratio:unset; border-radius:0;
+    }
+    .meeting-bar{ height:38px; padding:0 10px; }
+    .meeting-bar .title{ font-size:0.62rem; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .meeting-bar .timer{ font-size:0.65rem; }
+
+    .presenter-bubble{ width:56px; height:56px; bottom:auto; top:44px; left:8px; }
+    .presenter-name{ display:none; }
+
+    #scenes{ top:38px; bottom:128px; }
+    .scene{ padding:66px 16px 12px 16px; }
+    .eyebrow{ font-size:0.8rem; }
+    h1{ font-size:1.05rem; margin-bottom:8px; }
+    .visual-panel{ padding:10px; box-shadow:3px 3px 0 var(--shadow); }
+    .calc-line{ font-size:0.68rem; }
+
+    .ledger-card h3{ font-size:0.85rem; }
+    .ledger-card .num{ font-size:1.3rem; }
+
+    #controls{ bottom:96px; }
+    #volumeWrap{ top:auto; bottom:116px; left:10px; right:auto; }
+    #controlBtns{ top:auto; bottom:114px; right:10px; gap:5px; }
+    #restartBtn{ padding:4px 8px; font-size:0.6rem; }
+    #playPause{ padding:5px 10px; font-size:0.68rem; }
+    #prevBtn, #nextBtn{ padding:4px 8px; font-size:0.6rem; }
+
+    #captionBar{ height:90px; padding:8px 14px; }
+    #caption{ font-size:0.8rem; }
+
+    .start-card{ max-width:88vw; padding:24px 20px; }
+    .start-title{ font-size:1rem; }
   }
 </style>
 </head>
@@ -233,53 +342,71 @@
 
     <!-- Scene 5 -->
     <section class="scene">
-      <span class="eyebrow">Root cause</span>
-      <h1>It's a distribution problem, not a motivation problem.</h1>
+      <span class="eyebrow">Root cause — the example</span>
+      <h1>AI &amp; ML, Semester 7 — where twelve hours actually goes.</h1>
       <div class="visual">
         <div class="visual-panel">
-          <div class="week-grid" id="week-grid">
-            <div class="head"></div><div class="head">M</div><div class="head">T</div><div class="head">W</div><div class="head">T</div><div class="head">F</div><div class="head">S</div><div class="head">S</div>
-          </div>
+          <p class="calc-line">2 hrs Theory + 4 hrs Practical, per section × 2 sections (A &amp; B) = <b>12 hrs</b></p>
+          <div class="timetable" id="tt-before"></div>
           <div class="legend">
             <span><span class="swatch" style="background:var(--ink-soft)"></span>Lecture</span>
             <span><span class="swatch" style="background:var(--red)"></span>Lab</span>
-            <span><span class="swatch" style="background:var(--green)"></span>Mentorship</span>
           </div>
-          <div class="verdict bad" id="verdict">"Worst possible distribution" — no clear stretch opens up for research.</div>
+          <div class="verdict bad">Touches all 6 working days — a timetable default, not a decision anyone made.</div>
         </div>
       </div>
     </section>
 
     <!-- Scene 6 -->
     <section class="scene">
-      <span class="eyebrow">Why it matters</span>
-      <h1>A scattered 12 hours doesn't feel like 12 hours.</h1>
+      <span class="eyebrow good">Root cause — the fix</span>
+      <h1>Cluster it, and the same twelve hours fits in four days.</h1>
       <div class="visual">
-        <div class="visual-panel" style="display:flex;align-items:center;justify-content:center;">
-          <p class="center-quote">The benefit is real on the sheet — invisible in the week.</p>
+        <div class="visual-panel">
+          <p class="calc-line">Lecture as one continuous block + one lab, same day, per section</p>
+          <div class="timetable" id="tt-after"></div>
+          <div class="legend">
+            <span><span class="swatch" style="background:var(--ink-soft)"></span>Lecture</span>
+            <span><span class="swatch" style="background:var(--red)"></span>Lab</span>
+          </div>
+          <div class="verdict good">4 teaching days → Fri, Sat &amp; Sun open for research.</div>
         </div>
       </div>
     </section>
 
     <!-- Scene 7 -->
     <section class="scene">
-      <span class="eyebrow good">The fix</span>
-      <h1>Proper allocation — scheduling discipline, not a policy change.</h1>
+      <span class="eyebrow">A second stopper</span>
+      <h1>Class size can quietly double the real load too.</h1>
       <div class="visual">
         <div class="visual-panel">
-          <div class="fix-list" id="fix-list">
-            <div class="fix-item" id="fix1"><h4><span class="num">1</span>Cluster, don't scatter</h4><p>2 lectures back-to-back, lab sessions same day — compressed into ~2 teaching days.</p></div>
-            <div class="fix-item" id="fix2"><h4><span class="num">2</span>Limit students per lecture</h4><p>Smaller RTF sections, lighter to run and easier to compress.</p></div>
-            <div class="fix-item" id="fix3"><h4><span class="num">3</span>Or, honestly, double load</h4><p>Where it can't be clustered — compensate directly, with a real offer attached.</p></div>
+          <div class="ledger">
+            <div class="ledger-card"><h3 id="classCount">0</h3><div class="num" style="font-size:1rem;">1 large class</div></div>
+            <div class="ledger-card"><div class="num">70 + 70</div><p style="font-size:0.72rem;color:var(--ink-soft);">2 standard classes</p></div>
           </div>
+          <p class="gap-note">Same real load. Worth recognizing as double load — an option for faculty who can take it on.</p>
         </div>
       </div>
     </section>
 
     <!-- Scene 8 -->
     <section class="scene">
+      <span class="eyebrow good">Both, together</span>
+      <h1>Two things worth fixing — neither changes what RTF offers.</h1>
+      <div class="visual">
+        <div class="visual-panel">
+          <div class="fix-list" id="fix-list">
+            <div class="fix-item" id="fix1"><h4><span class="num">1</span>Cluster the schedule</h4><p>Same 12 hours, arranged to actually open up research days.</p></div>
+            <div class="fix-item" id="fix2"><h4><span class="num">2</span>Recognize oversized classes</h4><p>Count them as the double load they are — an option, not a burden nobody acknowledged.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scene 9 -->
+    <section class="scene">
       <span class="eyebrow">Closing</span>
-      <h1>I'm not asking to change what RTF offers — just how it's scheduled.</h1>
+      <h1>This doesn't change what RTF offers — just how it's scheduled and counted.</h1>
       <div class="visual">
         <div class="visual-panel" style="display:flex;align-items:center;">
           <p class="center-quote">Making sure the 100-points-a-year ambition is actually reachable within the hours RTFs are given — not competing against a scattered week.</p>
@@ -290,134 +417,359 @@
   </div>
 
   <div id="controls"><div id="progressFill"></div></div>
-  <button id="restartBtn" onclick="restart()">⟲ Restart</button>
-  <button id="playPause" onclick="togglePlay()">Pause</button>
+  <div id="volumeWrap">
+    <span id="volIcon">🔊</span>
+    <input type="range" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
+  </div>
+  <div id="controlBtns">
+    <button id="prevBtn" onclick="skipScene(-1)">◀︎ Back</button>
+    <button id="restartBtn" onclick="restart()">⟲ Restart</button>
+    <button id="playPause" onclick="togglePlay()">Pause</button>
+    <button id="nextBtn" onclick="skipScene(1)">Next ▶︎</button>
+  </div>
 
   <div id="captionBar"><div id="caption"></div></div>
+
+  <div id="pauseOverlay">
+    <button class="pause-nav" onclick="skipScene(-1)" aria-label="Back">◀︎</button>
+    <button class="pause-play" onclick="togglePlay()" aria-label="Play">▶</button>
+    <button class="pause-nav" onclick="skipScene(1)" aria-label="Next">▶︎</button>
+  </div>
+
+  <div id="startOverlay">
+    <div class="start-card">
+      <div class="start-title">RTF Participation — A Business Analyst's Read</div>
+      <div class="start-sub">10-minute narrated briefing · click to start with sound</div>
+      <button id="startBtn" onclick="startPresentation()">▶ Start Presentation</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  // Each scene: duration in seconds, caption text (voiceover script), optional onStart hook
+  // Each scene: caption text (shown), speak text (narrated, stage directions stripped), onStart hook
   const scenes = [
-    { dur: 55, cap: `Good morning, Sir. I looked at last year's RTF numbers the way I'd look at any adoption problem — not to critique the scheme, but to help more of it land.` },
-    { dur: 70, cap: `Before anything else — this was a genuinely thoughtful step. And luckily, Sir, VC sir knew a nice team of business analysts too. (pause, smile) SGT management already cut the weekly load meaningfully for RTF faculty — eighteen to twenty-two hours down to twelve.`,
+    { cap: `Greetings, Sir. I'm applying for RTF this year — and out of curiosity, I reached out to last year's RTF cohort for their feedback.`,
+      speak: `Greetings, Sir. I'm applying for RTF this year, and out of curiosity, I reached out to last year's RTF cohort for their feedback.` },
+    { cap: `Before anything else — this was a genuinely thoughtful step. SGT management already cut the weekly load meaningfully for RTF faculty — eighteen to twenty-two hours down to twelve.`,
+      speak: `Before anything else, this was a genuinely thoughtful step. SGT management already cut the weekly load meaningfully for RTF faculty, eighteen to twenty-two hours down to twelve.`,
       onStart: ()=>{ document.getElementById('bar-normal').style.width='100%'; document.getElementById('bar-rtf').style.width='60%'; } },
-    { dur: 55, cap: `So here's the puzzle. A lighter load should pull in more applicants than it did. Something was quietly offsetting the benefit — so I went and asked the people who'd actually lived it.` },
-    { dur: 65, cap: `Two things came back, consistently: twelve hours of Privilege on paper, and twelve hours On Records in practice. Same number — not always the same week. That gap is worth naming.` },
-    { dur: 90, cap: `Take an AI and ML RTF carrying two sections. Two lectures a week each, reasonable on paper — but the real week often scatters lecture, lab, and mentorship across every single day. It's a scheduling default, not an intentional decision — which is exactly why it's fixable.`,
-      onStart: ()=> setSchedule('scattered') },
-    { dur: 55, cap: `Lectures on Monday, Wednesday, Friday mornings mean an RTF never gets a real multi-hour block. That defeats the entire point of the reduced load. The benefit is real on the sheet — invisible in the week.` },
-    { dur: 85, cap: `Three fixes, in order of ease. One — cluster instead of scattering, compress into two teaching days. Two — limit students per lecture, so each RTF section is lighter to run. Three — where clustering truly isn't possible, treat it honestly as double load, with a real offer attached.`,
+    { cap: `So here's the puzzle. A lighter load should pull in more applicants than it did. Something was quietly offsetting the benefit — so I went and asked the people who'd actually lived it.`,
+      speak: `So here's the puzzle. A lighter load should pull in more applicants than it did. Something was quietly offsetting the benefit, so I went and asked the people who'd actually lived it.` },
+    { cap: `Two things came back, consistently: twelve hours of Privilege on paper, and twelve hours On Records in practice. Same number — not always the same week. That gap is worth naming.`,
+      speak: `Two things came back consistently: twelve hours of Privilege on paper, and twelve hours On Records in practice. Same number, not always the same week. That gap is worth naming.` },
+    { cap: `Take AI and ML, Semester 7 — two hours of theory, four hours of practical, per section. Teaching both Section A and Section B adds up to exactly twelve hours. On a standard timetable, that load often lands scattered — a bit most days, all week.`,
+      speak: `Take AI and ML, Semester 7. Two hours of theory, four hours of practical, per section. Teaching both Section A and Section B adds up to exactly twelve hours. On a standard timetable, that load often lands scattered, a bit most days, all week, the kind of pattern a scheduling tool defaults to, not something anyone chose on purpose.`,
+      onStart: ()=> renderTimetable('tt-before', scatteredSchedule) },
+    { cap: `Cluster it instead. Deliver each section's theory as one continuous block, paired with one lab the same day. Do that for both sections across two days, and eight of the twelve hours are already covered. Two more days pick up the remaining labs.`,
+      speak: `Cluster it instead. Deliver each section's theory as one continuous block, paired with one lab the same day, four hours, once, not four separate touches. Do that for both sections across two days, and eight of the twelve hours are already covered. Two more days pick up the remaining labs. That's the whole load in four days, leaving a genuine three-day stretch open for research.`,
+      onStart: ()=> renderTimetable('tt-after', clusteredSchedule) },
+    { cap: `A second thing worth flagging: a single class of over a hundred and twenty students carries the same real load as two classes of sixty to eighty.`,
+      speak: `A second thing worth flagging. A single class of over a hundred and twenty students carries the same real load as two classes of sixty to eighty. Recognizing that, and offering it as an option to faculty who can genuinely handle it, avoids the load quietly going unacknowledged.`,
+      onStart: ()=> animateClassCount() },
+    { cap: `So — two things worth fixing. Neither changes what RTF offers, just how the same twelve hours get counted and arranged.`,
+      speak: `So, two things worth fixing. Neither changes what RTF offers, just how the same twelve hours get counted and arranged.`,
       onStart: ()=>{ setTimeout(()=>document.getElementById('fix1').classList.add('lit'), 300);
-                     setTimeout(()=>document.getElementById('fix2').classList.add('lit'), 2600);
-                     setTimeout(()=>document.getElementById('fix3').classList.add('lit'), 5200);
-                     setSchedule('clustered'); } },
-    { dur: 55, cap: `I'm not asking to change what RTF offers — just how it's scheduled. This makes sure the hundred-points-a-year ambition is actually reachable within the hours RTFs are given. Thank you, Sir.` },
+                     setTimeout(()=>document.getElementById('fix2').classList.add('lit'), 2200); } },
+    { cap: `This doesn't change what RTF offers — just how it's scheduled and counted. This makes sure the hundred-points-a-year ambition is actually reachable within the hours RTFs are given. Thank you, Sir.`,
+      speak: `This doesn't change what R T F offers, just how it's scheduled and counted. This makes sure the hundred points a year ambition is actually reachable within the hours R T Fs are given. Thank you, Sir.` },
   ];
-
-  const totalDuration = scenes.reduce((a,s)=>a+s.dur, 0);
-  document.getElementById('total').textContent = fmt(totalDuration);
 
   let sceneEls = document.querySelectorAll('.scene');
   let current = 0;
-  let elapsedInScene = 0;
-  let totalElapsed = 0;
-  let playing = true;
-  let tickHandle = null;
+  let playing = false;
+  let started = false;
+  let startTime = null;
+  let elapsedTimerHandle = null;
+  let chosenVoice = null;
+  let currentVolume = 1.0;
+  let currentMode = null; // 'audio' or 'tts', for the currently active scene
+  const synth = window.speechSynthesis;
+  const speechSupported = !!synth;
+  const audioPlayer = new Audio();
+  audioPlayer.preload = 'auto';
 
   function fmt(s){
     const m = Math.floor(s/60), sec = Math.round(s%60);
     return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
   }
 
-  function typeCaption(text){
+  function pickVoice(){
+    if(!speechSupported) return;
+    const voices = synth.getVoices();
+    const isMale = v => /male/i.test(v.name) && !/female/i.test(v.name);
+    const isFemale = v => /female/i.test(v.name);
+    // Prefer a male Indian English voice, then any male English voice, then any Indian voice,
+    // then any English voice that isn't explicitly female, then whatever's available.
+    chosenVoice = voices.find(v=>/en-IN/i.test(v.lang) && isMale(v))
+      || voices.find(v=>/ravi/i.test(v.name))
+      || voices.find(v=>/en-GB|en-US/.test(v.lang) && isMale(v))
+      || voices.find(v=>/en-IN/i.test(v.lang) && !isFemale(v))
+      || voices.find(v=>/en/.test(v.lang) && !isFemale(v))
+      || voices.find(v=>/en/.test(v.lang))
+      || voices[0] || null;
+  }
+  if(speechSupported){
+    pickVoice();
+    synth.onvoiceschanged = pickVoice;
+  }
+
+  function setVolume(v){
+    currentVolume = v/100;
+    audioPlayer.volume = currentVolume;
+    document.getElementById('volIcon').textContent = currentVolume === 0 ? '🔇' : currentVolume < 0.5 ? '🔉' : '🔊';
+    // Note: an in-progress browser-TTS utterance can't have its volume changed live;
+    // the new volume takes effect from the next utterance onward.
+  }
+
+  function showCaption(text){
     const el = document.getElementById('caption');
-    el.textContent = '';
-    let i = 0;
-    const speed = 18; // ms per character
-    function step(){
-      if(!playing) return;
-      if(i <= text.length){
-        el.textContent = text.slice(0,i);
-        i++;
-        setTimeout(step, speed);
-      }
-    }
-    step();
+    el.style.opacity = 0;
+    el.textContent = text;
+    requestAnimationFrame(()=>{ el.style.transition='opacity .4s ease'; el.style.opacity = 1; });
   }
 
-  function showScene(idx){
+  function speakWithBrowserVoice(idx){
+    if(!speechSupported){
+      showCaption(scenes[idx].cap);
+      document.getElementById('bubble').classList.add('speaking');
+      setTimeout(()=>{ if(playing && current===idx) advance(); }, 6000);
+      return;
+    }
+    currentMode = 'tts';
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(scenes[idx].speak);
+    if(chosenVoice) u.voice = chosenVoice;
+    u.rate = 0.82;
+    u.pitch = 0.95;
+    u.volume = currentVolume;
+    u.onstart = ()=> document.getElementById('bubble').classList.add('speaking');
+    u.onend = ()=>{
+      document.getElementById('bubble').classList.remove('speaking');
+      if(playing && current === idx){ setTimeout(()=>{ if(playing) advance(); }, 400); }
+    };
+    u.onerror = ()=>{
+      document.getElementById('bubble').classList.remove('speaking');
+      if(playing && current === idx){ setTimeout(()=>{ if(playing) advance(); }, 400); }
+    };
+    synth.speak(u);
+  }
+
+  function playScene(idx){
+    // Try a real recorded clip first: audio/scene1.mp3, audio/scene2.mp3, ...
+    currentMode = 'audio';
+    let fallbackTriggered = false;
+    const triggerFallback = ()=>{
+      if(fallbackTriggered) return; // guard: only fall back once per scene, never twice
+      fallbackTriggered = true;
+      speakWithBrowserVoice(idx);
+    };
+    audioPlayer.pause();
+    audioPlayer.onended = null;
+    audioPlayer.onerror = null;
+    audioPlayer.src = `audio/scene${idx+1}.mp3`;
+    audioPlayer.volume = currentVolume;
+    audioPlayer.currentTime = 0;
+    audioPlayer.onended = ()=>{
+      document.getElementById('bubble').classList.remove('speaking');
+      if(playing && current === idx){ setTimeout(()=>{ if(playing) advance(); }, 400); }
+    };
+    audioPlayer.onerror = triggerFallback;
+    const playPromise = audioPlayer.play();
+    if(playPromise){
+      playPromise.then(()=>{
+        // Real clip is genuinely playing — cancel any fallback that might still fire
+        fallbackTriggered = true;
+        document.getElementById('bubble').classList.add('speaking');
+      }).catch(triggerFallback);
+    }
+  }
+
+  function showScene(idx, autoplay=true){
     sceneEls.forEach((s,i)=> s.classList.toggle('active', i===idx));
+    showCaption(scenes[idx].cap);
     const s = scenes[idx];
-    typeCaption(s.cap);
-    document.getElementById('bubble').classList.add('speaking');
     if(s.onStart) s.onStart();
+    document.getElementById('progressFill').style.width = ((idx)/(scenes.length-1)*100)+'%';
+    if(autoplay) playScene(idx);
   }
 
-  function tick(){
-    if(!playing) return;
-    elapsedInScene += 0.2;
-    totalElapsed += 0.2;
-    document.getElementById('elapsed').textContent = fmt(totalElapsed);
-    document.getElementById('progressFill').style.width = (totalElapsed/totalDuration*100)+'%';
-    if(elapsedInScene >= scenes[current].dur){
-      elapsedInScene = 0;
-      if(current < scenes.length-1){
-        current++;
-        showScene(current);
-      } else {
-        playing = false;
-        document.getElementById('playPause').textContent = 'Replay';
-        document.getElementById('bubble').classList.remove('speaking');
-        return;
-      }
+  function syncPauseOverlay(){
+    document.getElementById('pauseOverlay').classList.toggle('visible', started && !playing);
+  }
+
+  function advance(){
+    if(current < scenes.length-1){
+      current++;
+      showScene(current);
+    } else {
+      playing = false;
+      document.getElementById('playPause').textContent = 'Replay';
+      document.getElementById('bubble').classList.remove('speaking');
+      stopElapsedTimer();
     }
+    syncPauseOverlay();
+  }
+
+  function startElapsedTimer(){
+    if(elapsedTimerHandle) return;
+    if(!startTime) startTime = Date.now();
+    elapsedTimerHandle = setInterval(()=>{
+      document.getElementById('elapsed').textContent = fmt((Date.now()-startTime)/1000);
+    }, 500);
+  }
+  function stopElapsedTimer(){
+    if(elapsedTimerHandle){ clearInterval(elapsedTimerHandle); elapsedTimerHandle = null; }
+  }
+
+  function startPresentation(){
+    document.getElementById('startOverlay').style.display = 'none';
+    started = true;
+    playing = true;
+    startTime = Date.now();
+    startElapsedTimer();
+    document.getElementById('total').textContent = '~10:00';
+    showScene(0);
+    syncPauseOverlay();
   }
 
   function togglePlay(){
+    if(!started){ startPresentation(); return; }
     if(!playing && document.getElementById('playPause').textContent === 'Replay'){
       restart(); return;
     }
     playing = !playing;
     document.getElementById('playPause').textContent = playing ? 'Pause' : 'Play';
-    if(playing) typeCaption(scenes[current].cap.slice(0)); // resume caption fully (simplification)
+    if(playing){
+      startElapsedTimer();
+      if(currentMode === 'audio'){
+        // Real audio clips resume natively from where they left off
+        audioPlayer.play().catch(()=> speakWithBrowserVoice(current));
+      } else {
+        // Browser TTS resume is unreliable across browsers (esp. Chrome) —
+        // restart the current line cleanly instead of relying on synth.resume()
+        speakWithBrowserVoice(current);
+      }
+    } else {
+      stopElapsedTimer();
+      if(currentMode === 'audio'){
+        audioPlayer.pause();
+      } else if(speechSupported){
+        synth.cancel();
+      }
+    }
     document.getElementById('bubble').classList.toggle('speaking', playing);
+    syncPauseOverlay();
+  }
+
+  function skipScene(direction){
+    if(!started) return;
+    let newIndex = current + direction;
+    if(newIndex < 0) newIndex = 0;
+    if(newIndex > scenes.length - 1) newIndex = scenes.length - 1;
+    if(newIndex === current) return;
+    // Stop whatever is currently playing before jumping
+    if(speechSupported) synth.cancel();
+    audioPlayer.pause();
+    current = newIndex;
+    if(playing){
+      document.getElementById('playPause').textContent = 'Pause';
+      startElapsedTimer();
+      showScene(current, true);
+    } else {
+      document.getElementById('playPause').textContent = 'Play';
+      stopElapsedTimer();
+      document.getElementById('bubble').classList.remove('speaking');
+      showScene(current, false);
+    }
+    syncPauseOverlay();
   }
 
   function restart(){
-    current = 0; elapsedInScene = 0; totalElapsed = 0; playing = true;
+    if(speechSupported) synth.cancel();
+    audioPlayer.pause();
+    current = 0; playing = true; startTime = Date.now();
     document.getElementById('playPause').textContent = 'Pause';
     document.getElementById('elapsed').textContent = '00:00';
     document.getElementById('progressFill').style.width = '0%';
+    startElapsedTimer();
     showScene(0);
+    syncPauseOverlay();
   }
 
-  // Schedule dashboard data (reused pattern)
-  const scatteredData = [{day:0,type:'lec'},{day:1,type:'lab'},{day:2,type:'lec'},{day:3,type:'lab'},{day:4,type:'lec'},{day:4,type:'mentor'},{day:5,type:'lab'}];
-  const clusteredData = [{day:0,type:'lec'},{day:0,type:'lec'},{day:1,type:'lab'},{day:1,type:'lab'},{day:2,type:'mentor'}];
-  function setSchedule(mode){
-    const grid = document.getElementById('week-grid');
-    while(grid.children.length > 8){ grid.removeChild(grid.lastChild); }
-    const data = mode==='scattered' ? scatteredData : clusteredData;
-    for(let d=0; d<7; d++){
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      const items = data.filter(x=>x.day===d);
-      if(items.length){ cell.style.background = items[0].type==='lec' ? 'var(--ink-soft)' : items[0].type==='lab' ? 'var(--red)' : 'var(--green)'; }
-      grid.appendChild(cell);
-    }
-    const verdict = document.getElementById('verdict');
-    if(mode==='scattered'){
-      verdict.className='verdict bad';
-      verdict.textContent = '"Worst possible distribution" — no clear stretch opens up for research.';
-    } else {
-      verdict.className='verdict good';
-      verdict.textContent = 'Clustered into 2 teaching days — the rest of the week is a protected research block.';
-    }
+  // Real timetable data: periods are actual class slots, days are the normal teaching week (Mon–Sat)
+  const PERIODS = ['9-10','10-11','11-12','12-1','2-3','3-4'];
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // Each entry: day index (0=Mon), period index (0='9-10'), span (periods occupied), label, type
+  const scatteredSchedule = [
+    {day:0, period:0, span:1, label:'AIML-A\nLec', type:'lec'},
+    {day:0, period:4, span:2, label:'AIML-A\nLab',  type:'lab'},
+    {day:1, period:1, span:1, label:'AIML-B\nLec', type:'lec'},
+    {day:1, period:4, span:2, label:'AIML-B\nLab',  type:'lab'},
+    {day:2, period:0, span:1, label:'AIML-A\nLec', type:'lec'},
+    {day:3, period:1, span:1, label:'AIML-B\nLec', type:'lec'},
+    {day:4, period:0, span:2, label:'AIML-A\nLab',  type:'lab'},
+    {day:5, period:0, span:2, label:'AIML-B\nLab',  type:'lab'},
+  ];
+  const clusteredSchedule = [
+    {day:0, period:0, span:2, label:'AIML-A\nLec', type:'lec'},
+    {day:0, period:2, span:2, label:'AIML-A\nLab',  type:'lab'},
+    {day:1, period:0, span:2, label:'AIML-B\nLec', type:'lec'},
+    {day:1, period:2, span:2, label:'AIML-B\nLab',  type:'lab'},
+    {day:2, period:0, span:2, label:'AIML-A\nLab',  type:'lab'},
+    {day:3, period:0, span:2, label:'AIML-B\nLab',  type:'lab'},
+    // Fri, Sat: free — research block (Sun already off, not shown)
+  ];
+
+  function renderTimetable(containerId, schedule){
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    // Build occupancy: occupancy[period][day] = {isStart, span, label, type} or null
+    const occ = PERIODS.map(()=> DAYS.map(()=> null));
+    schedule.forEach(item=>{
+      for(let p = item.period; p < item.period + item.span; p++){
+        occ[p][item.day] = (p===item.period)
+          ? { isStart:true, span:item.span, label:item.label, type:item.type }
+          : { isStart:false };
+      }
+    });
+    let html = '<table><thead><tr><th></th>';
+    DAYS.forEach(d=> html += `<th>${d}</th>`);
+    html += '</tr></thead><tbody>';
+    PERIODS.forEach((ptime, p)=>{
+      html += `<tr><td class="slot-label">${ptime}</td>`;
+      DAYS.forEach((d, di)=>{
+        const cell = occ[p][di];
+        if(!cell){
+          html += '<td class="free"></td>';
+        } else if(cell.isStart){
+          html += `<td class="${cell.type}" rowspan="${cell.span}">${cell.label.replace('\n','<br>')}</td>`;
+        }
+        // if cell exists but not isStart, it's covered by a rowspan above — emit nothing
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
   }
 
-  setInterval(tick, 200);
-  showScene(0);
+  function animateClassCount(){
+    const el = document.getElementById('classCount');
+    if(!el) return;
+    let n = 0;
+    const target = 140;
+    const step = ()=>{
+      n += 7;
+      if(n >= target){ el.textContent = target; return; }
+      el.textContent = n;
+      requestAnimationFrame(step);
+    };
+    step();
+  }
+
+  // Initial static render (before Start is clicked)
+  renderTimetable('tt-before', scatteredSchedule);
+  document.getElementById('caption').textContent = 'Click "Start Presentation" to begin the narrated briefing.';
 </script>
 </body>
 </html>
