@@ -51,9 +51,19 @@
     transition:transform .15s ease, box-shadow .15s ease;
   }
   a.link:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(24,34,56,.12); }
-  .icon{ width:22px; height:22px; flex-shrink:0; color:var(--blue); }
+  .icon{ width:22px; height:22px; flex-shrink:0; color:var(--blue); margin-top:1px; }
   .icon svg{ width:100%; height:100%; display:block; }
-  .sub{ font-size:12px; color:var(--ink-soft); font-weight:400; margin-top:2px; }
+  .link-text{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .link-title{ word-break:break-word; }
+  .sub{ font-size:12px; color:var(--ink-soft); font-weight:400; }
+
+  @media (max-width: 380px){
+    body{ padding:24px 14px; }
+    .avatar{ width:76px; height:76px; margin-bottom:14px; }
+    h1{ font-size:21px; }
+    .role{ font-size:13px; margin-bottom:22px; }
+    a.link{ padding:13px 14px; gap:10px; }
+  }
 </style>
 </head>
 <body>
@@ -64,15 +74,15 @@
     <div class="links">
       <a class="link" href="https://kpsingh.in" target="_blank" rel="noopener">
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
-        <span>Portfolio — kpsingh.in<div class="sub">Papers, projects, tools</div></span>
+        <div class="link-text"><div class="link-title">Portfolio — kpsingh.in</div><div class="sub">Papers, projects, tools</div></div>
       </a>
       <a class="link" id="wa-link" href="#" target="_blank" rel="noopener">
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L3 20l1.1-5.4A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.5 10.5c.3 2 2 3.7 4 4"/></svg></span>
-        <span>WhatsApp<div class="sub">Say hello, start a chat</div></span>
+        <div class="link-text"><div class="link-title">WhatsApp</div><div class="sub">Say hello, start a chat</div></div>
       </a>
       <a class="link" href="https://www.linkedin.com/in/kaypee-singh" target="_blank" rel="noopener">
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 11v5M8 8v.01M12 16v-3.5a1.5 1.5 0 0 1 3 0V16M15 12.5V16"/></svg></span>
-        <span>LinkedIn<div class="sub">Connect professionally</div></span>
+        <div class="link-text"><div class="link-title">LinkedIn</div><div class="sub">Connect professionally</div></div>
       </a>
     </div>
   </div>
