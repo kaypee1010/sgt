@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en" data-base="1.2.0" data-persist="on" data-page="ai-setu-ai-foundations-proposal-slides">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#fbf6f1" id="themeColor">
+<meta name="description" content="Proposal slides: AI Foundations, a 2-credit common AI course plus 1-credit Future Track by AI-SETU, SGT University.">
+<title>AI Foundations · Proposal Slides · AI-SETU</title>
+<script>try{var r=document.documentElement,t=localStorage.getItem('kp:theme');if(t==='light'||t==='dark')r.dataset.theme=t}catch(e){}document.documentElement.classList.add('js');try{if(matchMedia('(min-width:700px) and (min-height:420px)').matches)document.documentElement.classList.add('present')}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
+<style>
+/* ===== 1. TOKENS ===== */
+:root{
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px); --sar:env(safe-area-inset-right,0px);
+  --pad:clamp(16px,4vw,32px); --gap:clamp(12px,3vw,24px);
+  --r:16px; --r-lg:24px; --r-pill:999px;
+  --nav-h:64px;
+  --dur-1:140ms; --dur-2:260ms; --dur-3:460ms;
+  --ease-out:cubic-bezier(.22,.61,.36,1); --ease-in:cubic-bezier(.55,.06,.68,.19);
+  --step-0:clamp(1rem,.95rem + .25vw,1.12rem);
+  --step-2:clamp(1.5rem,1.25rem + 1.2vw,2.1rem);
+  --step-3:clamp(2.3rem,1.6rem + 3.4vw,4rem);
+  /* light */
+  --bg:#fbf6f1; --card:#ffffff; --soft:#f3ece4; --fg:#17130f; --muted:#5a5048;
+  --line:#ddd2c6; --accent:#b24e00; --accent-fg:#ffffff; --accent-2:#1f4fd1;
+  --nav-bg:rgba(251,246,241,.84);
+  --hero-a:#ffd9b8; --hero-b:#fbf6f1; --tag:#eaf0ff; --tag-fg:#1b3f9e;
+  --ok:#17803d; --warn:#a15c00; --bad:#b3261e; --ink-soft:#fff3e8;
+  --glass:rgba(255,255,255,.52); --glass-line:rgba(255,255,255,.85); --glass-edge:rgba(120,70,20,.18);
+  --blob-1:#ffb27a; --blob-2:#8fb0ff; --blob-3:#7fe0b0; --blob-4:#ff8fc7;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#12100e; --card:#1c1916; --soft:#27221d; --fg:#f4eee8; --muted:#b8ada2;
+    --line:#40372f; --accent:#ff9a4d; --accent-fg:#12100e; --accent-2:#8fb0ff;
+    --nav-bg:rgba(18,16,14,.84);
+    --hero-a:#3a2412; --hero-b:#12100e; --tag:#1f2740; --tag-fg:#b9cbff;
+    --ok:#5fd38a; --warn:#ffc266; --bad:#ff8a80; --ink-soft:#2c2118;
+    --glass:rgba(36,31,27,.5); --glass-line:rgba(255,255,255,.16); --glass-edge:rgba(0,0,0,.4);
+    --blob-1:#8a3d05; --blob-2:#243f96; --blob-3:#0f6b45; --blob-4:#7a1f55;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12100e; --card:#1c1916; --soft:#27221d; --fg:#f4eee8; --muted:#b8ada2;
+  --line:#40372f; --accent:#ff9a4d; --accent-fg:#12100e; --accent-2:#8fb0ff;
+  --nav-bg:rgba(18,16,14,.84);
+  --hero-a:#3a2412; --hero-b:#12100e; --tag:#1f2740; --tag-fg:#b9cbff;
+  --ok:#5fd38a; --warn:#ffc266; --bad:#ff8a80; --ink-soft:#2c2118;
+    --glass:rgba(36,31,27,.5); --glass-line:rgba(255,255,255,.16); --glass-edge:rgba(0,0,0,.4);
+    --blob-1:#8a3d05; --blob-2:#243f96; --blob-3:#0f6b45; --blob-4:#7a1f55;
+}
+
+/* ===== 2. RESET / BASE ===== */
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light dark;-webkit-text-size-adjust:100%;text-size-adjust:100%;
+  scroll-padding-top:calc(var(--nav-h) + var(--sat) + 12px);scroll-behavior:smooth}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:400 var(--step-0)/1.6 "Outfit",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  overflow-x:clip;-webkit-tap-highlight-color:transparent;text-rendering:optimizeLegibility;
+  padding-top:calc(var(--nav-h) + var(--sat) + var(--gap));
+  padding-bottom:calc(var(--sab) + var(--gap));
+  padding-left:calc(var(--sal) + var(--pad)); padding-right:calc(var(--sar) + var(--pad))}
+img,video,canvas,svg{max-width:100%;display:block;height:auto}
+h1{font-size:var(--step-3);line-height:1.04;margin:.15em 0 .3em;letter-spacing:-.02em;font-weight:600;text-wrap:balance}
+h2{font-size:var(--step-2);line-height:1.15;margin:1.6em 0 .5em;letter-spacing:-.01em;font-weight:600;text-wrap:balance}
+h3{font-size:1.15rem;line-height:1.3;margin:0 0 .4em;font-weight:600}
+p{text-wrap:pretty;margin:0 0 .8em}
+button,input,select,textarea{font:inherit;color:inherit}
+input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:max(16px,1em);min-height:48px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-9999px}
+.skip:focus{display:inline-flex;align-items:center;min-height:48px;left:12px;top:calc(var(--sat) + 8px);z-index:100;background:var(--card);color:var(--fg);padding:12px 16px;border-radius:10px;border:1px solid var(--line)}
+
+/* ===== 3. NAV (kp-html-base) ===== */
+.nav{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;gap:8px;
+  padding:calc(var(--sat) + 8px) calc(var(--sar) + var(--pad)) 8px calc(var(--sal) + var(--pad));
+  background:var(--nav-bg);border-bottom:1px solid var(--line);
+  -webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.nav{background:var(--card)}}
+.nav-brand{display:flex;align-items:center;gap:10px;min-width:0;margin-right:auto}
+.nav-brand>div{min-width:0}
+.nav-logo{width:40px;height:40px;flex:none;border-radius:50%;object-fit:contain;background:transparent}
+.nav-name{font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-sub{font-size:.75rem;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-cta{display:inline-flex;align-items:center;min-height:48px;padding:0 14px;flex:none;
+  border-radius:var(--r-pill);background:var(--accent);color:var(--accent-fg);
+  font-size:.85rem;font-weight:600;text-decoration:none;white-space:nowrap}
+.theme-toggle{flex:none;width:48px;height:48px;border:0;border-radius:50%;background:transparent;
+  font-size:1.25rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+@media (hover:hover){.theme-toggle:hover{background:var(--soft)}}
+@media (max-width:379px){.nav-sub{display:none}.nav-cta{padding:0 10px;font-size:.78rem}}
+
+
+/* ===== SGT palette (overrides shell values; token names unchanged) ===== */
+:root{
+  --bg:#f5f7fb; --card:#ffffff; --soft:#eef2f8; --fg:#121826; --muted:#4f5a6e;
+  --line:#cfd8e6; --accent:#0a5ca8; --accent-fg:#ffffff; --accent-2:#8c5f0d;
+  --nav-bg:rgba(245,247,251,.84); --hero-a:#dce8f7; --hero-b:#f5f7fb;
+  --tag:#e7effa; --tag-fg:#0a4d8f; --ink-soft:#eef4fb; --warn:#8c5f0d; --bad:#b3261e; --c4:#1b3a6b; --plate:transparent;
+  --blob-1:#8db9ea; --blob-2:#ecc983; --blob-3:#9bdcc0; --blob-4:#bfaef2;
+  --glass:rgba(255,255,255,.55); --glass-line:rgba(255,255,255,.85);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e131b; --card:#151c27; --soft:#1e2733; --fg:#eef2f8; --muted:#a9b4c6;
+    --line:#324056; --accent:#7fb3ec; --accent-fg:#0e131b; --accent-2:#e2b659;
+    --nav-bg:rgba(14,19,27,.84); --hero-a:#16263d; --hero-b:#0e131b;
+    --tag:#1b2a40; --tag-fg:#b7d2f5; --ink-soft:#172234; --warn:#e2b659; --bad:#ff8a80; --c4:#a9c1ea; --plate:#eef2f8;
+    --blob-1:#1f4f8a; --blob-2:#7a5a18; --blob-3:#145c45; --blob-4:#3d2f7a;
+    --glass:rgba(21,28,39,.55); --glass-line:rgba(255,255,255,.14);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e131b; --card:#151c27; --soft:#1e2733; --fg:#eef2f8; --muted:#a9b4c6;
+  --line:#324056; --accent:#7fb3ec; --accent-fg:#0e131b; --accent-2:#e2b659;
+  --nav-bg:rgba(14,19,27,.84); --hero-a:#16263d; --hero-b:#0e131b;
+  --tag:#1b2a40; --tag-fg:#b7d2f5; --ink-soft:#172234; --warn:#e2b659; --bad:#ff8a80; --c4:#a9c1ea; --plate:#eef2f8;
+  --blob-1:#1f4f8a; --blob-2:#7a5a18; --blob-3:#145c45; --blob-4:#3d2f7a;
+  --glass:rgba(21,28,39,.55); --glass-line:rgba(255,255,255,.14);
+}
+/* ===== 4. DECK ===== */
+.deck-wrap{max-width:1280px;margin-inline:auto}
+.slide{position:relative;background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden;
+  padding:34px 40px 40px;margin:0 0 20px;display:flex;flex-direction:column}
+.slide>.lab{font-size:.85em;font-weight:600;color:var(--accent);margin:0 0 4px}
+.tbl td:nth-child(4):last-child{white-space:nowrap}
+.nw{white-space:nowrap}
+.slide h2{text-wrap:pretty;font-size:clamp(1.5em,1.2em + 1.4vw,2.4em);line-height:1.1;margin:0 0 14px;letter-spacing:-.015em;font-weight:600}
+.slide .sn{position:absolute;right:22px;bottom:14px;font-size:.78em;color:var(--muted);font-variant-numeric:tabular-nums}
+:where(.slide) p{margin:0 0 .6em}
+.sub{color:var(--muted);font-size:1.02em}
+.g2,.g3,.g4{display:grid;gap:14px}
+@media (min-width:700px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1000px){.g4{grid-template-columns:repeat(4,1fr)}}
+.box{border:1px solid var(--line);background:var(--soft);border-radius:16px;padding:14px 16px}
+.box h3{font-size:1.05em;margin:0 0 6px;font-weight:600}
+.box p,.box li{font-size:.93em;color:var(--muted)}
+.box.hi{background:var(--ink-soft);border-color:var(--accent)}
+.big{font-size:2.1em;font-weight:600;line-height:1;color:var(--accent)}
+.bl{margin:0;padding-left:1.1em}
+.bl li{margin:0 0 6px}
+.tbl{width:100%;border-collapse:collapse;font-size:.9em}
+.tbl th,.tbl td{text-align:left;vertical-align:top;padding:7px 10px;border-bottom:1px solid var(--line)}
+.tbl th{font-weight:600;color:var(--muted);font-size:.8em;background:var(--soft)}
+.tbl td b{font-weight:600}
+.scroll-x{overflow-x:auto;max-width:100%}
+.pill{display:inline-block;font-size:.76em;font-weight:600;padding:2px 9px;border-radius:var(--r-pill);background:var(--tag);color:var(--tag-fg);border:1px solid var(--tag-fg);white-space:nowrap}
+.foot-note{margin-top:auto;padding-top:10px;font-size:.8em;color:var(--muted)}
+
+/* title slide */
+.t-grid{display:grid;gap:24px;align-items:center}
+.t-art{border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.t-art svg{width:100%;height:auto}
+@media (min-width:1000px){.t-grid{grid-template-columns:1.05fr .95fr}}
+.present .t-grid{grid-template-columns:1.05fr .95fr;gap:28px}
+
+.s-title{justify-content:flex-start}
+.s-title .brand{display:flex;align-items:center;gap:12px;font-weight:700;color:var(--tag-fg)}
+.s-title .brand svg{width:46px;height:46px}
+.s-title h1{font-size:clamp(2.6em,1.8em + 4vw,5em);margin:.2em 0 .1em;letter-spacing:-.03em}
+.s-title .tag-line{font-size:1.3em;color:var(--muted);margin-bottom:22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 14px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--card);font-weight:600;font-size:.92em}
+.chip.o{background:var(--accent);color:var(--accent-fg);border-color:transparent}
+.s-title .byline{margin-top:26px;font-size:.95em;color:var(--muted)}
+.byline b{color:var(--fg)}
+
+/* bars */
+.hbars{display:grid;gap:12px}
+.hb{display:grid;grid-template-columns:minmax(0,11em) 1fr 4.5em;gap:10px;align-items:center;font-size:.9em}
+.track{display:flex;height:18px;border-radius:var(--r-pill);overflow:hidden;background:var(--soft);border:1px solid var(--line)}
+.track i{display:block;height:100%}
+.c-l{background:var(--accent-2)} .c-p{background:var(--accent)} .c-s{background:var(--ok)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.85em;color:var(--muted);margin-bottom:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+/* donut */
+.donut{width:220px;height:220px;border-radius:50%;flex:none;margin:auto;
+  background:conic-gradient(var(--accent-2) 0 30%,var(--accent) 30% 50%,var(--ok) 50% 65%,var(--c4) 65% 100%);
+  -webkit-mask:radial-gradient(circle,transparent 52%,#000 53%);mask:radial-gradient(circle,transparent 52%,#000 53%)}
+.dl{display:grid;gap:10px}
+.dl div{display:grid;grid-template-columns:14px 3.2em 1fr;gap:10px;align-items:start;font-size:.93em}
+.dl i{width:14px;height:14px;border-radius:4px;margin-top:4px}
+.dl b{color:var(--fg);font-variant-numeric:tabular-nums}
+.dl small{display:block;color:var(--muted);font-size:.8em}
+
+/* heatmap */
+.heat td,.heat th{text-align:center}
+.heat td:first-child,.heat th:first-child{text-align:left}
+.h1c{background:color-mix(in srgb,var(--accent) 14%,var(--card))}
+.h2c{background:color-mix(in srgb,var(--accent) 38%,var(--card))}
+.h3c{background:var(--accent);color:var(--accent-fg);font-weight:600}
+
+/* glass */
+.glass-stage{position:relative;isolation:isolate;border-radius:18px;padding:14px;overflow:hidden;background:var(--soft)}
+.glass-stage::before{content:"";position:absolute;inset:-20%;z-index:-1;
+  background:radial-gradient(28% 34% at 12% 20%,var(--blob-1),transparent 70%),radial-gradient(30% 36% at 88% 18%,var(--blob-2),transparent 70%),
+  radial-gradient(32% 38% at 70% 90%,var(--blob-3),transparent 70%),radial-gradient(26% 30% at 22% 86%,var(--blob-4),transparent 70%),
+  radial-gradient(22% 26% at 45% 48%,var(--blob-2),transparent 70%)}
+.glass{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:inset 0 1px 0 var(--glass-line)}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .glass{background:var(--glass);border-color:var(--glass-line);-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5)}}
+.glass h3{font-size:.98em;margin:0 0 4px;font-weight:600}
+.glass p{font-size:.84em;margin:0}
+.glass .who{color:var(--muted);font-size:.78em;margin-bottom:4px}
+
+/* SGT letterhead on every slide */
+.s-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-8px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--accent-2)}
+.s-head .logo{height:30px;width:248px;max-width:60%;flex:none;background:var(--plate) url("data:image/png;base64,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") center/contain no-repeat;border-radius:6px}
+:root[data-theme="dark"] .s-head .logo{height:34px;width:262px;padding:3px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .s-head .logo{height:34px;width:262px}}
+.s-head span{font-size:.7em;color:var(--muted);font-weight:600;text-align:right}
+/* icons + line-separated lists */
+.ico{width:1.5em;height:1.5em;flex:none;color:var(--accent)}
+.bh{display:flex;align-items:center;gap:10px;margin:0 0 6px}
+.bh h3{margin:0}
+.lines,.bl{list-style:none;margin:0;padding:0}
+.lines li,.bl li{padding:.42em 0;border-top:1px solid var(--line);margin:0}
+.lines li:first-child,.bl li:first-child{border-top:0;padding-top:.1em}
+.box .lines li{color:var(--fg);font-size:.9em}
+.box.hi{border-width:1.5px}
+/* stat strip */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 14px}
+@media (min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+.present .stats{grid-template-columns:repeat(4,1fr)}
+.stat{padding:10px 14px;border-radius:14px;background:var(--ink-soft);border:1px solid var(--line);border-left:4px solid var(--accent-2)}
+.stat b{display:block;font-size:1.5em;line-height:1.05;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8em;color:var(--muted);line-height:1.3;display:block}
+/* title slide */
+.s-title{background:radial-gradient(90% 80% at 100% 100%,var(--hero-a),transparent 60%),var(--card)}
+.t-logo{display:flex;justify-content:center;padding-bottom:14px;margin-bottom:18px;border-bottom:2px solid var(--accent-2)}
+.t-logo img{width:min(560px,100%);height:auto;background:var(--plate);border-radius:10px;padding:0}
+:root[data-theme="dark"] .t-logo img{padding:8px 14px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .t-logo img{padding:8px 14px}}
+.s-title .brand2{margin:0;font-weight:700;color:var(--accent-2);font-size:1.15em;letter-spacing:.02em}
+.t-mark{width:56px;height:56px;flex:none}
+.s-title .brand2{display:flex;align-items:center;gap:14px}
+.s-title .brand2 .bt{display:block}
+.s-title .brand2 .bt>span{display:block;font-weight:500;color:var(--muted);font-size:.72em;letter-spacing:0}
+.s-title h1{color:var(--accent)}
+.s-title .byline{margin-top:18px;line-height:1.5}
+.s-title .byline.meta{margin-top:8px;font-size:.78em}
+.t-net{margin:0;position:relative;border-radius:18px;border:1px solid var(--line);background:var(--ink-soft);overflow:hidden}
+.t-net canvas{display:block;width:100%;height:320px}
+.present .t-net canvas{height:330px}
+.t-net figcaption{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-top:1px solid var(--line);font-size:.72em;color:var(--muted);background:var(--card)}
+.mini{min-height:48px;min-width:48px;padding:0 14px;white-space:nowrap;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;font-weight:600;font-size:inherit}
+.mini.pri{background:var(--accent);color:var(--accent-fg);border-color:transparent}
+.t-net .btns{display:flex;gap:6px}
+@media (max-width:699px){.t-art{display:block}}
+/* playground */
+.pg{display:grid;gap:16px}
+.present .pg,.pg{grid-template-columns:1fr}
+@media (min-width:900px){.pg{grid-template-columns:1.35fr 1fr}}
+.present .pg{grid-template-columns:1.35fr 1fr}
+.pg-prompt{font-size:1.15em;font-weight:600;margin:0 0 12px;padding:12px 16px;border-radius:12px;background:var(--ink-soft);border:1px solid var(--line)}
+.pg-out{display:inline-block;min-width:5ch;border-bottom:2px dashed var(--accent-2);color:var(--accent-2)}
+.pg-out.pop{animation:pop .45s var(--ease-out)}
+@keyframes pop{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
+.pg-bars{display:grid;gap:6px}
+.pg-row{display:grid;grid-template-columns:7.2em 1fr 3.6em;gap:10px;align-items:center;font-size:.86em;padding:2px 6px;border-radius:8px}
+.pg-row .tr{height:16px;border-radius:999px;background:var(--soft);border:1px solid var(--line);overflow:hidden}
+.pg-row .tr i{display:block;height:100%;background:var(--accent);transform-origin:0 50%;transform:scaleX(var(--w,0));transition:transform .45s var(--ease-out)}
+.pg-row.bad .tr i{background:var(--bad)}
+.pg-row .pc{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.pg-row.hit{background:var(--tag)}
+.pg-ctl{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;margin-top:12px}
+.pg-ctl label{font-size:.86em;font-weight:600}
+.pg-ctl input[type=range]{width:100%;accent-color:var(--accent);min-height:48px;padding:0;border:0;background:transparent}
+.pg-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pg-hist{display:flex;flex-wrap:wrap;gap:6px;min-height:2.2em;align-content:flex-start;margin-bottom:6px}
+.pg>.box{font-size:.86em}
+.pg-hist span{font-size:.78em;padding:3px 10px;border-radius:999px;background:var(--tag);color:var(--tag-fg);border:1px solid var(--tag-fg)}
+.pg-hist span.bad{background:transparent;color:var(--bad);border-color:var(--bad)}
+.pg-stat{font-size:.84em;color:var(--muted);margin:0}
+/* entrance animations tied to the active slide */
+.present .slide .track i,.present .slide .g-track i{transform-origin:0 50%;transition:transform .9s var(--ease-out) .25s}
+.present .slide:not(.on) .track i,.present .slide:not(.on) .g-track i{transform:scaleX(0);transition:none}
+.present .slide .donut{transition:transform 1s var(--ease-out) .15s,opacity .6s ease .15s}
+.present .slide:not(.on) .donut{transform:rotate(-120deg) scale(.7);opacity:0;transition:none}
+.present .slide .stat,.present .slide .g3>.box,.present .slide .g4>.box{transition:transform .6s var(--ease-out),opacity .6s var(--ease-out)}
+.present .slide:not(.on) .stat,.present .slide:not(.on) .g3>.box,.present .slide:not(.on) .g4>.box{transform:translateY(14px);opacity:0;transition:none}
+.present .slide.on .g3>.box:nth-child(2),.present .slide.on .g4>.box:nth-child(2),.present .slide.on .stat:nth-child(2){transition-delay:.08s}
+.present .slide.on .g3>.box:nth-child(3),.present .slide.on .g4>.box:nth-child(3),.present .slide.on .stat:nth-child(3){transition-delay:.16s}
+.present .slide.on .g4>.box:nth-child(4),.present .slide.on .stat:nth-child(4){transition-delay:.24s}
+/* gantt */
+.gantt{position:relative;display:grid;gap:22px;padding:34px 0 6px;--lw:300px}
+.g-axis{position:absolute;left:var(--lw);right:0;top:0;height:22px}
+.g-axis span{position:absolute;left:calc(var(--x)/28*100%);transform:translateX(-50%);white-space:nowrap;font-size:.72em;color:var(--muted)}
+.g-row{display:grid;grid-template-columns:var(--lw) 1fr;align-items:center}
+.g-lab{font-size:.82em;padding-right:14px}
+.g-track{position:relative;height:40px;border-radius:8px;background:var(--soft);border:1px solid var(--line)}
+.g-track i{position:absolute;top:6px;bottom:6px;left:calc(var(--a)/28*100%);width:calc((var(--b) - var(--a))/28*100%);background:var(--accent);border-radius:5px}
+.g-track i.gold{background:var(--accent-2)}
+.g-track em{position:absolute;top:50%;transform:translateY(-50%);left:calc(var(--b)/28*100% + 8px);font-style:normal;font-size:.72em;color:var(--muted);white-space:nowrap}
+.g-track em.in{color:var(--card);font-weight:600;left:auto;right:calc((28 - var(--b))/28*100% + 8px)}
+.g-pilot{position:absolute;top:24px;bottom:0;left:calc(var(--lw) + (100% - var(--lw))*var(--x)/28);border-left:2px dashed var(--accent)}
+.g-pilot span{position:absolute;top:-4px;left:6px;font-size:.7em;color:var(--accent);white-space:nowrap;font-weight:600}
+@media (max-width:699px){.gantt{--lw:0px}.g-row{grid-template-columns:1fr}.g-axis,.g-pilot{display:none}.g-track em,.g-track em.in{position:static;display:block;transform:none;padding:44px 0 0;color:var(--muted);font-weight:400}.g-track{height:auto;min-height:40px}}
+/* hub */
+.hub svg{width:100%;height:auto}
+/* timeline */
+.tl{display:grid;gap:10px;position:relative}
+@media (min-width:700px){.tl{grid-template-columns:repeat(5,1fr)}}
+.tl .st{border-top:4px solid var(--accent);padding:10px 12px;background:var(--soft);border-radius:0 0 12px 12px}
+.tl .st b{display:block;font-size:.95em}
+.tl .st span{font-size:.84em;color:var(--muted)}
+.ask{counter-reset:a;display:grid;gap:8px;list-style:none;margin:0;padding:0}
+@media (min-width:700px){.ask{grid-template-columns:1fr 1fr}}
+.ask li{counter-increment:a;display:grid;grid-template-columns:30px 1fr;gap:10px;font-size:.9em;align-items:start}
+.ask li::before{content:counter(a);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-fg);font-weight:700;font-size:.85em}
+
+/* ===== PRESENTATION MODE (JS on, wide screen): fixed 1280x720 stage scaled to fit ===== */
+.dock{display:none}
+.present body{padding-bottom:calc(76px + var(--sab))}
+.present .deck-wrap{max-width:none}
+.present .stage-box{position:relative;margin:0 auto}
+.present .stage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0}
+.present .slide{position:absolute;inset:0;margin:0;font-size:21px;padding:30px 56px 40px;
+  opacity:0;visibility:hidden;transform:translate3d(24px,0,0);
+  transition:opacity var(--dur-3) var(--ease-out),transform var(--dur-3) var(--ease-out),visibility 0s linear var(--dur-3)}
+.present .slide.on{opacity:1;visibility:visible;transform:none;transition:opacity var(--dur-3) var(--ease-out),transform var(--dur-3) var(--ease-out)}
+.present .slide h2{font-size:40px}
+.present .slide.tight{font-size:18.5px}
+.present .slide.xtight{font-size:16.5px}
+.present .s-title h1{font-size:72px;white-space:nowrap;margin:.1em 0 .05em}
+.present .s-title .tag-line{font-size:1.15em}
+.present .s-title .chip{font-size:.8em}
+.present .s-title .byline{font-size:.8em}
+.present .g2{grid-template-columns:1fr 1fr}.present .g3{grid-template-columns:repeat(3,1fr)}.present .g4{grid-template-columns:repeat(4,1fr)}
+.present .tl{grid-template-columns:repeat(5,1fr)}
+.present .ask{grid-template-columns:1fr 1fr}
+.present .dock{position:fixed;inset:auto 0 0 0;z-index:40;display:flex;gap:10px;align-items:center;justify-content:center;
+  padding:10px calc(var(--sar) + var(--pad)) calc(var(--sab) + 10px) calc(var(--sal) + var(--pad));
+  background:var(--nav-bg);border-top:1px solid var(--line);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.dbtn{min-height:48px;min-width:48px;padding:0 18px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:600}
+.dbtn.pri{background:var(--accent);color:var(--accent-fg);border-color:transparent}
+.dcount{min-width:5.5em;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted)}
+.dmeter{flex:0 1 240px;height:6px;border-radius:var(--r-pill);background:var(--soft);overflow:hidden;border:1px solid var(--line)}
+.dmeter span{display:block;height:100%;background:var(--accent);transform-origin:0 50%;transform:scaleX(var(--p,0));transition:transform var(--dur-2) var(--ease-out)}
+@media (max-width:899px){.dmeter{display:none}}
+.present .slide{overflow:hidden}
+
+@media print{
+  .nav,.dock,.skip{display:none!important}
+  body{padding:0;background:#fff}
+  .slide{break-inside:avoid;page-break-after:always;border:0;border-radius:0}
+}
+/* ===== 6. REDUCED MOTION — always last ===== */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important}
+  [data-reveal]{opacity:1 !important;transform:none !important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav class="nav"><div class="nav-brand"><img class="nav-logo" src="AI_SETU.png" alt="AI-SETU"/><div><div class="nav-name">K.P. Singh</div><div class="nav-sub">SGT University · AI-SETU · Proposal slides</div></div></div><!-- NAV-EXTRA --><button class="theme-toggle" type="button" id="themeToggle" aria-label="Switch to dark theme">🌙</button><a class="nav-cta" href="index.html" aria-label="AI-SETU home">AI-SETU</a></nav>
+
+<main id="main" class="deck-wrap" tabindex="-1">
+<div class="stage-box" id="stageBox"><div class="stage" id="stage" aria-live="polite">
+
+<!-- 1 -->
+<section class="slide s-title" aria-roledescription="slide">
+  <div class="t-logo"><img src="data:image/png;base64,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" alt="SGT University, Shree Guru Gobind Singh Tricentenary University, NAAC A+" width="1100" height="133"></div>
+  <div class="t-grid"><div>
+    <p class="brand2"><svg class="t-mark" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="250" fill="#0a5ca8"/>
+<circle cx="256" cy="256" r="224" fill="none" stroke="#d4a64a" stroke-width="10"/>
+<g stroke="#ffffff" stroke-linecap="round" fill="none">
+  <g stroke-width="7" opacity=".6"><line x1="224.8" y1="171.8" x2="162.4" y2="312"/><line x1="287.2" y1="171.8" x2="349.6" y2="312"/></g>
+  <g stroke-width="10"><line x1="162.4" y1="218.6" x2="162.4" y2="312"/><line x1="224.8" y1="171.8" x2="224.8" y2="312"/><line x1="287.2" y1="171.8" x2="287.2" y2="312"/><line x1="349.6" y1="218.6" x2="349.6" y2="312"/></g>
+  <path d="M100 312 Q256 20 412 312" stroke-width="22"/>
+  <path d="M100 320v64M412 320v64" stroke-width="22"/>
+</g>
+<line x1="70" y1="312" x2="442" y2="312" stroke="#d4a64a" stroke-width="24" stroke-linecap="round"/>
+<circle cx="100.0" cy="312.0" r="24" fill="#ffffff"/><circle cx="162.4" cy="218.6" r="19" fill="#ffffff"/><circle cx="224.8" cy="171.8" r="19" fill="#d4a64a"/><circle cx="287.2" cy="171.8" r="19" fill="#d4a64a"/><circle cx="349.6" cy="218.6" r="19" fill="#ffffff"/><circle cx="412.0" cy="312.0" r="24" fill="#ffffff"/></svg><span class="bt">AI-SETU<span>The SGT Centre for AI Excellence · Skills, Ethics and Technology Upskilling</span></span></p>
+    <h1>AI Foundations</h1>
+    <p class="tag-line">A practical AI skills programme for every student</p>
+    <div class="chips"><span class="chip o">2-credit common course</span><span class="chip">+ 1-credit Future Track</span><span class="chip">19 non-engineering Schools</span><span class="chip">Pilot January 2027</span></div>
+    <p class="byline">Prepared by <b>Kamal Preet Singh</b>, AI and ML Expert<br>Under the guidance of <b>Dr. Shalini Kapoor</b>, Director (R&amp;D)</p>
+    <p class="byline meta">Submitted for approval in principle · September 2026</p>
+  </div>
+  <figure class="t-net">
+    <canvas id="netCanvas" aria-hidden="true"></canvas>
+    <figcaption><span>Signals flow from prompt to checked output.</span><span class="btns"><button class="mini pri" type="button" id="netSend">Send a prompt</button><button class="mini" type="button" id="netPause" aria-pressed="false">Pause</button></span></figcaption>
+  </figure></div>
+</section>
+
+
+<!-- 2 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Table 1</p>
+  <h2>Proposal Summary</h2>
+  <div class="scroll-x"><table class="tbl">
+    <tr><th scope="row">Submitted to</th><td>The Honourable Chairman, SGT University / Vice-Chancellor's Office, and the Academic Council</td></tr>
+    <tr><th scope="row">Prepared by</th><td>Kamal Preet Singh, AI and ML Expert, under the guidance of Dr. Shalini Kapoor, Director (R&amp;D)</td></tr>
+    <tr><th scope="row">Central unit</th><td>AI-SETU: the SGT Centre for AI Excellence (Skills, Ethics and Technology Upskilling)</td></tr>
+    <tr><th scope="row">Proposal type</th><td>Approval in principle</td></tr>
+    <tr><th scope="row">Scope</th><td>19 non-engineering Schools (SOET excluded)</td></tr>
+    <tr><th scope="row">Structure</th><td>2 credits (AI Foundations, common to all Schools) + 1 credit (Applied AI / Future Track, School-specific)</td></tr>
+    <tr><th scope="row">Delivery</th><td>AI-SETU designs and owns content, the question bank and centralised assessment; delivery is hub-and-spoke through nominated School faculty</td></tr>
+    <tr><th scope="row">Pilot</th><td>January 2027 (five-School pilot), university-wide from 2027-28</td></tr>
+    <tr><th scope="row">Industry alignment</th><td>Proposed, exploratory from Year 2 (for example Microsoft and Xebia)</td></tr>
+    <tr><th scope="row">Date</th><td>September 2026</td></tr>
+  </table></div>
+</section>
+
+<!-- 3 -->
+<section class="slide tight" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">AI Foundations</p>
+  <h2>Executive Summary</h2>
+  <div class="stats">
+    <div class="stat"><b data-count="19">19</b><span>non-engineering Schools</span></div>
+    <div class="stat"><b>2 + 1</b><span>credits: common course and Future Track</span></div>
+    <div class="stat"><b data-count="45">45</b><span>contact hours, laboratory-dominant</span></div>
+    <div class="stat"><b>Jan 2027</b><span>five-School pilot, free of cost</span></div>
+  </div>
+  <div class="g4">
+    <div class="box hi"><div class="bh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg><h3>Component A: AI Foundations</h3></div><ul class="lines">
+      <li>Common to every student of the 19 Schools</li>
+      <li>How predictive and generative AI work</li>
+      <li>Prompting as a professional skill</li>
+      <li>Verification and responsible use under Indian law</li></ul></div>
+    <div class="box hi"><div class="bh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><h3>Component B: Future Track</h3></div><ul class="lines">
+      <li>Owned by each School</li>
+      <li>Built from a common template</li>
+      <li>AI applied to the discipline's own tasks</li>
+      <li>Defined limits on where AI must not be used</li></ul></div>
+    <div class="box"><div class="bh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M12 11.5L6.5 17M12 11.5l5.5 5.5"/></svg><h3>Delivery</h3></div><ul class="lines">
+      <li>Syllabus, notes, faculty slides, question bank and assessment built once by AI-SETU</li>
+      <li>Delivered through the existing LMS, with one nominated faculty member per School</li></ul></div>
+    <div class="box"><div class="bh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14l-1.5 7 5-3 5 3-1.5-7"/></svg><h3>Outcomes</h3></div><ul class="lines">
+      <li>A graded, certifiable AI skill and one AI-literacy standard for accreditation</li>
+      <li>Base for a paid online offering and industry collaboration from Year 2</li></ul></div>
+  </div>
+  <p class="foot-note">Tier 3, core AI and ML (Python, regression, classification, model building), remains within SOET and outside this proposal.</p>
+</section>
+
+<!-- 4 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 1</p>
+  <h2>Rationale and Context</h2>
+  <div class="g4">
+    <div class="box"><div class="bh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M8 7h8"/></svg><h3>1.1 Academic</h3></div><ul class="lines">
+      <li>UGC Curriculum and Credit Framework lists AI and ML among Value-Added Courses</li>
+      <li>Aligned with the UNESCO AI Competency Framework for Students (2024)</li></ul></div>
+    <div class="box"><div class="bh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg><h3>1.2 Industry</h3></div><ul class="lines">
+      <li>Documentation, analysis, diagnostics, legal research and media now run with AI in the loop</li>
+      <li>Employers expect AI use without loss of judgement</li>
+      <li>India's AI Governance Guidelines and ICMR guidelines keep the human accountable</li></ul></div>
+    <div class="box"><div class="bh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg><h3>1.3 Student</h3></div><ul class="lines">
+      <li>Unguided use can weaken independent performance (Bastani et al., PNAS)</li>
+      <li>AI tools fabricate references (Walters and Wilder, Scientific Reports)</li>
+      <li>Indian schools begin teaching AI from 2026-27</li></ul></div>
+    <div class="box"><div class="bh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M3 21h18"/></svg><h3>1.4 Institutional</h3></div><ul class="lines">
+      <li>Strengthens NAAC and NIRF positioning</li>
+      <li>Prepares for data-protection obligations from May 2027</li>
+      <li>A shared base for interdisciplinary AI research</li></ul></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 2</p>
+  <h2>Need and Gap Analysis</h2>
+  <div class="scroll-x"><table class="tbl">
+    <tr><th>Area</th><th>What exists today</th><th>What is missing</th></tr>
+    <tr><td><b>Curriculum</b></td><td>AI and ML largely confined to SOET</td><td>No AI course for credit in the other 19 Schools</td></tr>
+    <tr><td><b>Skill focus</b></td><td>Ad-hoc, self-taught prompting</td><td>No graded instruction in prompting, verification or responsible use</td></tr>
+    <tr><td><b>Domain application</b></td><td>General awareness sessions and webinars</td><td>No School-specific, domain-mapped applied track</td></tr>
+    <tr><td><b>Faculty readiness</b></td><td>Pockets of faculty experimenting</td><td>No shared training, certification or teaching kit</td></tr>
+    <tr><td><b>Assessment</b></td><td>No common assessment of AI competence</td><td>No question bank, shared rubric or comparable evidence</td></tr>
+    <tr><td><b>Outreach and revenue</b></td><td>On-campus cohorts only</td><td>No online, revenue-generating model</td></tr>
+    <tr><td><b>Policy</b></td><td>General plagiarism rules (UGC 2018)</td><td>No working rules for AI use: a green, amber and red framework</td></tr>
+  </table></div>
+</section>
+
+<!-- 6 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 3</p>
+  <h2>Programme Objectives and Student Benefit</h2>
+  <div class="g2">
+    <div class="box"><h3>Programme objectives</h3><ul class="bl">
+      <li>A correct, non-technical understanding of predictive and generative AI</li>
+      <li>Specify tasks to AI through clear, structured, iterative prompts</li>
+      <li>Make verification of claims and citations a routine, assessed habit</li>
+      <li>Judgement on privacy, confidentiality, copyright, integrity and disclosure</li>
+      <li>Design human-checked AI workflows for real tasks in their own field</li></ul></div>
+    <div class="box hi"><h3>What the student gets</h3><ul class="bl">
+      <li>A certified, resume-ready AI credential alongside the core degree</li>
+      <li>Hands-on practice, not theoretical awareness</li>
+      <li>A second, domain-specific credit tied to their own discipline</li>
+      <li>Improved employability: recruiters now screen for basic AI fluency</li>
+      <li>No cost in Year 1</li></ul></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 4.1</p>
+  <h2>Recommended Credit and Instructional Pattern</h2>
+  <div class="legend" aria-hidden="true"><span><i class="c-l"></i>Lecture</span><span><i class="c-p"></i>Practical</span><span><i class="c-s"></i>Guided self-study</span></div>
+  <div class="hbars">
+    <div class="hb"><span><b>AI Foundations</b></span><span class="track" role="img" aria-label="15 lecture, 30 practical, 15 self-study hours"><i class="c-l" style="width:25%"></i><i class="c-p" style="width:50%"></i><i class="c-s" style="width:25%"></i></span><span>60 h</span></div>
+    <div class="hb"><span>IIT Madras Prompt Engineering (SWAYAM Plus)</span><span class="track" role="img" aria-label="30 theory, 15 practical hours"><i class="c-l" style="width:50%"></i><i class="c-p" style="width:25%"></i></span><span>45 h</span></div>
+  </div>
+  <div class="g3" style="margin-top:18px">
+    <div class="box"><div class="big">45</div><h3>contact hours</h3><p>15 lecture + 30 laboratory, the same total as the national benchmark with the ratio inverted for a skills course.</p></div>
+    <div class="box"><div class="big">6–8</div><h3>credit VAC basket</h3><p>Two credits fit without displacing any Major or Minor credit.</p></div>
+    <div class="box"><div class="big">3</div><h3>credits in total</h3><p>A two-credit core plus a one-credit track keeps regulated programmes (BDS, MBBS, BAMS, B.Pharm) at three credits.</p></div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 4.2</p>
+  <h2>Variant Considered and Set Aside</h2>
+  <div class="scroll-x"><table class="tbl">
+    <tr><th>Option</th><th>Pattern</th><th>Lecture</th><th>Practical</th><th>Contact</th><th>Credits</th><th>Position</th></tr>
+    <tr><td><b>Recommended</b></td><td class="nw">L-T-P 1-0-1</td><td>15</td><td>30</td><td>45</td><td>2</td><td>Compulsory common core for all 19 Schools</td></tr>
+    <tr><td><b>Variant</b></td><td class="nw">L-T-P 2-0-1</td><td>30</td><td>30</td><td>60</td><td>3</td><td>Optional advanced or honours extension, and the Year 2 online offering</td></tr>
+    <tr><td><b>Applied track</b></td><td class="nw">L-T-P 0-0-1</td><td>0</td><td>30</td><td>30</td><td>1</td><td>Component B, owned by each School</td></tr>
+  </table></div>
+  <div class="g2" style="margin-top:16px">
+    <div class="box"><h3>Reason for setting aside</h3><p>L-T-P 2-0-1 doubles the lecture load and timetable burden on programmes with little room, in exchange for theory the practical work already teaches.</p></div>
+    <div class="box"><h3>Retained for</h3><p>An advanced or honours-level extension, and the paid online version in Year 2, where a heavier conceptual component is an advantage.</p></div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 5</p>
+  <h2>Curriculum Architecture: Three Tiers</h2>
+  <div class="g3">
+    <div class="box hi"><span class="pill">This proposal</span><h3 style="margin-top:8px">Tier 1 · AI Foundations (2 credits)</h3><p><b>Who:</b> every student, 19 non-engineering Schools, compulsory</p><p>How AI and language models work, prompting, verification, bias and hallucination checks, ethics and responsible use.</p></div>
+    <div class="box hi"><span class="pill">This proposal</span><h3 style="margin-top:8px">Tier 2 · Applied AI / Future Track (1 credit)</h3><p><b>Who:</b> every student, inside their own School</p><p>Domain-specific application using pre-built and no-code tools, plus the professional boundaries of AI in that field.</p></div>
+    <div class="box"><span class="pill">Outside scope</span><h3 style="margin-top:8px">Tier 3 · Core AI and ML</h3><p><b>Who:</b> SOET and technical tracks only</p><p>Python, regression, classification and model building, already inside SOET's curriculum.</p></div>
+  </div>
+  <p class="foot-note">AI-SETU builds the common content once; each School adds its own one-credit track with a nominated faculty member.</p>
+</section>
+
+<!-- 10 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 6.1</p>
+  <h2>Component A: Course Information</h2>
+  <div class="g2">
+    <table class="tbl">
+      <tr><th scope="row">Formal title</th><td>Application of Generative AI and Prompt Engineering</td></tr>
+      <tr><th scope="row">Course code</th><td>AI-UG-CORE-101 (proposed)</td></tr>
+      <tr><th scope="row">Offered by</th><td>AI-SETU, with Dept. of Computer Science (AI and ML), SOET</td></tr>
+      <tr><th scope="row">Semester</th><td>II for UG; I for PG and graduate-entry</td></tr>
+      <tr><th scope="row">Course type</th><td>Value-Added Course, compulsory</td></tr>
+      <tr><th scope="row">Level</th><td>Introductory (100-level); NCrF 4.5</td></tr>
+    </table>
+    <table class="tbl">
+      <tr><th scope="row">Prerequisites</th><td>None; no programming assumed</td></tr>
+      <tr><th scope="row">Credits</th><td>2 (L-T-P 1-0-1)</td></tr>
+      <tr><th scope="row">Hours</th><td>45 contact + ~15 self-study = 60 learning hours</td></tr>
+      <tr><th scope="row">Mode</th><td>15 weeks, blended, in person, batches of 40 to 50</td></tr>
+      <tr><th scope="row">Assessment</th><td>Continuous only; no end-term examination</td></tr>
+      <tr><th scope="row">Tooling</th><td>One approved generative AI service with data-protection terms + a browser-based no-code environment</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 6.2</p>
+  <h2>Course Learning Outcomes</h2>
+  <div class="scroll-x"><table class="tbl">
+    <tr><th>CLO</th><th>The student will be able to</th><th>Bloom level</th></tr>
+    <tr><td><b>CLO1</b></td><td>Distinguish rule-based, predictive and generative AI, and identify which is at work in an application</td><td><span class="pill">Understand</span></td></tr>
+    <tr><td><b>CLO2</b></td><td>Explain in plain terms how a language model produces text, and why it can be confidently wrong</td><td><span class="pill">Understand</span></td></tr>
+    <tr><td><b>CLO3</b></td><td>Construct and refine prompts using role, audience, context, constraints, examples and structured output, and justify every revision</td><td><span class="pill">Apply, Analyse</span></td></tr>
+    <tr><td><b>CLO4</b></td><td>Verify AI claims and citations against authoritative sources: verified, wrong or fabricated</td><td><span class="pill">Evaluate</span></td></tr>
+    <tr><td><b>CLO5</b></td><td>Judge whether a use of AI is acceptable under privacy, confidentiality, copyright and integrity rules, and disclose AI use correctly</td><td><span class="pill">Evaluate</span></td></tr>
+    <tr><td><b>CLO6</b></td><td>Design a human-checked AI workflow: where AI helps, where a person checks, where AI must not be used</td><td><span class="pill">Create</span></td></tr>
+  </table></div>
+</section>
+
+<!-- 12 -->
+<section class="slide tight" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 6.3</p>
+  <h2>Module and Unit Summary with Contact Hours</h2>
+  <div class="legend" aria-hidden="true"><span><i class="c-l"></i>Lecture hours</span><span><i class="c-p"></i>Practical hours</span></div>
+  <div class="hbars">
+    <div class="hb"><span>I. How AI works</span><span class="track" role="img" aria-label="3 lecture, 6 practical"><i class="c-l" style="width:25%"></i><i class="c-p" style="width:50%"></i></span><span>9 h</span></div>
+    <div class="hb"><span>II. Instructing AI</span><span class="track" role="img" aria-label="3 lecture, 6 practical"><i class="c-l" style="width:25%"></i><i class="c-p" style="width:50%"></i></span><span>9 h</span></div>
+    <div class="hb"><span>III. Checking AI output</span><span class="track" role="img" aria-label="3 lecture, 6 practical"><i class="c-l" style="width:25%"></i><i class="c-p" style="width:50%"></i></span><span>9 h</span></div>
+    <div class="hb"><span>IV. AI for study and work</span><span class="track" role="img" aria-label="2 lecture, 4 practical"><i class="c-l" style="width:16.67%"></i><i class="c-p" style="width:33.33%"></i></span><span>6 h</span></div>
+    <div class="hb"><span>V. Responsible use and capstone</span><span class="track" role="img" aria-label="4 lecture, 8 practical"><i class="c-l" style="width:33.33%"></i><i class="c-p" style="width:66.67%"></i></span><span>12 h</span></div>
+  </div>
+  <div class="g3" style="margin-top:16px">
+    <div class="box"><h3>Units I–II</h3><p>AI vs ML vs generative AI; tokens and context windows; multimodal systems; anatomy of a prompt; shot techniques; structured output.</p></div>
+    <div class="box"><h3>Units III–IV</h3><p>Why AI fabricates; lateral reading; DOI checks; bias; defensive prompting; AI as a study partner; documents, sheets and slides.</p></div>
+    <div class="box"><h3>Unit V</h3><p>Privacy under DPDP; copyright and IP; integrity and disclosure; human oversight; where AI must not be used.</p></div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 6.3</p>
+  <h2>Fifteen-Week Session Plan: Weeks 1 to 8</h2>
+  <div class="scroll-x"><table class="tbl">
+    <tr><th>Wk</th><th>Lecture (1 h)</th><th>Practical (2 h)</th><th>CLO</th></tr>
+    <tr><td>1</td><td>From search to conversation</td><td>One question across two assistants; log tone, length, confidence</td><td>1</td></tr>
+    <tr><td>2</td><td>Inside the language model: tokens, prediction, context</td><td>Break a prompt three ways and observe what changes</td><td>1, 2</td></tr>
+    <tr><td>3</td><td>Multimodal AI, and the AI around you</td><td>No-code image classifier on everyday objects</td><td>1</td></tr>
+    <tr><td>4</td><td>Anatomy of a prompt</td><td>Prompt cards for three real tasks vs a plain instruction</td><td>3</td></tr>
+    <tr><td>5</td><td>Zero-shot, few-shot, step-by-step</td><td>One reasoning task in four prompting styles, scored</td><td>3</td></tr>
+    <tr><td>6</td><td>Structured and deterministic output</td><td>Messy paragraph to a clean four-column table, no code</td><td>3</td></tr>
+    <tr><td>7</td><td>Why AI is confidently wrong</td><td>Find the fabrication in three seeded briefs</td><td>2, 4</td></tr>
+    <tr><td>8</td><td>Verification as a habit</td><td>Citation audit via library catalogue and DOI lookup</td><td>4</td></tr>
+  </table></div>
+</section>
+
+<!-- 14 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 6.3</p>
+  <h2>Fifteen-Week Session Plan: Weeks 9 to 15</h2>
+  <div class="scroll-x"><table class="tbl">
+    <tr><th>Wk</th><th>Lecture (1 h)</th><th>Practical (2 h)</th><th>CLO</th></tr>
+    <tr><td>9</td><td>Bias, fairness, limits of machine judgement</td><td>Bias probe: change names, genders and regions</td><td>4</td></tr>
+    <tr><td>10</td><td>AI as a study partner, and where it degrades learning</td><td>With-AI and without-AI versions of one task, critiqued</td><td>3, 4</td></tr>
+    <tr><td>11</td><td>Documents, spreadsheets, slides, data-informed decisions</td><td>A short deck and analysis from a public dataset, with disclosure</td><td>3</td></tr>
+    <tr><td>12</td><td>Privacy: what never goes into a public tool</td><td>The AI tribunal role play</td><td>5</td></tr>
+    <tr><td>13</td><td>Copyright, IP, academic integrity and disclosure</td><td>Draft a disclosure statement and apply it</td><td>5</td></tr>
+    <tr><td>14</td><td>Accountability, oversight, prompt injection and leaks</td><td>Capstone build session one</td><td>6</td></tr>
+    <tr><td>15</td><td>Where AI must not be used, by discipline</td><td>Capstone build two, presentations and viva</td><td>6</td></tr>
+  </table></div>
+</section>
+
+<!-- 15 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 6.4</p>
+  <h2>Practical and Hands-on Work</h2>
+  <div class="g3">
+    <div class="box"><h3>Prompt log</h3><p>The same task improved across three versions, with the reason for each change recorded.</p></div>
+    <div class="box"><h3>No-code classifier</h3><p>Shows how training data shapes what a model can and cannot see.</p></div>
+    <div class="box"><h3>Find the fabrication</h3><p>Audit of AI-written briefs with planted false claims and invented references.</p></div>
+    <div class="box"><h3>Citation audit and bias probe</h3><p>Library databases and DOI lookup, plus a with-AI against without-AI comparison.</p></div>
+    <div class="box hi"><h3>Capstone</h3><p>Design, test and present a human-checked AI workflow for a campus or workplace task.</p></div>
+    <div class="box"><h3>Laboratory data</h3><p>Discipline-neutral data with no personal information, so practicals run unchanged in every School.</p></div>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 6.5</p>
+  <h2>Assessment and Evaluation</h2>
+  <div class="g2" style="align-items:center">
+    <div class="donut" role="img" aria-label="Weightage: MCQ checkpoints 30, portfolio 20, verification 15, capstone 35 percent"></div>
+    <div class="dl">
+      <div><i class="c-l"></i><b>30%</b><span>Four central MCQ checkpoints, proctored online<small>AI-SETU, common windows · CLO1, 2, 5</small></span></div>
+      <div><i class="c-p"></i><b>20%</b><span>Prompt portfolio with version history and disclosure<small>School facilitator, common rubric · CLO3, 5</small></span></div>
+      <div><i class="c-s"></i><b>15%</b><span>Verification challenge set<small>School facilitator, common rubric · CLO4</small></span></div>
+      <div><i style="background:var(--c4)"></i><b>35%</b><span>Capstone: human-checked workflow, with viva<small>School panel, central moderation · CLO6</small></span></div>
+    </div>
+  </div>
+  <p class="foot-note">A correct AI-use disclosure is required on every submission. AI-detector scores are never the sole evidence of misconduct; a viva or process review is required. Exit tickets and a mid-course pulse check are ungraded.</p>
+</section>
+
+<!-- 17 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 6.6</p>
+  <h2>Course Outcome to Programme Outcome Mapping</h2>
+  <div class="scroll-x"><table class="tbl heat">
+    <tr><th>CLO</th><th>PO1 Disciplinary knowledge</th><th>PO2 Critical thinking</th><th>PO3 Communication</th><th>PO4 Digital literacy</th><th>PO5 Ethical awareness</th><th>PO6 Self-directed learning</th><th>PO7 Research skills</th><th>PO8 Creativity</th></tr>
+    <tr><td><b>CLO1</b></td><td class="h2c">2</td><td class="h3c">3</td><td class="h1c">1</td><td class="h3c">3</td><td class="h1c">1</td><td class="h1c">1</td><td class="h1c">1</td><td class="h1c">1</td></tr>
+    <tr><td><b>CLO2</b></td><td class="h2c">2</td><td class="h3c">3</td><td class="h2c">2</td><td class="h3c">3</td><td class="h1c">1</td><td class="h1c">1</td><td class="h2c">2</td><td class="h1c">1</td></tr>
+    <tr><td><b>CLO3</b></td><td class="h2c">2</td><td class="h3c">3</td><td class="h3c">3</td><td class="h3c">3</td><td class="h1c">1</td><td class="h2c">2</td><td class="h2c">2</td><td class="h2c">2</td></tr>
+    <tr><td><b>CLO4</b></td><td class="h2c">2</td><td class="h3c">3</td><td class="h2c">2</td><td class="h3c">3</td><td class="h3c">3</td><td class="h2c">2</td><td class="h3c">3</td><td class="h1c">1</td></tr>
+    <tr><td><b>CLO5</b></td><td class="h1c">1</td><td class="h2c">2</td><td class="h2c">2</td><td class="h3c">3</td><td class="h3c">3</td><td class="h2c">2</td><td class="h2c">2</td><td class="h1c">1</td></tr>
+    <tr><td><b>CLO6</b></td><td class="h2c">2</td><td class="h3c">3</td><td class="h2c">2</td><td class="h3c">3</td><td class="h2c">2</td><td class="h3c">3</td><td class="h2c">2</td><td class="h3c">3</td></tr>
+    <tr><td><b>Average</b></td><td>1.83</td><td>2.83</td><td>2.00</td><td>3.00</td><td>1.83</td><td>1.83</td><td>2.00</td><td>1.50</td></tr>
+  </table></div>
+  <p class="foot-note">Programme outcomes: UGC graduate attributes. Scale: 1 low, 2 medium, 3 high.</p>
+</section>
+
+<!-- 18 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 7</p>
+  <h2>Component B: Applied AI / Future Track (1 Credit)</h2>
+  <p class="sub">School-owned, built from a common template. Students define the problem in a strict prompt structure, then spend their effort debugging, evaluating and verifying AI-generated code.</p>
+  <div class="glass-stage"><div class="g3">
+    <div class="glass"><h3>Clinical support and diagnostics</h3><p class="who">Medicine, Dental, Nursing, Physiotherapy</p><p>DPDP and DISHA; AI as decision support, never autonomous diagnosis.</p></div>
+    <div class="glass"><h3>Drug discovery and paramedical analytics</h3><p class="who">Allied Health, Pharmacy, IMS, Naturopathy</p><p>Protein and chemical-property models; regulatory reporting duty.</p></div>
+    <div class="glass"><h3>Computational science and agri-tech</h3><p class="who">Basic and Applied Sciences, Agriculture</p><p>Climate, yield, drone and satellite data; ICAR course reused.</p></div>
+    <div class="glass"><h3>Business intelligence and legal research</h3><p class="who">Commerce and Management, Law, Hotel and Tourism</p><p>Predictive analytics; contract review; fabricated case law as a risk.</p></div>
+    <div class="glass"><h3>Content generation and generative design</h3><p class="who">Design, Emerging Media and Film Studies</p><p>Image and video tools; copyright; provenance logs.</p></div>
+    <div class="glass"><h3>Learning systems and behavioural data</h3><p class="who">Behavioural Sciences, Education, Liberal Arts</p><p>Adaptive learning; de-identified data only; no AI diagnosis.</p></div>
+  </div></div>
+</section>
+
+<!-- 19 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 8.1</p>
+  <h2>Delivery Model: What AI-SETU Owns</h2>
+  <div class="g2" style="align-items:center">
+    <div class="hub"><svg viewBox="0 0 420 300" role="img" aria-label="Hub-and-spoke: AI-SETU at the centre connected to nominated faculty in 19 Schools">
+      <g style="stroke:var(--line)" stroke-width="2">
+        <line x1="210" y1="150" x2="70" y2="50"/><line x1="210" y1="150" x2="350" y2="50"/><line x1="210" y1="150" x2="40" y2="160"/><line x1="210" y1="150" x2="380" y2="160"/><line x1="210" y1="150" x2="90" y2="260"/><line x1="210" y1="150" x2="330" y2="260"/><line x1="210" y1="150" x2="210" y2="280"/>
+      </g>
+      <g style="fill:var(--soft);stroke:var(--accent-2)" stroke-width="2">
+        <circle cx="70" cy="50" r="22"/><circle cx="350" cy="50" r="22"/><circle cx="40" cy="160" r="22"/><circle cx="380" cy="160" r="22"/><circle cx="90" cy="260" r="22"/><circle cx="330" cy="260" r="22"/><circle cx="210" cy="280" r="18"/>
+      </g>
+      <g style="fill:var(--fg);font:600 11px Outfit,sans-serif" text-anchor="middle">
+        <text x="70" y="54">School</text><text x="350" y="54">School</text><text x="40" y="164">School</text><text x="380" y="164">School</text><text x="90" y="264">School</text><text x="330" y="264">School</text><text x="210" y="284">…19</text>
+      </g>
+      <circle cx="210" cy="150" r="56" style="fill:var(--accent)"/>
+      <text x="210" y="147" text-anchor="middle" style="fill:var(--accent-fg);font:700 18px Outfit,sans-serif">AI-SETU</text>
+      <text x="210" y="167" text-anchor="middle" style="fill:var(--accent-fg);font:500 11px Outfit,sans-serif">builds once</text>
+    </svg></div>
+    <ul class="bl">
+      <li><b>Syllabus:</b> outcomes and rubrics, built once, reviewed yearly</li>
+      <li><b>Assessment:</b> one central, tagged question bank for every School's MCQ checkpoints</li>
+      <li><b>Content:</b> student lecture notes, faculty slide decks and session plans</li>
+      <li><b>Conduct and moderation:</b> proctored MCQ windows; capstones moderated centrally</li>
+      <li><b>LMS:</b> the existing university LMS; no new platform</li>
+      <li><b>School interface:</b> one boot-camp-certified faculty member per School</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 20 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 8.2</p>
+  <h2>Teaching and Learning Methodology</h2>
+  <div class="legend" aria-hidden="true"><span><i class="c-l"></i>Interactive lecture 25%</span><span><i class="c-p"></i>Hands-on and group work 50%</span><span><i class="c-s"></i>Self-directed 25%</span></div>
+  <div class="track" style="height:22px;margin-bottom:16px" role="img" aria-label="25 percent lecture, 50 percent hands-on, 25 percent self-directed"><i class="c-l" style="width:25%"></i><i class="c-p" style="width:50%"></i><i class="c-s" style="width:25%"></i></div>
+  <div class="g4">
+    <div class="box"><h3>Interactive lecture with a hook</h3><p>Each session opens with a live AI success or failure.</p></div>
+    <div class="box"><h3>Demonstration</h3><p>One prompt run several times to show variance.</p></div>
+    <div class="box"><h3>Case and problem-based</h3><p>Real incidents of fabricated citations, data leaks and bias.</p></div>
+    <div class="box"><h3>Experiential learning</h3><p>The AI tribunal role play and predict-the-output exercises.</p></div>
+    <div class="box"><h3>Peer learning</h3><p>Think-pair-share and peer critique of prompts.</p></div>
+    <div class="box"><h3>Flipped classroom</h3><p>Pre-reads and videos on the LMS before Units I and IV.</p></div>
+    <div class="box"><h3>Project-based</h3><p>The capstone workflow, presented with a viva.</p></div>
+    <div class="box"><h3>Handbook rules</h3><p>Activity change every 7 minutes; facilitation-led at 90 to 10; exit ticket each session.</p></div>
+  </div>
+</section>
+
+<!-- 21 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Sections 8.3 and 10</p>
+  <h2>LMS Alignment; Monitoring, Evaluation and Feedback</h2>
+  <div class="g2">
+    <div class="box"><h3>On the LMS</h3><ul class="bl">
+      <li>Content published once, mirrored to all 19 School sections</li>
+      <li>MCQ checkpoints delivered and timed inside the LMS</li>
+      <li>Attendance and lab completion tracked automatically</li>
+      <li>Disclosure statement a required field on every submission</li>
+      <li>Faculty see their cohort; AI-SETU sees the university view</li></ul></div>
+    <div class="box"><h3>Monitoring and feedback</h3><ul class="bl">
+      <li>Baseline and exit skills check for prompting and verification gain</li>
+      <li>Semester-wise review to the Dean's office and Academic Council</li>
+      <li>Enrolment, completion and, from Year 2, revenue metrics</li>
+      <li>Mid-course pulse check while the course is still running</li>
+      <li>Dean and HOD feedback on each piloted Future Track</li></ul></div>
+  </div>
+</section>
+
+<!-- 22 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 9</p>
+  <h2>Industry Alignment</h2>
+  <div class="g3">
+    <div class="box"><span class="pill">Near term</span><p style="margin-top:8px">Cluster mapping validated with each School's Dean and HOD during Year 1.</p></div>
+    <div class="box"><span class="pill">Medium term</span><p style="margin-top:8px">Structured input from industry advisors per cluster: legal-tech, health-tech, creative AI.</p></div>
+    <div class="box"><span class="pill">Longer term</span><p style="margin-top:8px">A formal collaboration with a partner such as Microsoft or Xebia.</p></div>
+  </div>
+  <div class="g2" style="margin-top:14px">
+    <div class="box"><h3>Microsoft</h3><p>Microsoft Learn pathways (Azure AI Fundamentals, AI Business Professional), Generative AI for Beginners. <b>SGT would seek:</b> co-branded or recognised certification, curriculum alignment, guest sessions and cloud credits.</p></div>
+    <div class="box"><h3>Xebia</h3><p>Data and AI training, role-based upskilling, Microsoft Solutions Partner for training. <b>SGT would seek:</b> enterprise benchmarking, a certified trainer network, applied projects and internships.</p></div>
+  </div>
+  <p class="foot-note">Nothing in this proposal commits the university; neither partnership affects the Year 1 budget or team size.</p>
+</section>
+
+<!-- 23 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Sections 11 and 12</p>
+  <h2>Faculty Development Programme; University Benefit</h2>
+  <div class="g2">
+    <div class="box"><h3>AI-SETU certification boot camp</h3><ul class="bl">
+      <li>Required before any faculty member facilitates a lab session</li>
+      <li>Faculty from every discipline trained on how AI meets their subject</li>
+      <li>A short advanced track certifies co-teaching of domain sections</li>
+      <li>Built on the student material: no separate content cost</li>
+      <li>A facilitator pipeline ready before the Year 2 Future Track rollout</li></ul></div>
+    <div class="box hi"><h3>What the university gains</h3><ul class="bl">
+      <li>A low-cost, visible innovation for NAAC, NIRF and admissions</li>
+      <li>A future revenue stream with minimal upfront investment</li>
+      <li>Reach beyond the enrolled, on-campus student base</li>
+      <li>An evidence-backed case for industry and placement conversations</li>
+      <li>One AI-literacy standard for every graduate of every School</li></ul></div>
+  </div>
+</section>
+
+<!-- roadmap -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 12 · Figure 4</p>
+  <h2>Indicative Implementation Roadmap</h2>
+  <div class="gantt" role="img" aria-label="Phase 1 approvals and academic build, September to December 2026; Phase 2 faculty boot camp, November 2026 to January 2027; Phase 3 five-School pilot, January to May 2027; Phase 4 review and university-wide rollout, 2027-28; Phase 5 paid online offering, 2028">
+    <div class="g-axis"><span style="--x:0">Sep 26</span><span style="--x:3">Dec 26</span><span style="--x:6">Mar 27</span><span style="--x:9">Jun 27</span><span style="--x:12">Sep 27</span><span style="--x:15">Dec 27</span><span style="--x:18">Mar 28</span><span style="--x:21">Jun 28</span><span style="--x:24">Sep 28</span><span style="--x:27">Dec 28</span></div>
+    <div class="g-row"><span class="g-lab">Phase 1: Approvals and academic build</span><span class="g-track"><i style="--a:0;--b:4.3"></i><em style="--b:4.3">Syllabus, question bank, rubrics</em></span></div>
+    <div class="g-row"><span class="g-lab">Phase 2: Faculty certification boot camp</span><span class="g-track"><i style="--a:2.3;--b:4.3"></i><em style="--b:4.3">Before any lab session</em></span></div>
+    <div class="g-row"><span class="g-lab">Phase 3: Five-School pilot</span><span class="g-track"><i style="--a:4.3;--b:9"></i><em style="--b:9">Free of cost, Jan to May 2027</em></span></div>
+    <div class="g-row"><span class="g-lab">Phase 4: Review and university-wide rollout</span><span class="g-track"><i style="--a:10;--b:16"></i><em style="--b:16">All 19 Schools, 2027-28</em></span></div>
+    <div class="g-row"><span class="g-lab">Phase 5: Paid online offering</span><span class="g-track"><i class="gold" style="--a:16.5;--b:28"></i><em class="in" style="--b:28">Open to learners outside the campus</em></span></div>
+    <div class="g-pilot" style="--x:4.3"><span>Pilot begins, Jan 2027</span></div>
+  </div>
+</section>
+
+<!-- 24 -->
+<section class="slide tight" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Sections 13 and 14</p>
+  <h2>Infrastructure and Team</h2>
+  <div class="g2">
+    <div class="scroll-x"><table class="tbl">
+      <tr><th>Item</th><th>Requirement</th></tr>
+      <tr><td><b>Compute</b></td><td>One GPU-enabled desktop, held centrally, for demos and local-vs-hosted comparisons</td></tr>
+      <tr><td><b>Software</b></td><td>One approved generative AI licence with data-protection terms</td></tr>
+      <tr><td><b>Sandbox</b></td><td>Browser-based no-code environment</td></tr>
+      <tr><td><b>Platform</b></td><td>Existing university LMS</td></tr>
+      <tr><td><b>Space</b></td><td>One small existing room, repurposed as the AI centre of excellence</td></tr>
+      <tr><td><b>Laboratory</b></td><td>Timetabled slots in existing computer labs</td></tr>
+    </table></div>
+    <div class="scroll-x"><table class="tbl">
+      <tr><th>Role</th><th>No.</th><th>Source</th></tr>
+      <tr><td><b>Advisor, AI-SETU (Principal Investigator)</b></td><td>1</td><td>Appointment from existing faculty, for confirmation by the Vice-Chancellor's Office; owns syllabus, question bank, faculty slide decks, assessment cycle and moderation</td></tr>
+      <tr><td><b>Research Assistant and Content Producer</b></td><td>1</td><td>Existing staff or PG demonstrator on stipend; builds LMS content, administers MCQ windows, supports labs</td></tr>
+      <tr><td><b>School facilitators</b></td><td>1 per School</td><td>Nominated by Dean and HOD, boot-camp certified</td></tr>
+      <tr><td><b>Lab support</b></td><td>As timetabled</td><td>PG demonstrators from SOET AI and ML</td></tr>
+    </table></div>
+  </div>
+</section>
+
+<!-- 25 -->
+<section class="slide tight" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Sections 15 and 16</p>
+  <h2>Expenditure and Revenue Model</h2>
+  <div class="g2">
+    <div class="scroll-x"><table class="tbl">
+      <tr><th>Head</th><th>Type</th><th>Estimate</th></tr>
+      <tr><td><b>GPU-enabled desktop (one unit)</b></td><td>One-time</td><td>To be quoted by IT and vendor; the only capital item</td></tr>
+      <tr><td><b>Generative AI licence</b></td><td>Recurring, per seat</td><td>To be quoted by vendor, with data-protection terms</td></tr>
+      <tr><td><b>RA and Content Producer stipend</b></td><td>Recurring, per semester</td><td>As per existing stipend norms</td></tr>
+      <tr><td><b>Content, LMS set-up, boot camp</b></td><td>One-time</td><td>Within existing workload</td></tr>
+      <tr><td><b>Space</b></td><td>One-time</td><td>Existing space repurposed</td></tr>
+      <tr><td><b>Laboratory access</b></td><td>Nil</td><td>Existing laboratories, timetabled</td></tr>
+    </table></div>
+    <div class="box"><h3>Revenue model</h3><ul class="bl">
+      <li><b>Year 1:</b> free of cost, beginning with the January 2027 pilot</li>
+      <li><b>End of Year 1:</b> enrolment, completion and feedback data reviewed to decide pricing, format and scale</li>
+      <li><b>Year 2:</b> paid online model, open to learners inside and outside the university</li>
+      <li><b>In parallel:</b> Future Track sections priced and marketed separately as demand by discipline becomes clear</li></ul></div>
+  </div>
+</section>
+
+<!-- 26 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 17</p>
+  <h2>Risks and Mitigation</h2>
+  <div class="scroll-x"><table class="tbl">
+    <tr><th>Risk</th><th>Likelihood / impact</th><th>Mitigation</th></tr>
+    <tr><td><b>Faculty readiness lags rollout</b></td><td>Medium / high</td><td>Mandatory boot camp; central ready-to-teach kit</td></tr>
+    <tr><td><b>Content dated by tool evolution</b></td><td>High / medium</td><td>Annual refresh; proposed industry benchmarking</td></tr>
+    <tr><td><b>Overlap with regulator-prescribed courses</b></td><td>Low / medium</td><td>Future Track embedded inside existing informatics courses</td></tr>
+    <tr><td><b>Low initial engagement</b></td><td>Medium / medium</td><td>Free Year 1, pilot-first, mid-course pulse feedback</td></tr>
+    <tr><td><b>Data-protection risk in labs</b></td><td>Low / high</td><td>Non-personal lab data; approved tool; red-category prohibition</td></tr>
+    <tr><td><b>Dependence on a small core team</b></td><td>Medium / medium</td><td>Hub-and-spoke; two trained people per School</td></tr>
+    <tr><td><b>Loss of School autonomy</b></td><td>Low / medium</td><td>Part B wholly School-owned; centre owns only what must be identical</td></tr>
+  </table></div>
+</section>
+
+<!-- 27 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Section 18</p>
+  <h2>Approval Requested</h2>
+  <ol class="ask">
+    <li>Introduce AI Foundations (2 credits, 1-0-1, 45 hours) free, with continuous assessment, for 19 Schools from the January 2027 pilot</li>
+    <li>Approve the 1-credit Future Track, finalised with each School's Dean and HOD</li>
+    <li>Authorise AI-SETU to own syllabus, notes, decks, question bank, MCQ windows and moderation on the LMS</li>
+    <li>Procure one central GPU-enabled desktop and one classroom AI licence within existing norms</li>
+    <li>Repurpose one small existing room as the unit's base and the AI centre of excellence</li>
+    <li>Approve a mandatory AI-SETU faculty certification boot camp before the pilot</li>
+    <li>Appoint the Director of AI-SETU as PI from existing faculty, with a Year 1 core team of two</li>
+    <li>Note the intent to move to a paid online model and explore Microsoft or Xebia from Year 2, subject to review</li>
+  </ol>
+</section>
+
+<!-- 28 -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <h2>References</h2>
+  <ul class="bl" style="font-size:.92rem">
+    <li>University Grants Commission, Curriculum and Credit Framework for Undergraduate Programmes (2022)</li>
+    <li>UNESCO, AI Competency Framework for Students (2024)</li>
+    <li>MeitY, India AI Governance Guidelines (2025)</li>
+    <li>ICMR, Ethical Guidelines for Application of AI in Biomedical Research and Healthcare (2023)</li>
+    <li>Bastani et al., Generative AI can harm learning, PNAS (2025)</li>
+    <li>Walters and Wilder, Fabrication and errors in the bibliographic citations generated by ChatGPT, Scientific Reports (2023)</li>
+    <li>IIT Madras, Prompt Engineering course, SWAYAM Plus (45 hours: 30 theory, 15 practical)</li>
+    <li>Microsoft Learn: Azure AI Fundamentals, AI Business Professional; Generative AI for Beginners</li>
+    <li>Xebia Academy: Data and AI, Introduction to Generative AI; Xebia, Microsoft Solutions Partner for Training Services</li>
+  </ul>
+  </section>
+<!-- playground -->
+<section class="slide" aria-roledescription="slide">
+  <div class="s-head" aria-hidden="true"><span class="logo"></span><span>AI-SETU · AI Foundations</span></div>
+  <p class="lab">Unit I · CLO2</p>
+  <h2>Demonstration: Next-Word Prediction</h2>
+  <div class="pg">
+    <div>
+      <p class="pg-prompt">Every student will learn to use AI <span class="pg-out" id="pgOut">____</span></p>
+      <div class="pg-bars" id="pgBars" role="list" aria-label="Probability of each candidate next word"><div class="pg-row" data-w="responsibly"><span>responsibly</span><span class="tr"><i style="--w:1.000"></i></span><span class="pc">37.7%</span></div><div class="pg-row" data-w="effectively"><span>effectively</span><span class="tr"><i style="--w:0.741"></i></span><span class="pc">27.9%</span></div><div class="pg-row" data-w="wisely"><span>wisely</span><span class="tr"><i style="--w:0.449"></i></span><span class="pc">16.9%</span></div><div class="pg-row" data-w="daily"><span>daily</span><span class="tr"><i style="--w:0.223"></i></span><span class="pc">8.4%</span></div><div class="pg-row" data-w="creatively"><span>creatively</span><span class="tr"><i style="--w:0.165"></i></span><span class="pc">6.2%</span></div><div class="pg-row bad" data-w="blindly"><span>blindly</span><span class="tr"><i style="--w:0.055"></i></span><span class="pc">2.1%</span></div><div class="pg-row bad" data-w="backwards"><span>backwards</span><span class="tr"><i style="--w:0.022"></i></span><span class="pc">0.8%</span></div></div>
+      <div class="pg-ctl"><label for="pgT">Temperature <b id="pgTv">1.0</b></label><input type="range" id="pgT" min="0.1" max="3" step="0.1" value="1"></div>
+      <div class="pg-btns"><button class="mini pri" type="button" id="pgGen">Generate next word</button><button class="mini" type="button" id="pgRun">Generate 20</button><button class="mini" type="button" id="pgReset">Reset</button></div>
+    </div>
+    <div class="box">
+      <div class="bh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><h3>Samples</h3></div>
+      <div class="pg-hist" id="pgHist" aria-live="polite"></div>
+      <p class="pg-stat" id="pgStat">No samples generated.</p>
+      <ul class="lines" style="margin-top:10px">
+        <li>The model scores every candidate word and converts the scores into probabilities.</li>
+        <li>Low temperature concentrates probability on the top word: consistent, predictable output.</li>
+        <li>High temperature flattens the distribution: varied output, including unsuitable words.</li>
+        <li>Fluent output is not evidence of correctness; it must be verified.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div></div>
+</main>
+
+<div class="dock" id="dock" role="group" aria-label="Slide controls">
+  <button class="dbtn" type="button" id="prev" aria-label="Previous slide">‹ Prev</button>
+  <span class="dcount" id="count">1 / 30</span>
+  <span class="dmeter" aria-hidden="true"><span id="bar"></span></span>
+  <button class="dbtn pri" type="button" id="next" aria-label="Next slide">Next ›</button>
+  <button class="dbtn" type="button" id="fs" aria-label="Full screen">⛶</button>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var root=document.documentElement;
+  var KP=window.KP=window.KP||{};
+  var RM=matchMedia('(prefers-reduced-motion: reduce)');
+  KP.reduced=function(){return RM.matches;};
+
+  /* -- MODULE: STORE (persistent, safe: falls back to memory when storage is blocked) -- */
+  var mem={};
+  var pk=function(k,g){return 'kp:'+(g?'':root.dataset.page+':')+k;};
+  KP.store={
+    get:function(k,g){
+      try{var v=localStorage.getItem(pk(k,g));if(v!==null)return v;}catch(e){}
+      return Object.prototype.hasOwnProperty.call(mem,pk(k,g))?mem[pk(k,g)]:null;
+    },
+    set:function(k,v,g){mem[pk(k,g)]=String(v);try{localStorage.setItem(pk(k,g),String(v));}catch(e){}},
+    remove:function(k,g){delete mem[pk(k,g)];try{localStorage.removeItem(pk(k,g));}catch(e){}}
+  };
+
+  /* -- MODULE: THEME TOGGLE -- */
+  var btn=document.getElementById('themeToggle');
+  var mq=matchMedia('(prefers-color-scheme: dark)');
+  function isDark(){return root.dataset.theme?root.dataset.theme==='dark':mq.matches;}
+  function paintToggle(){
+    var d=isDark();
+    if(btn){btn.textContent=d?'☀️':'🌙';btn.setAttribute('aria-label',d?'Switch to light theme':'Switch to dark theme');}
+    var m=document.getElementById('themeColor'),bg=getComputedStyle(root).getPropertyValue('--bg').trim();
+    if(m&&bg)m.setAttribute('content',bg);
+  }
+  var saved=KP.store.get('theme',true);
+  if(saved==='light'||saved==='dark')root.dataset.theme=saved;
+  if(btn)btn.addEventListener('click',function(){
+    var next=isDark()?'light':'dark';root.dataset.theme=next;KP.store.set('theme',next,true);paintToggle();
+  });
+  if(mq.addEventListener)mq.addEventListener('change',paintToggle);
+  paintToggle();
+
+
+  /* -- DECK: presentation mode on wide screens, stacked cards otherwise (and with JS off) -- */
+  try{
+    var slides=[].slice.call(document.querySelectorAll('.slide')),N=slides.length,cur=0;
+    var box=document.getElementById('stageBox'),stage=document.getElementById('stage');
+    var cnt=document.getElementById('count'),bar=document.getElementById('bar');
+    var wide=matchMedia('(min-width:700px) and (min-height:420px)');
+    slides.forEach(function(s,i){
+      s.id='s'+(i+1);s.setAttribute('aria-label',(i+1)+' of '+N);
+      var n=document.createElement('span');n.className='sn';n.setAttribute('aria-hidden','true');n.textContent=(i+1)+' / '+N;s.appendChild(n);
+    });
+    function fit(){
+      if(!root.classList.contains('present')){box.style.width=box.style.height='';stage.style.transform='';return;}
+      var navH=document.querySelector('.nav').offsetHeight,dockH=document.getElementById('dock').offsetHeight;
+      var cs=getComputedStyle(document.body);
+      var aw=document.documentElement.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+      var ah=innerHeight-navH-dockH-24;
+      var k=Math.max(.2,Math.min(aw/1280,ah/720));
+      stage.style.transform='scale('+k+')';box.style.width=(1280*k)+'px';box.style.height=(720*k)+'px';
+    }
+    function show(i,push){
+      cur=Math.max(0,Math.min(N-1,i));
+      slides.forEach(function(s,j){var on=j===cur;s.classList.toggle('on',on);
+        if(root.classList.contains('present'))s.setAttribute('aria-hidden',String(!on));else s.removeAttribute('aria-hidden');});
+      cnt.textContent=(cur+1)+' / '+N;bar.style.setProperty('--p',(cur+1)/N);
+      document.getElementById('prev').disabled=cur===0;document.getElementById('next').disabled=cur===N-1;
+      if(push!==false){try{history.replaceState(null,'','#s'+(cur+1));}catch(e){}}
+      try{document.dispatchEvent(new CustomEvent('kp:slide',{detail:cur}));}catch(e){}
+    }
+    function mode(){
+      root.classList.toggle('present',wide.matches);
+      document.body.style.paddingTop='';
+      fit();show(cur,false);
+    }
+    var h=parseInt((location.hash||'').replace('#s',''),10);if(h>=1&&h<=N)cur=h-1;
+    document.getElementById('prev').addEventListener('click',function(){show(cur-1);});
+    document.getElementById('next').addEventListener('click',function(){show(cur+1);});
+    var fsb=document.getElementById('fs');
+    if(!document.documentElement.requestFullscreen)fsb.hidden=true;
+    fsb.addEventListener('click',function(){
+      try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(function(){});}catch(e){}
+    });
+    document.addEventListener('keydown',function(e){
+      if(!root.classList.contains('present'))return;
+      var t=e.target&&e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||(t==='BUTTON'&&(e.key===' '||e.key==='Enter')))return;
+      if(['ArrowRight','PageDown',' '].indexOf(e.key)>-1){e.preventDefault();show(cur+1);}
+      else if(['ArrowLeft','PageUp'].indexOf(e.key)>-1){e.preventDefault();show(cur-1);}
+      else if(e.key==='Home'){e.preventDefault();show(0);}
+      else if(e.key==='End'){e.preventDefault();show(N-1);}
+    });
+    if(wide.addEventListener)wide.addEventListener('change',mode);
+    addEventListener('resize',fit);document.addEventListener('fullscreenchange',function(){setTimeout(fit,60);});
+    mode();
+  }catch(e){}
+
+
+  /* -- COUNT-UP on the active slide -- */
+  try{
+    document.addEventListener('kp:slide',function(e){
+      var sl=document.querySelectorAll('.slide')[e.detail];if(!sl||!root.classList.contains('present'))return;
+      sl.querySelectorAll('[data-count]').forEach(function(el){
+        var to=+el.dataset.count;if(RM.matches){el.textContent=to;return;}
+        var t0=performance.now();(function st(n){var p=Math.min((n-t0)/900,1);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(st);})(t0);
+        setTimeout(function(){el.textContent=to;},1000);
+      });
+    });
+  }catch(e){}
+
+  /* -- TITLE: neural-network animation (pauses off-slide, honours reduced motion + Pause) -- */
+  try{(function(){
+    var cv=document.getElementById('netCanvas');if(!cv||!cv.getContext)return;
+    var cx=cv.getContext('2d'),L=[4,6,6,3],IN=['Role','Context','Task','Format'],OUT=['Verified','Wrong','Fabricated'];
+    var nodes=[],pulses=[],W=0,H=0,paused=false,raf=0,last=0,nextWave=0,col={};
+    var titleSlide=cv.closest('.slide'),btnP=document.getElementById('netPause'),btnS=document.getElementById('netSend');
+    function colors(){var c=getComputedStyle(root);['--accent','--accent-2','--line','--card','--fg','--muted','--ok','--bad','--warn'].forEach(function(k){col[k]=c.getPropertyValue(k).trim();});
+      var dk=root.getAttribute('data-theme')==='dark'||(root.getAttribute('data-theme')!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);
+      col.out=dk?['#4ade80','#fbbf24','#f87171']:['#16a34a','#d97706','#dc2626'];}
+    function size(){
+      var w=cv.offsetWidth,h=cv.offsetHeight,d=Math.min(devicePixelRatio||1,2)*(root.classList.contains('present')?1.4:1);
+      if(!w||!h)return;W=w;H=h;cv.width=w*d;cv.height=h*d;cx.setTransform(d,0,0,d,0,0);
+      nodes=[];var pl=78,pr=104;
+      L.forEach(function(n,l){for(var i=0;i<n;i++)nodes.push({l:l,i:i,x:pl+(W-pl-pr)*l/(L.length-1),y:H*(i+1)/(n+1),a:0,hit:0});});
+    }
+    function layer(l){return nodes.filter(function(n){return n.l===l;});}
+    function fire(n){
+      n.a=1;if(n.l>=L.length-1){n.hit=1;return;}
+      var nx=layer(n.l+1),k=n.l===L.length-2?1:2;
+      for(var j=0;j<k;j++){var m=n.l===L.length-2?(Math.random()<.7?nx[0]:nx[1+(Math.random()*2|0)]):nx[Math.random()*nx.length|0];pulses.push({a:n,b:m,t:0});}
+    }
+    function wave(){layer(0).forEach(function(n,i){setTimeout(function(){fire(n);},i*90);});}
+    function draw(){
+      cx.clearRect(0,0,W,H);
+      cx.lineWidth=1;cx.strokeStyle=col['--line'];cx.globalAlpha=.8;
+      nodes.forEach(function(n){if(n.l===L.length-1)return;layer(n.l+1).forEach(function(m){cx.beginPath();cx.moveTo(n.x,n.y);cx.lineTo(m.x,m.y);cx.stroke();});});
+      cx.globalAlpha=1;
+      pulses.forEach(function(p){var x=p.a.x+(p.b.x-p.a.x)*p.t,y=p.a.y+(p.b.y-p.a.y)*p.t;
+        var fin=p.b.l===L.length-1,pc=fin?col.out[p.b.i]:null;
+        cx.strokeStyle=pc||col['--accent'];cx.lineWidth=2;cx.beginPath();cx.moveTo(p.a.x,p.a.y);cx.lineTo(x,y);cx.stroke();
+        cx.fillStyle=pc||col['--accent-2'];cx.beginPath();cx.arc(x,y,4,0,6.3);cx.fill();});
+      nodes.forEach(function(n){
+        var r=n.l===0||n.l===L.length-1?10:8,isOut=n.l===L.length-1,oc=isOut?col.out[n.i]:col['--accent'];
+        cx.fillStyle=col['--card'];cx.strokeStyle=isOut&&n.hit?oc:col['--accent'];cx.lineWidth=2;cx.beginPath();cx.arc(n.x,n.y,r,0,6.3);cx.fill();cx.stroke();
+        if(isOut&&n.hit){cx.fillStyle=oc;cx.globalAlpha=.85;cx.beginPath();cx.arc(n.x,n.y,r-2,0,6.3);cx.fill();cx.globalAlpha=1;}
+        if(n.a>0.02){cx.globalAlpha=n.a;
+          cx.fillStyle=oc;cx.beginPath();cx.arc(n.x,n.y,r-2,0,6.3);cx.fill();
+          cx.globalAlpha=n.a*.35;cx.beginPath();cx.arc(n.x,n.y,r+7*n.a,0,6.3);cx.fill();cx.globalAlpha=1;}
+      });
+      cx.font='600 13px Outfit,system-ui,sans-serif';cx.fillStyle=col['--fg'];
+      cx.textAlign='right';layer(0).forEach(function(n,i){cx.fillText(IN[i],n.x-16,n.y+4);});
+      cx.textAlign='left';layer(L.length-1).forEach(function(n,i){cx.fillStyle=n.hit?col.out[i]:col['--fg'];cx.fillText(OUT[i],n.x+16,n.y+4);});
+    }
+    function step(t){
+      var dt=Math.min(t-last,50);last=t;
+      pulses.forEach(function(p){p.t+=dt/650;});
+      pulses=pulses.filter(function(p){if(p.t>=1){fire(p.b);return false;}return true;});
+      nodes.forEach(function(n){n.a*=Math.pow(.9985,dt);});
+      if(t>nextWave){wave();nextWave=t+2600;}
+      draw();
+      raf=active()?requestAnimationFrame(step):0;
+    }
+    function active(){
+      if(paused||RM.matches||document.hidden)return false;
+      return root.classList.contains('present')?titleSlide.classList.contains('on'):vis;
+    }
+    function kick(){colors();if(!W)size();if(!raf&&active()){last=performance.now();nextWave=last+400;raf=requestAnimationFrame(step);}else if(!active()){draw();}}
+    var vis=true;
+    if('IntersectionObserver' in window){new IntersectionObserver(function(es){vis=es[0].isIntersecting;kick();}).observe(cv);}
+    function staticFrame(){nodes.forEach(function(n){n.a=n.l===L.length-1?(n.i===0?.9:.25):.5;if(n.l===L.length-1)n.hit=active()?0:1;});draw();}
+    addEventListener('resize',function(){size();colors();if(!raf)staticFrame();});
+    document.addEventListener('kp:slide',function(){setTimeout(function(){size();kick();},30);});
+    document.addEventListener('visibilitychange',kick);
+    new MutationObserver(function(){colors();if(!raf)draw();}).observe(root,{attributes:true,attributeFilter:['data-theme']});
+    btnP.addEventListener('click',function(){paused=!paused;btnP.setAttribute('aria-pressed',String(paused));btnP.textContent=paused?'Play':'Pause';if(!paused)kick();});
+    btnS.addEventListener('click',function(){if(RM.matches||paused){staticFrame();return;}wave();kick();});
+    if(RM.matches)btnP.hidden=true;
+    size();colors();staticFrame();kick();
+  })();}catch(e){}
+
+  /* -- PLAYGROUND: temperature and sampling (memory only) -- */
+  try{(function(){
+    var W=[['responsibly',3.2,0],['effectively',2.9,0],['wisely',2.4,0],['daily',1.7,0],['creatively',1.4,0],['blindly',0.3,1],['backwards',-0.6,1]];
+    var rows=[].slice.call(document.querySelectorAll('.pg-row')),T=document.getElementById('pgT'),Tv=document.getElementById('pgTv');
+    var out=document.getElementById('pgOut'),hist=document.getElementById('pgHist'),stat=document.getElementById('pgStat');
+    if(!T)return;var P=[],n=0,badN=0,timer=0;
+    function probs(){var t=+T.value,e=W.map(function(w){return Math.exp(w[1]/t);}),s=e.reduce(function(a,b){return a+b;},0);P=e.map(function(v){return v/s;});
+      var mx=Math.max.apply(null,P);rows.forEach(function(r,i){r.querySelector('i').style.setProperty('--w',(P[i]/mx).toFixed(3));r.querySelector('.pc').textContent=(P[i]*100).toFixed(1)+'%';});
+      Tv.textContent=(+T.value).toFixed(1);}
+    function sample(){
+      var r=Math.random(),c=0,k=0;for(;k<P.length;k++){c+=P[k];if(r<=c)break;}k=Math.min(k,P.length-1);
+      n++;if(W[k][2])badN++;
+      out.textContent=W[k][0];out.classList.remove('pop');void out.offsetWidth;out.classList.add('pop');
+      rows.forEach(function(r){r.classList.remove('hit');});rows[k].classList.add('hit');
+      var chip=document.createElement('span');chip.textContent=W[k][0];if(W[k][2])chip.className='bad';hist.insertBefore(chip,hist.firstChild);
+      while(hist.children.length>8)hist.removeChild(hist.lastChild);
+      stat.textContent='Unsuitable words: '+badN+' of '+n+' samples ('+Math.round(badN/n*100)+'%) at temperature '+(+T.value).toFixed(1)+'.';
+    }
+    T.addEventListener('input',probs);
+    document.getElementById('pgGen').addEventListener('click',sample);
+    document.getElementById('pgRun').addEventListener('click',function(){
+      clearInterval(timer);if(RM.matches){for(var i=0;i<20;i++)sample();return;}
+      var i=0;timer=setInterval(function(){sample();if(++i>=20)clearInterval(timer);},90);});
+    document.getElementById('pgReset').addEventListener('click',function(){clearInterval(timer);n=0;badN=0;hist.textContent='';out.textContent='____';stat.textContent='No samples generated.';rows.forEach(function(r){r.classList.remove('hit');});});
+    probs();
+  })();}catch(e){}
+
+  /* -- MODULE: PERF GUARD -- */
+  (function(){
+    var last=performance.now(),slow=0,n=0;
+    (function tick(t){
+      var dt=t-last;last=t;
+      if(dt>34&&++slow>12)root.dataset.perf='low';
+      if(++n<240&&!root.dataset.perf)requestAnimationFrame(tick);
+    })(last);
+  })();
+})();
+</script>
+</body>
+</html>
